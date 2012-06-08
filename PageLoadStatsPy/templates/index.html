@@ -1,0 +1,23 @@
+{% extends "ramon/base.html" %}
+{% block header %} 
+	<script type="text/javascript" src="/static/swfobject.js"></script>
+    <script type="text/javascript">
+    	swfobject.embedSWF(
+    	  "/static/open-flash-chart.swf", "chart_target",
+    	  "820", "400", "9.0.0", "/static/expressInstall.swf",
+    	  {"data-file":"/ramon/chart_data/{{ target_id }}"} );
+    </script>
+{% endblock%}
+
+{% block content %}
+{% if latest_target_data %}
+    <ul>
+		<h3>Tracked Targets</h3>
+		{% for target in latest_target_data %}
+			<li>{{ target.name }}  |  <a href="/ramon/chart/{{target.id}}">view chart</a>  |  <a href="/ramon/check/{{target.id}}">check now</a></li>
+		{% endfor %}
+    </ul>
+{% else %}
+    <p>No targets are available.</p>
+{% endif %}
+{% endblock %}

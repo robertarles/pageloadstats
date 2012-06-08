@@ -1,0 +1,16 @@
+{% extends "ramon/base.html" %}
+{% block header %} 
+	<script type="text/javascript" src="/static/swfobject.js"></script>
+    <script type="text/javascript">
+    	swfobject.embedSWF(
+    	  "/static/open-flash-chart.swf", "chart_target",
+    	  "820", "400", "9.0.0", "/static/expressInstall.swf",
+    	  {"data-file":"/ramon/chart_data/{{ target_id }}"} );
+    </script>
+{% endblock%}
+
+
+{% block content %}
+  <h3>Monitor Data for {{ target_id }}</h3>
+  <div class="chart" id="chart_target"></div>
+{% endblock %}
