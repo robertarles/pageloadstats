@@ -6,7 +6,7 @@ from pyofc2  import *
 import time
 
 def target_list(request):
-    latest_target_data = Target.objects.filter(active=1).order_by('id')[:5]
+    latest_target_data = Target.objects.filter(active=1).order_by('id')[:50]
     t = loader.get_template('pageloadstats/index.html')
     c = Context({
                  'latest_target_data': latest_target_data,
@@ -23,15 +23,15 @@ def chart(request, target_id):
 def chart_data(request, target_id):
     t = title(text=time.strftime('%a %Y %b %d') + " for Target ID:" + target_id )
     largest_load_time = 100
-    stats = Stat.objects.filter(target_id=target_id)[:50]
+    stats = Stat.objects.filter(target_id=target_id).order_by("url")[:50]
     load_times_values = []
     elapsed_times_values = []
     for stat in stats:
-        load_times_values.append(stat.load_time)
-        if(hasattr(stat, 'elapsed_time')):
-            elapsed_times_values.append(stat.elapsed_time)
-        if(stat.load_time > largest_load_time):
-            largest_load_time = stat.load_time
+        load_times_values.append(stat.page_load_time)
+        if(hasattr(stat, 'elapsed')):
+            elapsed_times_values.append(stat.elapsed)
+        if(stat.page_load_time > largest_load_time):
+            largest_load_time = stat.page_load_time
             
     load_times_line = line()
     load_times_line.values = load_times_values
