@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="/static/css/base.css"/>
     <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css"/>
     <link rel="javascript" href="/static/bootstrap/js/bootstrap.min.js"/>
-    <title>{% block title %}RaMon{% endblock %}</title>
+    <title>{% block title %}PageLoadStats{% endblock %}</title>
     {% block header %} {% endblock%}
 </head>
 
@@ -14,7 +14,7 @@
 		<div class="row-fluid">
 			<header>
 				<div class="span1">&nbsp;</div>
-				<div class="span11"><h1  class="jumbotron">RaMon</h1></div>
+				<div class="span11"><h1  class="jumbotron">PageLoadStats</h1></div>
 			</header>
 		</div>
 		<div class="row-fluid">
@@ -22,8 +22,9 @@
 				{% block sidebar %}
 				<ul class="menu">
 					<h3>Menu</h3>
-					<li><a href="/ramon/target">targets</a></li>
-					<li><a href="/ramon/check/all">check all</a></li>
+                    <li><a href="/pls/">home</a></li>
+                    <li><a href="/pls/targets">targets</a></li>
+					<li><a href="/pls/check/all">check all</a></li>
 				</ul>
 				{% endblock %}
 			</div>

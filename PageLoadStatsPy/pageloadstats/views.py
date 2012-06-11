@@ -7,14 +7,14 @@ import time
 
 def target_list(request):
     latest_target_data = Target.objects.filter(active=1).order_by('id')[:50]
-    t = loader.get_template('pageloadstats/index.html')
+    t = loader.get_template('index.html')
     c = Context({
                  'latest_target_data': latest_target_data,
     })
     return HttpResponse(t.render(c))
 
 def chart(request, target_id):
-    t = loader.get_template('pageloadstats/chart.html')
+    t = loader.get_template('chart.html')
     c = Context({
         'target_id': target_id,
     })
@@ -53,12 +53,18 @@ def chart_data(request, target_id):
     chart.y_axis = y
     return HttpResponse(chart.render())
     
-
+##
+# This function calls getCheckOutput.  (TODO: Why is it merely a proxy for getCheckOutput()? and why did it need the request object?)
+# @param request the http request
+# @param target_id the target id to check stats on (an ID or 'all' to check them ALL!)
 def check(request, target_id):
     check_output = getCheckOutput(target_id)
     return HttpResponse(check_output, mimetype = "application/json")    
+
     
-    
+##
+# Get the stats for the requested target (or 'all' targets)
+# @param target_id the ID of the target to check, or 'all' to check them all.
 def getCheckOutput(target_id):
     retVal = "{"
     targets = None
@@ -76,7 +82,7 @@ def getCheckOutput(target_id):
             response = urllib2.urlopen(request)
             endTime = time.time()
             loadTime = int((endTime-startTime)*1000) # get the download time in milliseconds        
-            s = Stat(url=target.url, target_id=target.id,elapsed=0,elapsed2=0,result_count=0,query_time=0,timestamp=startTime, load_time=loadTime, http_status=str(status))
+            s = Stat(url=target.url, target_id=target.id,elapsed=0,elapsed2=0,result_count=0,query_time=0,timestamp=startTime, page_load_time=loadTime, http_status=str(status))
             s.save()
         
             retVal += "{'id':'" + target.url + "', 'load_time':'" + str(loadTime) + "', 'http_status':'" + str(status)+"'},"
