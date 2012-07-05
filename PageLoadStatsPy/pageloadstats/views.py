@@ -1,5 +1,6 @@
 from django.template import Context, loader
 from PageLoadStatsPy.pageloadstats.models import Target, Alert, Stat
+from PageLoadStatsPy.pageloadstats.charts import Pls_Chart
 from django.http import HttpResponse
 import urllib2
 from pyofc2 import *
@@ -23,6 +24,8 @@ def chart(request, target_id):
     return HttpResponse(t.render(c))    
 
 def chart_data(request, target_id):
+    pls_chart = Pls_Chart("http://robert.arles.us?some=someval&other=otherVal&booyah=argh")
+    pls_chart.init_param_vars()
     t = title(text=time.strftime('%a %Y %b %d') + " for Target ID:" + target_id )
     largest_load_time = 100
     stats = Stat.objects.filter(target_id=target_id).order_by("-timestamp")[:100]
