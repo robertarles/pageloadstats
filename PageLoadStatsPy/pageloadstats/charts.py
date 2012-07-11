@@ -1,3 +1,5 @@
+
+
 class Pls_Chart(object):
 	
 	def __init__(self, url):
@@ -6,7 +8,7 @@ class Pls_Chart(object):
 	def print_args(self):
 		print self.url
 	
-		
+	## get a list of url parameters
 	def init_param_vars(self):
 		param_string = self.url.split("?")[1]
 		param_array = param_string.split("&")

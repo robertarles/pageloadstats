@@ -26,40 +26,71 @@ def chart(request, target_id):
 def chart_data(request, target_id):
     pls_chart = Pls_Chart("http://robert.arles.us?some=someval&other=otherVal&booyah=argh")
     pls_chart.init_param_vars()
-    t = title(text=time.strftime('%a %Y %b %d') + " for Target ID:" + target_id )
+    t = title(text=time.strftime('%a %Y %b %d') + " for Target ID:" + target_id + " Name: " )
     largest_load_time = 100
-    stats = Stat.objects.filter(target_id=target_id).order_by("-timestamp")[:100]
-    stats.reverse() # stats need to be placed on the chart from oldest to newest to get the timeline right
+    stats = Stat.objects.filter(target_id=target_id).order_by("-timestamp")[:50] # get the latest
+    stats = reversed(stats) # latest stats need to be placed on the chart from oldest to newest to get the timeline right
     
     load_times_values = []
     elapsed_times_values = []
+    load_time_request_dates = []
     for stat in stats:
         load_times_values.append(stat.page_load_time)
-        if(hasattr(stat, 'elapsed')):
-            elapsed_times_values.append(stat.elapsed)
+        load_time_request_dates.append(stat.request_date)
+        if(hasattr(stat, 'elapsed') and stat.elapsed!=None):
+            elapsed_times_values.append(int(stat.elapsed))   
+        if(hasattr(stat, 'query_time') and stat.query_time!=None):
+            elapsed_times_values.append(int(stat.query_time))    
         if(stat.page_load_time > largest_load_time):
             largest_load_time = stat.page_load_time
-            
+
+    ## create a load time line
     load_times_line = line()
-    load_times_line.values = load_times_values
+    load_times_rich = []
+    for load_time in load_times_values:
+        txt = "load(#val#ms)"
+        tmp = dot_value(value=load_time, tip=txt)
+        load_times_rich.append(tmp)
+    load_times_line.values = load_times_rich    
     load_average = sum(load_times_values) / len(load_times_values)
     load_times_line.text = "load("+str(load_average)+")"
 
+    ##  
+    # Create an elapsed time line
     elapsed_times_line = line()
-    elapsed_times_line.values = elapsed_times_values
+    elapsed_times_rich = []
+    for elapsed_time in elapsed_times_values:
+        txt = "elapsed(#val#ms)"
+        tmp = dot_value(value=elapsed_time, tip=txt)
+        elapsed_times_rich.append(tmp)
+    elapsed_times_line.values = elapsed_times_rich
+    elapsed_average = 0
+    if(len(elapsed_times_values) >0):
+        elapsed_average = sum(elapsed_times_values) / len(elapsed_times_values)
     elapsed_times_line.colour = '#458B74'
-    elapsed_times_line.text = "elapsed"
+    elapsed_times_line.text = "elapsed("+str(elapsed_average)+")"
     
+    ##  
+    # setup the y axis
     y_axis_step_size = largest_load_time / 5
     y = y_axis()
     y.min, y.max, y.steps = 0, largest_load_time, y_axis_step_size
     
-    
+    ##
+    # setup the x axis
+    x = x_axis()
+    x_axis_step_size = len(load_time_request_dates)/15
+    xlabels = x_axis_labels(steps=x_axis_step_size, rotate='vertical')
+    xlabels.labels = load_time_request_dates
+    x.labels = xlabels
+    ##  
+    # setup the chart object
     chart = open_flash_chart()
     chart.title = t
     chart.add_element(load_times_line)
     chart.add_element(elapsed_times_line)
     chart.y_axis = y
+    chart.x_axis = x
     return HttpResponse(chart.render())
     
 ##
