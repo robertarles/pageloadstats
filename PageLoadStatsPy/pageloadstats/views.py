@@ -1,15 +1,15 @@
 from django.template import Context, loader
 from PageLoadStatsPy.pageloadstats.models import Target, Alert, Stat
 from PageLoadStatsPy.pageloadstats.charts import Pls_Chart
+from pyofc2 import *
 from django.http import HttpResponse
 import urllib2
-from pyofc2 import *
 import time
 
 cs_comment_tags = ["request id:", "tag:","server:", "elapsed:", "elapsed2:"]
 
 def target_list(request):
-    latest_target_data = Target.objects.filter(active=1).order_by('id')[:50]
+    latest_target_data = Target.objects.filter(active=1).order_by('name')[:50]
     t = loader.get_template('index.html')
     c = Context({
                  'latest_target_data': latest_target_data,
@@ -23,75 +23,77 @@ def chart(request, target_id):
     })
     return HttpResponse(t.render(c))    
 
+##
+# Return the html/javascript vars required to generate a SINGLE TARGET Open Flash Chart
+##
 def chart_data(request, target_id):
-    pls_chart = Pls_Chart("http://robert.arles.us?some=someval&other=otherVal&booyah=argh")
-    pls_chart.init_param_vars()
-    t = title(text=time.strftime('%a %Y %b %d') + " for Target ID:" + target_id + " Name: " )
+    #pls_chart = Pls_Chart("http://robert.arles.us?some=someval&other=otherVal&booyah=argh")
+    #pls_chart.init_param_vars()
+    t = title(text=time.strftime( '%a %Y %b %d') + " for Target ID:" + target_id + " Name: " )
     largest_load_time = 100
-    stats = Stat.objects.filter(target_id=target_id).order_by("-timestamp")[:50] # get the latest
+    stats = Stat.objects.filter(target_id=target_id).order_by("-timestamp")[:100] # get the latest
     stats = reversed(stats) # latest stats need to be placed on the chart from oldest to newest to get the timeline right
     
     load_times_values = []
     elapsed_times_values = []
+    elapsed2_times_values = []
     load_time_request_dates = []
     for stat in stats:
         load_times_values.append(stat.page_load_time)
         load_time_request_dates.append(stat.request_date)
         if(hasattr(stat, 'elapsed') and stat.elapsed!=None):
             elapsed_times_values.append(int(stat.elapsed))   
+        if(hasattr(stat, 'elapsed2') and stat.elapsed2!=None):
+            elapsed2_times_values.append(int(stat.elapsed2))   
         if(hasattr(stat, 'query_time') and stat.query_time!=None):
             elapsed_times_values.append(int(stat.query_time))    
         if(stat.page_load_time > largest_load_time):
             largest_load_time = stat.page_load_time
-
-    ## create a load time line
-    load_times_line = line()
-    load_times_rich = []
-    for load_time in load_times_values:
-        txt = "load(#val#ms)"
-        tmp = dot_value(value=load_time, tip=txt)
-        load_times_rich.append(tmp)
-    load_times_line.values = load_times_rich    
+        
+    #### Create the chart line objects
+    # create an instance of the pageloadstats chart object
+    pls_chart = Pls_Chart()
+    # LOAD average for the legend
     load_average = sum(load_times_values) / len(load_times_values)
-    load_times_line.text = "load("+str(load_average)+")"
+    # Create LOAD time line
+    pls_chart.add_line("load("+str(load_average)+")", load_times_values, [], '#458B74')
 
-    ##  
-    # Create an elapsed time line
-    elapsed_times_line = line()
-    elapsed_times_rich = []
-    for elapsed_time in elapsed_times_values:
-        txt = "elapsed(#val#ms)"
-        tmp = dot_value(value=elapsed_time, tip=txt)
-        elapsed_times_rich.append(tmp)
-    elapsed_times_line.values = elapsed_times_rich
+    # ELAPSED average of the times for the legend
     elapsed_average = 0
     if(len(elapsed_times_values) >0):
         elapsed_average = sum(elapsed_times_values) / len(elapsed_times_values)
-    elapsed_times_line.colour = '#458B74'
-    elapsed_times_line.text = "elapsed("+str(elapsed_average)+")"
+    # Create ELAPSED time line
+    pls_chart.add_line("elapsed("+str(elapsed_average)+")",elapsed_times_values, [], '#999D74' )
     
-    ##  
+    # ELAPSED2 average of the times for the legend
+    elapsed2_average = 0
+    if(len(elapsed2_times_values) >0):
+        elapsed2_average = sum(elapsed2_times_values) / len(elapsed2_times_values)
+    # Create ELAPSED2 time line
+    pls_chart.add_line("elapsed2("+str(elapsed2_average)+")",elapsed2_times_values, [], '#999D00' )
+
+    
     # setup the y axis
     y_axis_step_size = largest_load_time / 5
     y = y_axis()
     y.min, y.max, y.steps = 0, largest_load_time, y_axis_step_size
+    y.min =0 
+    y.max =largest_load_time
+    y.steps = y_axis_step_size
+    pls_chart.y_axis = y
     
-    ##
+    
     # setup the x axis
     x = x_axis()
     x_axis_step_size = len(load_time_request_dates)/15
     xlabels = x_axis_labels(steps=x_axis_step_size, rotate='vertical')
     xlabels.labels = load_time_request_dates
     x.labels = xlabels
-    ##  
-    # setup the chart object
-    chart = open_flash_chart()
-    chart.title = t
-    chart.add_element(load_times_line)
-    chart.add_element(elapsed_times_line)
-    chart.y_axis = y
-    chart.x_axis = x
-    return HttpResponse(chart.render())
+    pls_chart.x_axis = x
+ 
+    pls_chart.title = t
+    return HttpResponse(pls_chart.render())
+
     
 ##
 # This function calls getCheckOutput.  (TODO: Why is it merely a proxy for getCheckOutput()? and why did it need the request object?)
