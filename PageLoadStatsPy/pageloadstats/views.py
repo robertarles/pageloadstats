@@ -56,21 +56,21 @@ def chart_data(request, target_id):
     # LOAD average for the legend
     load_average = sum(load_times_values) / len(load_times_values)
     # Create LOAD time line
-    pls_chart.add_line("load("+str(load_average)+")", load_times_values, [], '#458B74')
+    pls_chart.add_line("load", "load("+str(load_average)+")", load_times_values, [], '#458B74')
 
     # ELAPSED average of the times for the legend
     elapsed_average = 0
     if(len(elapsed_times_values) >0):
         elapsed_average = sum(elapsed_times_values) / len(elapsed_times_values)
     # Create ELAPSED time line
-    pls_chart.add_line("elapsed("+str(elapsed_average)+")",elapsed_times_values, [], '#999D74' )
+    pls_chart.add_line("elapsed", "elapsed("+str(elapsed_average)+")",elapsed_times_values, [], '#999D74' )
     
     # ELAPSED2 average of the times for the legend
     elapsed2_average = 0
     if(len(elapsed2_times_values) >0):
         elapsed2_average = sum(elapsed2_times_values) / len(elapsed2_times_values)
     # Create ELAPSED2 time line
-    pls_chart.add_line("elapsed2("+str(elapsed2_average)+")",elapsed2_times_values, [], '#999D00' )
+    pls_chart.add_line("elapsed2", "elapsed2("+str(elapsed2_average)+")",elapsed2_times_values, [], '#999D00' )
 
     
     # setup the y axis
@@ -153,7 +153,7 @@ def get_cs_comments(response):
     
     for line in response:
         line = line.strip()
-        if(line.contains("<!--")):
+        if(line.find("<!--")):
             in_comment = True
         if(in_comment == True):
             for tag in cs_comment_tags:
@@ -161,7 +161,7 @@ def get_cs_comments(response):
                     tag_name = tag.replace(" ", "_")
                     comment_dict[tag_name] = "value" 
                     # TODO: check how this line is split and saved in the old pls
-        if(line.contains("-->")):
+        if(line.find("-->")):
             in_comment = False
             
     return comment_dict

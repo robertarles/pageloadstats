@@ -19,21 +19,21 @@ class Pls_Chart(object):
 			key,value = param.split("=")
 			print("%s : %s" % (key,value) )
 
-	def add_line(self, name, values, dates, color):
-		chart_line = self.get_line(name, values, dates, color)
+	def add_line(self, name, legend_entry, values, dates, color):
+		chart_line = self.get_line(name, legend_entry, values, dates, color)
 		self.chart_lines.append(chart_line)
 		return(True)
 	
-	def get_line(self, name, values, dates, color):
+	def get_line(self, name, legend_entry, values, dates, color):
 		chart_line = line()
 		dots = []
 		for elapsed_time in values:
-			txt = "elapsed(#val#ms)"
+			txt = name+"(#val#ms)"
 			dot = dot_value(value=elapsed_time, tip=txt)
 			dots.append(dot)
 		chart_line.values = dots
 		chart_line.colour = color
-		chart_line.text = name
+		chart_line.text = legend_entry
 		
 		return(chart_line)
 	
@@ -49,3 +49,4 @@ class Pls_Chart(object):
 		self.chart.title = self.title
 		
 		return(self.chart.render())
+
