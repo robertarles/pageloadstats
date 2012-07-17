@@ -1,5 +1,5 @@
 from django.template import Context, loader
-from PageLoadStatsPy.pageloadstats.models import Target, Alert, Stat
+from PageLoadStatsPy.pageloadstats.models import Target, Alert, Stat, Stat_Rich
 from PageLoadStatsPy.pageloadstats.charts import Pls_Chart
 from pyofc2 import *
 from django.http import HttpResponse
@@ -17,9 +17,11 @@ def target_list(request):
     return HttpResponse(t.render(c))
 
 def chart(request, target_id):
+    target = Target.objects.get(pk=target_id)
     t = loader.get_template('chart.html')
     c = Context({
         'target_id': target_id,
+        'target_name': target.name,
     })
     return HttpResponse(t.render(c))    
 
@@ -29,48 +31,76 @@ def chart(request, target_id):
 def chart_data(request, target_id):
     #pls_chart = Pls_Chart("http://robert.arles.us?some=someval&other=otherVal&booyah=argh")
     #pls_chart.init_param_vars()
-    t = title(text=time.strftime( '%a %Y %b %d') + " for Target ID:" + target_id + " Name: " )
-    largest_load_time = 100
-    stats = Stat.objects.filter(target_id=target_id).order_by("-timestamp")[:100] # get the latest
-    stats = reversed(stats) # latest stats need to be placed on the chart from oldest to newest to get the timeline right
     
+    target = Target.objects.get(pk=target_id)
+    
+    t = title(text=time.strftime( '%a %Y %b %d') + " for Target ID:" + target_id + " Name: " + target.name )
+    
+    largest_load_time = 100
+    
+    stats_rs = Stat_Rich.objects.filter(target_id=target_id).order_by("-timestamp")[:100] # get the latest
+    stats=[]
+    for stat in stats_rs:
+        stats.insert(0,stat)
+        
     load_times_values = []
     elapsed_times_values = []
     elapsed2_times_values = []
     load_time_request_dates = []
+    alert_times_level = []
+    alert_val = None
     for stat in stats:
         load_times_values.append(stat.page_load_time)
         load_time_request_dates.append(stat.request_date)
-        if(hasattr(stat, 'elapsed') and stat.elapsed!=None):
+        if(hasattr(stat, 'elapsed') and stat.elapsed!="null" and stat.elapsed!=None):
             elapsed_times_values.append(int(stat.elapsed))   
-        if(hasattr(stat, 'elapsed2') and stat.elapsed2!=None):
+        if(hasattr(stat, 'elapsed2') and stat.elapsed2!="null" and stat.elapsed2!=None):
             elapsed2_times_values.append(int(stat.elapsed2))   
-        if(hasattr(stat, 'query_time') and stat.query_time!=None):
-            elapsed_times_values.append(int(stat.query_time))    
+        if(hasattr(stat, 'query_time') and stat.query_time!="null" and stat.query_time!=None):
+            elapsed_times_values.append(int(stat.query_time))  
         if(stat.page_load_time > largest_load_time):
             largest_load_time = stat.page_load_time
-        
+        # !! lets not run the stat.alert_level() query EVERY time we run through this loop.
+        if(alert_val==None):
+            alert_val = stat.alert_level()
+        if(alert_val):
+            alert_times_level.append(int(alert_val))
+
     #### Create the chart line objects
     # create an instance of the pageloadstats chart object
     pls_chart = Pls_Chart()
+        
     # LOAD average for the legend
     load_average = sum(load_times_values) / len(load_times_values)
     # Create LOAD time line
-    pls_chart.add_line("load", "load("+str(load_average)+")", load_times_values, [], '#458B74')
+    pls_chart.add_line("load", "load("+str(load_average)+")", load_times_values, load_time_request_dates, '#458B00')
 
+    # Create the SMA line
+    sma_values = get_sma_values(stats, 96)
+    sma_avg = sum(sma_values) / len(sma_values)
+    if(sma_values!=None and len(sma_values)>0):
+        pls_chart.add_line("SMA", "SMA("+str(sma_avg)+")", sma_values, load_time_request_dates, "#0000FF")
+        
     # ELAPSED average of the times for the legend
     elapsed_average = 0
     if(len(elapsed_times_values) >0):
         elapsed_average = sum(elapsed_times_values) / len(elapsed_times_values)
     # Create ELAPSED time line
-    pls_chart.add_line("elapsed", "elapsed("+str(elapsed_average)+")",elapsed_times_values, [], '#999D74' )
+    pls_chart.add_line("elapsed", "elapsed("+str(elapsed_average)+")",elapsed_times_values, load_time_request_dates, '#BF3EFF' )
     
     # ELAPSED2 average of the times for the legend
     elapsed2_average = 0
     if(len(elapsed2_times_values) >0):
         elapsed2_average = sum(elapsed2_times_values) / len(elapsed2_times_values)
     # Create ELAPSED2 time line
-    pls_chart.add_line("elapsed2", "elapsed2("+str(elapsed2_average)+")",elapsed2_times_values, [], '#999D00' )
+    pls_chart.add_line("elapsed2", "elapsed2("+str(elapsed2_average)+")",elapsed2_times_values, load_time_request_dates, '#CD6600' )
+    
+    # Create ALERT level line
+    alert_level = 0
+    if(len(alert_times_level) > 0):
+        alert_level = alert_times_level[0]
+    pls_chart.add_line("Alert Level", "Alert at "+str(alert_level)+"ms", alert_times_level, load_time_request_dates, "#DC143C")
+    
 
     
     # setup the y axis
@@ -84,12 +114,13 @@ def chart_data(request, target_id):
     
     
     # setup the x axis
-    x = x_axis()
+    x = x_axis()        
     x_axis_step_size = len(load_time_request_dates)/15
     xlabels = x_axis_labels(steps=x_axis_step_size, rotate='vertical')
-    xlabels.labels = load_time_request_dates
+    xlabels.labels = pls_chart.get_x_axis_array( load_time_request_dates[0], load_time_request_dates[len(load_time_request_dates)-1], 15)
     x.labels = xlabels
     pls_chart.x_axis = x
+    
  
     pls_chart.title = t
     return HttpResponse(pls_chart.render())
@@ -165,3 +196,40 @@ def get_cs_comments(response):
             in_comment = False
             
     return comment_dict
+
+##
+# Get a simple moving average for the current id
+def get_sma_values(stats, sma_window_size):
+    sma_values = []
+    
+    stat_one=None
+    for stat in stats:
+        stat_one = stat
+        break
+    
+    start_ts = stat_one.timestamp
+    target_id = stat_one.target_id
+    historic_values = Stat_Rich.objects.filter(target_id=target_id).filter(timestamp__lt=start_ts).order_by("-timestamp")[:sma_window_size]
+    #print("* current("+str(len(current_values))+")")
+    #for stat in current_values:
+    #    print(str(stat.timestamp))
+    #print("* history("+str(len(historic_values))+")")
+    #for stat in historic_values:
+    #    print(str(stat.timestamp))
+    
+    # calculate an SMA for the first values
+    sma_cavg = []
+    for stat in historic_values:
+        sma_cavg.append(stat.page_load_time)
+        
+    #sma_values.append( sum(sma_cavg) )
+    # now begin walking through the values, appending the sma as we go
+    for stat in stats:
+        sma_cavg.append(stat.page_load_time)
+        sma_cavg.pop(0)
+        sma_values.append(sum(sma_cavg)/len(sma_cavg))
+
+    return sma_values
+    
+    
+    
