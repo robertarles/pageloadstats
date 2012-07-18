@@ -5,6 +5,8 @@ from pyofc2 import *
 from django.http import HttpResponse
 import urllib2
 import time
+import datetime
+from datetime import datetime as datetimefunc
 
 cs_comment_tags = ["request id:", "tag:","server:", "elapsed:", "elapsed2:"]
 
@@ -19,9 +21,30 @@ def target_list(request):
 def chart(request, target_id):
     target = Target.objects.get(pk=target_id)
     t = loader.get_template('chart.html')
+    start_date = request.GET.get('start_date',"")
+    end_date = request.GET.get("end_date","")
     c = Context({
+        'chart_data_url': "chart_data",
+        'target_id_list_param': "&target_id_list=",
         'target_id': target_id,
         'target_name': target.name,
+        'start_date': start_date,
+        'start_end_params': "%26start_date="+start_date+"%26end_date="+end_date,
+        'end_date': end_date,
+    })
+    return HttpResponse(t.render(c))  
+
+def chart_multi(request):
+    target_id_list = request.GET.get("target_id_list")
+    t = loader.get_template('chart.html')
+    start_date = request.GET.get('start_date',"")
+    end_date = request.GET.get("end_date","")
+    c = Context({
+        'chart_data_url': "chart_multi_data",
+        'target_id_list_param': "%26target_id_list="+target_id_list,
+        'start_date': start_date,
+        'start_end_params': "%26start_date="+start_date+"%26end_date="+end_date,
+        'end_date': end_date,
     })
     return HttpResponse(t.render(c))    
 
@@ -37,9 +60,16 @@ def chart_data(request, target_id):
     t = title(text=time.strftime( '%a %Y %b %d') + " for Target ID:" + target_id + " Name: " + target.name )
     
     largest_load_time = 100
-    
-    stats_rs = Stat_Rich.objects.filter(target_id=target_id).order_by("-timestamp")[:100] # get the latest
+    chart_range = 100  # default number of data points to show if no date range is specified
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get("end_date")
+
+    if( start_date and end_date):
+        stats_rs = Stat_Rich.objects.filter(target_id=target_id).filter(timestamp__gte=start_date).filter(timestamp__lte=end_date).order_by("-timestamp")
+    else:
+        stats_rs = Stat_Rich.objects.filter(target_id=target_id).order_by("-timestamp")[:chart_range] # get the latest
     stats=[]
+    
     for stat in stats_rs:
         stats.insert(0,stat)
         
@@ -51,7 +81,21 @@ def chart_data(request, target_id):
     alert_val = None
     for stat in stats:
         load_times_values.append(stat.page_load_time)
-        load_time_request_dates.append(stat.request_date)
+            
+        fmt = "%Y/%m/%d %H:%M:%S"
+        load_date = datetimefunc.strptime(stat.request_date, fmt)
+        
+        #shift 8 hours to pacific time
+        tz_shift = 0
+        tz_offset = request.COOKIES.get("tz_offset")
+        if(tz_offset != None):
+            tz_shift = int(tz_offset)
+        load_date += datetime.timedelta(hours=-tz_shift)
+        load_str = datetimefunc.strftime(load_date,fmt)
+
+        
+        load_time_request_dates.append(load_str)
+        
         if(hasattr(stat, 'elapsed') and stat.elapsed!="null" and stat.elapsed!=None):
             elapsed_times_values.append(int(stat.elapsed))   
         if(hasattr(stat, 'elapsed2') and stat.elapsed2!="null" and stat.elapsed2!=None):
@@ -125,6 +169,72 @@ def chart_data(request, target_id):
     pls_chart.title = t
     return HttpResponse(pls_chart.render())
 
+def chart_multi_data(request):
+    
+    target_id_value = request.GET.get("target_id_list")
+    start_date = request.GET.get("start_date")
+    end_date = request.GET.get("end_date")
+    color_list = ["#6495ED", "#BDB76B", "#BA55D3", "#6B8E23", "#D2691E", "#DB7093", "#FF6347", "#6B8E23"]
+    color_index = 0
+    
+    target_id_list = target_id_value.split(",")
+    chart_range = 100
+    pls_chart = Pls_Chart()
+    largest_load_time = 100
+    date_range = []
+    date_range_set = False
+    
+    for target_id in target_id_list:
+        
+        target_id = int(target_id)
+        load_times = []
+        
+        target = Target.objects.get(pk=target_id)
+        stat_list=None
+        if(start_date and end_date):
+            stat_list = Stat_Rich.objects.filter(target_id=target_id).filter(timestamp__gte=start_date).filter(timestamp__lte=end_date)
+        else:
+            stat_list = Stat_Rich.objects.filter(target_id=target_id).order_by("-timestamp")[:chart_range]
+        
+        for stat in stat_list:
+            if(stat.page_load_time > largest_load_time):
+                largest_load_time = stat.page_load_time
+            load_times.append(stat.page_load_time) 
+            if(date_range_set==False):           
+                fmt = "%Y/%m/%d %H:%M:%S"
+                load_date = datetimefunc.strptime(stat.request_date, fmt)
+                #shift 8 hours to pacific time
+                tz_shift = 0
+                tz_offset = request.COOKIES.get("tz_offset")
+                if(tz_offset != None):
+                    tz_shift = int(tz_offset)
+                load_date += datetime.timedelta(hours=-tz_shift)
+                load_str = datetimefunc.strftime(load_date,fmt)
+                date_range.append(load_str)
+        date_range_set=True # once we've parsed a stat list, the date range is filled in.
+        pls_chart.add_line(target.name, target.name, load_times, date_range, color_list[color_index])
+        color_index += 1
+        
+        # setup the y axis
+    y_axis_step_size = largest_load_time / 5
+    y = y_axis()
+    y.min, y.max, y.steps = 0, largest_load_time, y_axis_step_size
+    y.min =0 
+    y.max =largest_load_time
+    y.steps = y_axis_step_size
+    pls_chart.y_axis = y
+    
+    
+    # setup the x axis
+    x = x_axis()        
+    x_axis_step_size = len(date_range)/15
+    xlabels = x_axis_labels(steps=x_axis_step_size, rotate='vertical')
+    xlabels.labels = pls_chart.get_x_axis_array( date_range[0], date_range[len(date_range)-1], 15)
+    x.labels = xlabels
+    pls_chart.x_axis = x
+ 
+    pls_chart.title =  title(text="Multi Target Chart")
+    return HttpResponse(pls_chart.render())
     
 ##
 # This function calls getCheckOutput.  (TODO: Why is it merely a proxy for getCheckOutput()? and why did it need the request object?)
@@ -209,7 +319,7 @@ def get_sma_values(stats, sma_window_size):
     
     start_ts = stat_one.timestamp
     target_id = stat_one.target_id
-    historic_values = Stat_Rich.objects.filter(target_id=target_id).filter(timestamp__lt=start_ts).order_by("-timestamp")[:sma_window_size]
+    historic_stats = Stat_Rich.objects.filter(target_id=target_id).filter(timestamp__lt=start_ts).order_by("-timestamp")[:sma_window_size]
     #print("* current("+str(len(current_values))+")")
     #for stat in current_values:
     #    print(str(stat.timestamp))
@@ -219,17 +329,19 @@ def get_sma_values(stats, sma_window_size):
     
     # calculate an SMA for the first values
     sma_cavg = []
-    for stat in historic_values:
-        sma_cavg.append(stat.page_load_time)
-        
-    #sma_values.append( sum(sma_cavg) )
-    # now begin walking through the values, appending the sma as we go
+    sma_window = []
+    
+    # load up the sma window
+    for stat in historic_stats:
+        sma_window.append(stat.page_load_time)
+    
+    # for each stat point, add it to the sma window and calculate the current average, insert into array of averages.  (also removing the oldest data point in the window queue) 
     for stat in stats:
-        sma_cavg.append(stat.page_load_time)
-        sma_cavg.pop(0)
-        sma_values.append(sum(sma_cavg)/len(sma_cavg))
+        sma_window.pop(0)
+        sma_window.append(stat.page_load_time)
+        sma_cavg.append(sum(sma_window) / len(sma_window))
 
-    return sma_values
+    return sma_cavg
     
     
     

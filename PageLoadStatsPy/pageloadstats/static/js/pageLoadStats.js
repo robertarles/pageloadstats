@@ -1,138 +1,137 @@
+function logout(){
+	setCookie("sessionid","");
+	location.reload();
+}
+/**
+ * set the timezone offset in a cookie
+ */
+
+function setTZOffsetCookie(){
+	var d = new Date();
+	tzOffset = d.getTimezoneOffset()/60;
+
+	setCookie("tz_offset", tzOffset);
+}
 		
-	/**
-	 * set the form defaults to reflect the values given in the url
-	 */
-	function updateFormChoices(){
-				
-		urlVars = getUrlVars();
-		//console.log(urlVars);
-		
-		if(urlVars["limit"] != null){
-			$("#select_recent").val(urlVars["limit"]).attr("selected",true);
-		}			
-		if(urlVars["url_filter"] != null){
-			$("#select_recent_url").val( unescape(urlVars["url_filter"]) ).attr("selected",true);
-			$("#select_range_url").val( unescape(urlVars["url_filter"]) ).attr("selected",true);
-		}			
-		if(urlVars["start_time"] != null){
-			startTimeStamp = unescape(urlVars["start_time"]);
-			startDate = new Date(startTimeStamp*1000);
-			year = startDate.getFullYear();
-			month = startDate.getMonth() +1;
-			day = startDate.getDate();
-			hour = startDate.getHours();
-			if(hour<10) hour = "0" + hour;
-			minute = startDate.getMinutes();
-			if(minute<10) minute = "0" + minute;
-			$("#start_date_picker").val( month+"/"+day+"/"+year+" "+hour+":"+minute ).attr("selected",true);
-			//console.log(unescape(urlVars["start_time"]));
-		}			
-		if(urlVars["end_time"] != null){
-			endTimeStamp = unescape(urlVars["end_time"]);
-			endDate = new Date(endTimeStamp*1000);
-			year = endDate.getFullYear();
-			month = endDate.getMonth() +1;
-			day = endDate.getDate();
-			hour = endDate.getHours();
-			if(hour<10) hour = "0" + hour;
-			minute = endDate.getMinutes();
-			if(minute<10) minute = "0" + minute;
-			$("#end_date_picker").val( month+"/"+day+"/"+year+" "+hour+":"+minute ).attr("selected",true);
-			//console.log(unescape(urlVars["end_time"]));
+/**
+ * Set a cookie
+ * @param c_name
+ * @param value
+ * @param expiredays
+ */
+function setCookie(c_name,value,expiredays, path){
+        var exdate=new Date();
+        exdate.setDate(exdate.getDate()+expiredays);
+        
+        document.cookie=c_name+ "=" +escape(value)+
+        ((expiredays==null) ? "" : ";expires="+exdate.toGMTString()) + 
+        ";path=/";
+}
+
+/**
+ * Get a cookie
+ * @param c_name
+ * @returns
+ */
+function getCookie(c_name){
+        if (document.cookie.length>0){
+                c_start=document.cookie.indexOf(c_name + "=");
+                if (c_start!=-1)
+                {
+                        c_start=c_start + c_name.length+1;
+                        c_end=document.cookie.indexOf(";",c_start);
+                        if (c_end==-1) c_end=document.cookie.length;
+                        return unescape(document.cookie.substring(c_start,c_end));
+                }
+        }
+        return "";
+}
+
+function fillDateRange(){
+	var url = location.href;
+	var url_parts = url.split("?");
+	var url_parameters = url_parts[1];
+	var main_url = url_parts[0];
+	if(url_parameters){
+		if( (url_parameters.indexOf("start_date")>-1) && (url_parameters.indexOf("end_date")>-1)){
+			parameters=getUrlVars();
+			start_ts = parameters['start_date'];
+			end_ts = parameters['end_date'];
+			if( ! isInt(start_ts) || ! isInt(end_ts)){
+				return false;
+			}
+			start_time = tsToString(start_ts);
+			end_time = tsToString(end_ts);
+			$("#date_selection_start_date").val(start_time);
+			$("#date_selection_end_date").val(end_time);
 		}
-		if(urlVars["target_search_term"] != null){
-			$("#target_search_term").val( unescape(urlVars["target_search_term"]));
-		}
-	}
-		
-	/**
-	 * Read a page's GET URL variables and return them as an associative array.
-	 */ 
-	function getUrlVars(){
-		var vars = [], hash;
-		var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-		for(var i = 0; i < hashes.length; i++)
-		{
-			hash = hashes[i].split('=');
-			vars.push(hash[0]);
-			vars[hash[0]] = hash[1];
-		}
-		return vars;
 	}
 	
-	/**
-	 * grab the form inputs and request a custom chart of recent data
-	 */ 
-	function displayRecentChart(){
-		var timeSelect = 	window.document.getElementById('select_recent');
-		var urlSelect = 	window.document.getElementById('select_recent_url');
-		var limit = 		timeSelect.options[timeSelect.selectedIndex].value;
-		var urlFilter = 	urlSelect.options[urlSelect.selectedIndex].value;
-		
-		urlFilter = encodeURIComponent(urlFilter);
-				
-		var url = location.href;
-		var url_parts = url.split("?");
-		var main_url = url_parts[0];	
-		
-		//console.log(main_url+"?url_filter="+urlFilter+"&limit="+limit);
-		window.open(main_url+"?url_filter="+urlFilter+"&limit="+limit,"_top");
-	}		
-	
-	/**
-	 * grab the form inputs and request a custom chart of data from requested date range
-	 */ 
-	function displayRangeChart(){
-		var startTimeString = 	window.document.getElementById('start_date_picker').value;
-		var endTimeString = 	window.document.getElementById('end_date_picker').value;
-		var urlSelect = 	window.document.getElementById('select_range_url');
-		var urlFilter = 	urlSelect.options[urlSelect.selectedIndex].value;
-		
-		var startStamp = getTimestamp(startTimeString)/1000;
-		var endStamp = getTimestamp(endTimeString)/1000;
-		//alert(startStamp+ " NOW= "  + Date.now());
-		
-		var url = location.href;
-		var url_parts = url.split("?");
-		var main_url = url_parts[0];	
-		
-		console.log(main_url+"?url_filter="+urlFilter+"&start_time="+startStamp+"&end_time="+endStamp);
-		window.open(main_url+"?url_filter="+urlFilter+"&start_time="+startStamp+"&end_time="+endStamp,"_top");
-	}	
-	
-	/**
-	 * grab the form inputs and request a custom chart of data from requested date range
-	 */ 
-	function displayMultiChart(){
-		var startTimeString = 	window.document.getElementById('start_date_picker').value;
-		var endTimeString = 	window.document.getElementById('end_date_picker').value;
-		var searchTerm = 	window.document.getElementById('target_search_term').value;
-		
-		var startStamp = getTimestamp(startTimeString)/1000;
-		var endStamp = getTimestamp(endTimeString)/1000;
-		//alert(startStamp+ " NOW= "  + Date.now());
-		
-		var url = location.href;
-		var url_parts = url.split("?");
-		var main_url = url_parts[0];	
-		
-		console.log(main_url+"?target_search_term="+searchTerm+"&start_time="+startStamp+"&end_time="+endStamp);
-		window.open(main_url+"?target_search_term="+searchTerm+"&start_time="+startStamp+"&end_time="+endStamp,"_top");
+}
+
+function tsToString(timestamp){
+	date = new Date(timestamp*1000);
+	year = date.getFullYear();
+	month = date.getMonth() +1;
+	day = date.getDate();
+	hour = date.getHours();
+	if(hour<10) hour = "0" + hour;
+	minute = date.getMinutes();
+	if(minute<10) minute = "0" + minute;
+	return ( month+"/"+day+"/"+year+" "+hour+":"+minute );
+}
+function submitDateRange(){
+	start_date = $("#date_selection_start_date").val();
+	end_date = $("#date_selection_end_date").val();
+	if(start_date=="" || end_date ==""){
+		alert("That date range wont work. Dont be silly.");
+		return false;
 	}
 	
-	function getTimestamp(timeString){
-		
-		var timestamp = Date.parse(timeString);
-		//var date = new Date();
-		
-		//var timezoneOffsetMS = date.getTimezoneOffset() * 60 * 1000; // convert the offset from minutes to milliseconds
-		
-		//timestamp = timestamp - timezoneOffsetMS;
-		
-		return timestamp;
+	var startStamp = Date.parse(start_date)/1000;
+	var endStamp = Date.parse(end_date)/1000;
+	
+	if ( ! isInt(startStamp) || ! isInt(endStamp)){
+		alert("Bad date values, try again");
+		return false
 	}
 	
-	function dotClickHandler(){
-		$("#messageArea").text("dotClickHandler called");
+	if(startStamp>=endStamp){
+		alert("Sorry, but you really cannot end before you start. Try a more realistic date range and I'll try to be more helpful.");
+		return false;
 	}
-		
+	
+	var url = location.href;
+	var url_parts = url.split("?");
+	var main_url = url_parts[0];	
+	var url_vars = getUrlVars();
+	target_id_list_param="";
+	if(url_vars["target_id_list"]){
+		target_id_list_param = "&target_id_list="+url_vars["target_id_list"];
+	}
+	
+	//console.log(main_url+"?start_date="+startStamp+"&end_date="+endStamp+target_id_list_param);
+	window.open(main_url+"?start_date="+startStamp+"&end_date="+endStamp+target_id_list_param,"_top");
+}
+
+/**
+ * Read a page's GET URL variables and return them as an associative array.
+ */ 
+function getUrlVars(){
+	var vars = [], hash;
+	var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+	for(var i = 0; i < hashes.length; i++)
+	{
+		hash = hashes[i].split('=');
+		vars.push(hash[0]);
+		vars[hash[0]] = hash[1];
+	}
+	return vars;
+}
+function isInt(value){ 
+	  if((parseFloat(value) == parseInt(value)) && !isNaN(value)){
+	      return true;
+	  } else { 
+	      return false;
+	  } 
+}

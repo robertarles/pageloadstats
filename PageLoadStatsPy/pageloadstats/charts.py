@@ -1,6 +1,7 @@
 from pyofc2 import *
 import datetime
 from datetime import datetime as datetimefunc
+from pytz import timezone
 ##
 # A chart object using open_flash_charts 2 via pyofc2
 #
@@ -60,9 +61,10 @@ class Pls_Chart(object):
 		end_dt = datetimefunc.strptime(end, fmt)
 		date_array = []
 		
-		current_dt = start_dt
+		current_dt = start_dt 
+		
 		while(current_dt <= end_dt):
-			readable_dt = str(current_dt.year) + "/" + str(current_dt.month) + "/" + str(current_dt.day) + " " + str(current_dt.hour) + ":" + str(current_dt.minute)
+			readable_dt = str(current_dt.month) + "/" + str(current_dt.day) + " " + str(current_dt.hour) + ":" + str(current_dt.minute)
 			date_array.append(readable_dt)
 			current_dt += datetime.timedelta(seconds=910)
 		return date_array

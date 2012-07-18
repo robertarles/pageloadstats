@@ -9,13 +9,27 @@
     <link rel="javascript" href="/static/bootstrap/js/bootstrap.min.js"/>
     
     <script type="text/javascript" src="/static/js/jquery-1.7.1.min.js"></script>
+		
+	<script type="text/javascript" src="/static/js/pageLoadStats.js"></script>
 	
 	<script type="text/javascript" src="/static/js/jquery-ui-1.8.18.custom.min.js"></script>
 	<link type="text/css" href="/static/css/cupertino/jquery-ui-1.8.18.custom.css" rel="stylesheet" />
 	<script type="text/javascript" src="/static/js/timepicker-addon.js"></script>
+
 	
     <title>{% block title %}PageLoadStats{% endblock %}</title>
     {% block header %} {% endblock%}
+    
+    <script type="text/javascript">
+	
+		$(document).ready(function(){
+
+			setTZOffsetCookie();
+			$(".date_time_picker").datetimepicker();
+			$("#resizeable").resizable();
+		});
+		
+	</script>
 </head>
 
 <body>
@@ -34,6 +48,11 @@
                     <li><a href="/pls/">home</a></li>
                     <li><a href="/pls/targets">targets</a></li>
 					<li><a href="/pls/check/all">check all</a></li>
+					<li><a href="/pls/chart_multi?target_id_list=48,49,50">multi</a></li>
+				</ul>
+				<h3>Settings</h3>
+				<ul class="menu">
+                    <li><a href="/logout" onclick="logout();return(false);">Logout</a></li>
 				</ul>
 				{% endblock %}
 			</div>

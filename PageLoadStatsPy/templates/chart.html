@@ -5,8 +5,16 @@
     	swfobject.embedSWF(
     	  "/static/open-flash-chart.swf", "chart_target",
     	  "100%", "100%", "9.0.0", "/static/expressInstall.swf",
-    	  {"data-file":"/pls/chart_data/{{ target_id }}"} );
+    	  {"data-file":"/pls/{{chart_data_url}}/{{ target_id }}?{{start_end_params}}{{target_id_list_param}}"}, {"wmode" : "transparent"} );
     	
+    </script>
+    <script type="text/javascript">
+    
+		$(document).ready(function(){
+			fillDateRange();
+		});
+
+
     </script>
 {% endblock%}
 
@@ -16,4 +24,10 @@
   	<div id="resizeable" class="chart_container ui-resizable">
   		<div class="chart resizeable" id="chart_target"></div>
 	</div>
+	<h4 id="date_selection_title">Choose a date range</h4>
+	<form id="date_selection_form">
+		start: <input type='text' id='date_selection_start_date' class='date_time_picker' style='height:1.5em'/>&nbsp
+		end: <input type='text' id='date_selection_end_date' class='date_time_picker' style='height:1.5em'/>&nbsp
+		<button id='date_selection_button' name='date_selection_button' onclick="submitDateRange(); return false;">Display Range</button>
+	</form>
 {% endblock %}
