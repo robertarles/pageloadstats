@@ -64,8 +64,8 @@ class Pls_Chart(object):
 		current_dt = start_dt 
 		
 		while(current_dt <= end_dt):
-			readable_dt = str(current_dt.month) + "/" + str(current_dt.day) + " " + str(current_dt.hour) + ":" + str(current_dt.minute)
-			date_array.append(readable_dt)
+			#readable_dt = str(current_dt.month) + "/" + str(current_dt.day) + " " + str(current_dt.hour) + ":" + str(current_dt.minute)
+			date_array.append(str(current_dt))
 			current_dt += datetime.timedelta(seconds=910)
 		return date_array
 		
