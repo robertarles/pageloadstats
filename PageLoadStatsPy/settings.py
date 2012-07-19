@@ -100,7 +100,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'PageloadstatsPy.pageloadstats.middleware.RequireLoginMiddleware',
+    'PageLoadStatsPy.pageloadstats.middleware.RequireLoginMiddleware',
 )
 
 ROOT_URLCONF = 'PageLoadStatsPy.urls'
