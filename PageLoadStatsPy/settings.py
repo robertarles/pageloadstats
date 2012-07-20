@@ -122,7 +122,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     #java'django.contrib.admindocs',
-    'pageloadstats',
+    'PageLoadStatsPy.pageloadstats',
 )
 
 # A sample logging configuration. The only tangible logging
