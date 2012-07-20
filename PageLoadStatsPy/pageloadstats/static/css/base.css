@@ -1,7 +1,13 @@
-.jumbotron{
-	font-size: 46px;
+.header{
+	font-size: 42px;
+	color: green;
 	margin-top: 15px;
 	margin-bottom: 20px;
+    align:left;
+}
+.logo{
+    height: 100px;
+    width: 100px;
 }
 
 .menu{
@@ -12,9 +18,37 @@
 .chart_container{
 	width:1000px; 
 	height:400px; 
-	padding: 3px; 
+	padding: 4px; 
 	background-color:gray;
 }
+
+.stack_small{
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 0px;
+	padding-right: 0px;
+}
+.stack_medium{
+	padding-top: 10px;
+	padding-bottom: 10px;
+	padding-left: 0px;
+	padding-right: 0px;
+}
+.stack_large{
+	padding-top: 15px;
+	padding-bottom: 15px;
+	padding-left: 0px;
+	padding-right: 0px;
+}
+
+/* css for timepicker */
+.ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
+.ui-timepicker-div dl { text-align: left; }
+.ui-timepicker-div dl dt { height: 25px; margin-bottom: -25px; }
+.ui-timepicker-div dl dd { margin: 0 10px 10px 65px; }
+.ui-timepicker-div td { font-size: 90%; }
+.ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
+
 
 
 

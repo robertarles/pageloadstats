@@ -20,14 +20,17 @@
 
 
 {% block content %}
-	<h3 id="chart.title">Monitor Data for: {{target_name}} &nbsp&nbsp&nbspID: {{ target_id }}</h3>
+	<h3 id="chart.title" class="stack_medium">Monitor Data for: {{target_name}} &nbsp&nbsp&nbspID: {{ target_id }}</h3>
   	<div id="resizeable" class="chart_container ui-resizable">
   		<div class="chart resizeable" id="chart_target"></div>
 	</div>
-	<h4 id="date_selection_title">Choose a date range</h4>
-	<form id="date_selection_form">
+
+	<form id="date_selection_form" class="form-inline stack_large">
+		<div id="date_selection_header" class="stack_small">
+			<h4 id="date_selection_title">Choose a date range</h4>
+		</div>
 		start: <input type='text' id='date_selection_start_date' class='date_time_picker' style='height:1.5em'/>&nbsp
 		end: <input type='text' id='date_selection_end_date' class='date_time_picker' style='height:1.5em'/>&nbsp
-		<button id='date_selection_button' name='date_selection_button' onclick="submitDateRange(); return false;">Display Range</button>
+		<button id='date_selection_button' name='date_selection_button' class="btn btn-success" onclick="submitDateRange(); return false;">Display Range</button>
 	</form>
 {% endblock %}
