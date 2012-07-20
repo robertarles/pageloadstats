@@ -1,7 +1,3 @@
-function logout(){
-	setCookie("sessionid","", -30);
-	location.reload();
-}
 /**
  * set the timezone offset in a cookie
  */
