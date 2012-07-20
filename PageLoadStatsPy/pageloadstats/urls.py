@@ -2,7 +2,7 @@ from django.conf.urls.defaults import patterns, url
 from django.contrib import admin
 admin.autodiscover()
 
-urlpatterns = patterns('pageloadstats.views',
+urlpatterns = patterns('PageLoadStatsPy.pageloadstats.views',
     url(r'^$', 'target_list'),                              # default view url
     url(r'^targets/$', 'target_list'),                      # a list of targets in the db
     url(r'^chart/(?P<target_id>\d+)/$', 'chart'),           # the chart for target # <target_id>
