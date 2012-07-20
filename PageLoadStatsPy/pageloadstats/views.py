@@ -8,6 +8,7 @@ import time
 import datetime
 from datetime import datetime as datetimefunc
 from django.contrib import auth
+from django.http import HttpResponseRedirect
 
 cs_comment_tags = ["request id:", "tag:","server:", "elapsed:", "elapsed2:"]
 
@@ -346,7 +347,7 @@ def get_sma_values(stats, sma_window_size):
 
 def user_logout(request):
     auth.logout(request)
-    return HttpResponse("You are logged out.")
+    return HttpResponseRedirect('/accounts/login/?next=/pls/')
     
     
     
