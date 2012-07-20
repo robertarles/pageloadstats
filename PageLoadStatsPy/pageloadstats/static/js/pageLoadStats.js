@@ -1,5 +1,5 @@
 function logout(){
-	setCookie("sessionid","");
+	setCookie("sessionid","", -30);
 	location.reload();
 }
 /**
