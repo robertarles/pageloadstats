@@ -7,6 +7,7 @@ import urllib2
 import time
 import datetime
 from datetime import datetime as datetimefunc
+from django.contrib import auth
 
 cs_comment_tags = ["request id:", "tag:","server:", "elapsed:", "elapsed2:"]
 
@@ -342,6 +343,11 @@ def get_sma_values(stats, sma_window_size):
         sma_cavg.append(sum(sma_window) / len(sma_window))
 
     return sma_cavg
+
+def user_logout(request):
+    auth.logout(request)
+    return HttpResponse("You are logged out.")
+    
     
     
     

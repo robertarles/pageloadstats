@@ -11,4 +11,5 @@ urlpatterns = patterns('PageLoadStatsPy.pageloadstats.views',
     url(r'^chart_multi_data/$', 'chart_multi_data'), # this one returns the data for the chart_multi view
     url(r'^check/(?P<target_id>\d+)/$', 'check'),           # run a target stat check on tartet # <target_id>
     url(r'^check/(?P<target_id>all)/$', 'check'),           # run a target stat check on everything in the DB
+    url(r'^user_logout/$', 'user_logout'),           # log a user out
 )
