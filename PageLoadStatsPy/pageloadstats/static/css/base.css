@@ -1,6 +1,6 @@
 .header{
 	font-size: 42px;
-	color: #00cc00;
+	color: #009900;
 	margin-top: 15px;
 	margin-bottom: 20px;
     align:left;
@@ -39,6 +39,10 @@
 	padding-bottom: 15px;
 	padding-left: 0px;
 	padding-right: 0px;
+}
+.float_right{
+	postition: relative;
+	float: right;
 }
 
 /* css for timepicker */

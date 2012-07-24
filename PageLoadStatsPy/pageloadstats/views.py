@@ -97,7 +97,7 @@ def chart_data(request, target_id):
 
         
         load_time_request_dates.append(load_str)
-        
+        #have to check for entries with a string value of "null" (mySql return value)
         if(hasattr(stat, 'elapsed') and stat.elapsed!="null" and stat.elapsed!=None):
             elapsed_times_values.append(int(stat.elapsed))   
         if(hasattr(stat, 'elapsed2') and stat.elapsed2!="null" and stat.elapsed2!=None):
@@ -108,13 +108,34 @@ def chart_data(request, target_id):
             largest_load_time = stat.page_load_time
         # !! lets not run the stat.alert_level() query EVERY time we run through this loop.
         if(alert_val==None):
-            alert_val = stat.alert_level()
+            if(hasattr(stat, 'alert_level')):
+                alert_val = stat.alert_level()
         if(alert_val):
             alert_times_level.append(int(alert_val))
-
-    #### Create the chart line objects
+           
     # create an instance of the pageloadstats chart object
     pls_chart = Pls_Chart()
+    
+    # setup the y axis
+    y_axis_step_size = largest_load_time / 5
+    y = y_axis()
+    y.min, y.max, y.steps = 0, largest_load_time, y_axis_step_size
+    y.min =0 
+    y.max =largest_load_time + 100
+    y.steps = y_axis_step_size
+    pls_chart.y_axis = y
+    
+    
+    # setup the x axis
+    x = x_axis()        
+    x_axis_step_size = len(load_time_request_dates)/15
+    xlabels = x_axis_labels(steps=x_axis_step_size, rotate='vertical')
+    xlabels.labels = pls_chart.get_x_axis_array( load_time_request_dates[0], load_time_request_dates[-1], 15)
+    x.labels = xlabels
+    pls_chart.x_axis = x
+    
+    #### Create the chart line objects
+
         
     # LOAD average for the legend
     load_average = sum(load_times_values) / len(load_times_values)
@@ -131,41 +152,21 @@ def chart_data(request, target_id):
     elapsed_average = 0
     if(len(elapsed_times_values) >0):
         elapsed_average = sum(elapsed_times_values) / len(elapsed_times_values)
-    # Create ELAPSED time line
-    pls_chart.add_line("elapsed", "elapsed("+str(elapsed_average)+")",elapsed_times_values, load_time_request_dates, '#BF3EFF' )
+        # Create ELAPSED time line
+        pls_chart.add_line("elapsed", "elapsed("+str(elapsed_average)+")",elapsed_times_values, load_time_request_dates, '#BF3EFF' )
     
     # ELAPSED2 average of the times for the legend
     elapsed2_average = 0
     if(len(elapsed2_times_values) >0):
         elapsed2_average = sum(elapsed2_times_values) / len(elapsed2_times_values)
-    # Create ELAPSED2 time line
-    pls_chart.add_line("elapsed2", "elapsed2("+str(elapsed2_average)+")",elapsed2_times_values, load_time_request_dates, '#CD6600' )
+        # Create ELAPSED2 time line
+        pls_chart.add_line("elapsed2", "elapsed2("+str(elapsed2_average)+")",elapsed2_times_values, load_time_request_dates, '#CD6600' )
     
     # Create ALERT level line
     alert_level = 0
     if(len(alert_times_level) > 0):
         alert_level = alert_times_level[0]
-    pls_chart.add_line("Alert Level", "Alert at "+str(alert_level)+"ms", alert_times_level, load_time_request_dates, "#DC143C")
-    
-
-    
-    # setup the y axis
-    y_axis_step_size = largest_load_time / 5
-    y = y_axis()
-    y.min, y.max, y.steps = 0, largest_load_time, y_axis_step_size
-    y.min =0 
-    y.max =largest_load_time
-    y.steps = y_axis_step_size
-    pls_chart.y_axis = y
-    
-    
-    # setup the x axis
-    x = x_axis()        
-    x_axis_step_size = len(load_time_request_dates)/15
-    xlabels = x_axis_labels(steps=x_axis_step_size, rotate='vertical')
-    xlabels.labels = pls_chart.get_x_axis_array( load_time_request_dates[0], load_time_request_dates[len(load_time_request_dates)-1], 15)
-    x.labels = xlabels
-    pls_chart.x_axis = x
+        pls_chart.add_line("Alert Level", "Alert at "+str(alert_level)+"ms", alert_times_level, load_time_request_dates, "#DC143C")
     
  
     pls_chart.title = t
@@ -176,29 +177,39 @@ def chart_multi_data(request):
     target_id_value = request.GET.get("target_id_list")
     start_date = request.GET.get("start_date")
     end_date = request.GET.get("end_date")
-    color_list = ["#6495ED", "#BDB76B", "#BA55D3", "#6B8E23", "#D2691E", "#DB7093", "#FF6347", "#6B8E23"]
+    COLOR_LIST = ("#6495ED", "#BDB76B", "#BA55D3", "#6B8E23", "#D2691E", "#DB7093", "#FF6347", "#6B8E23")
     color_index = 0
+
     
     target_id_list = target_id_value.split(",")
     chart_range = 100
-    pls_chart = Pls_Chart()
     largest_load_time = 100
     date_range = []
     date_range_set = False
+
+
+    pls_chart = Pls_Chart()
+
+    chart_axis_set = False
     
     for target_id in target_id_list:
-        
+            
+        stats_rs_list= []
+        stats_list= []
         target_id = int(target_id)
         load_times = []
         
         target = Target.objects.get(pk=target_id)
-        stat_list=None
         if(start_date and end_date):
-            stat_list = Stat_Rich.objects.filter(target_id=target_id).filter(timestamp__gte=start_date).filter(timestamp__lte=end_date)
+            stats_rs_list = Stat_Rich.objects.filter(target_id=target_id).filter(timestamp__gte=start_date).filter(timestamp__lte=end_date).order_by("-timestamp")
         else:
-            stat_list = Stat_Rich.objects.filter(target_id=target_id).order_by("-timestamp")[:chart_range]
+            stats_rs_list = Stat_Rich.objects.filter(target_id=target_id).order_by("-timestamp")[:chart_range]
         
-        for stat in stat_list:
+            
+        for stat in stats_rs_list: # reverse the list to get them oldest to newest
+            stats_list.insert(0,stat) 
+        
+        for stat in stats_list:
             if(stat.page_load_time > largest_load_time):
                 largest_load_time = stat.page_load_time
             load_times.append(stat.page_load_time) 
@@ -213,28 +224,37 @@ def chart_multi_data(request):
                 load_date += datetime.timedelta(hours=-tz_shift)
                 load_str = datetimefunc.strftime(load_date,fmt)
                 date_range.append(load_str)
+            
         date_range_set=True # once we've parsed a stat list, the date range is filled in.
-        pls_chart.add_line(target.name, target.name, load_times, date_range, color_list[color_index])
-        color_index += 1
         
-        # setup the y axis
+        # setup the x axis
+        if(chart_axis_set == False):
+            x = x_axis()        
+            x_axis_step_size = len(date_range)/15
+            xlabels = x_axis_labels(steps=x_axis_step_size, rotate='vertical')
+            xlabels.labels = pls_chart.get_x_axis_array( date_range[0], date_range[-1], 15)
+            x.labels = xlabels
+            pls_chart.x_axis = x
+            
+            chart_axis_set = True
+                
+        line_avg = 0
+        if (len(load_times)>0):
+            line_avg = sum(load_times)/len(load_times)
+            
+        pls_chart.add_line(target.name, target.name+"("+str(line_avg)+")", load_times, date_range, COLOR_LIST[color_index])
+        
+        color_index += 1 # move to the next line color for the chart
+        
+    # setup the y axis
     y_axis_step_size = largest_load_time / 5
     y = y_axis()
     y.min, y.max, y.steps = 0, largest_load_time, y_axis_step_size
     y.min =0 
-    y.max =largest_load_time
+    y.max =largest_load_time + 100
     y.steps = y_axis_step_size
     pls_chart.y_axis = y
-    
-    
-    # setup the x axis
-    x = x_axis()        
-    x_axis_step_size = len(date_range)/15
-    xlabels = x_axis_labels(steps=x_axis_step_size, rotate='vertical')
-    xlabels.labels = pls_chart.get_x_axis_array( date_range[0], date_range[len(date_range)-1], 15)
-    x.labels = xlabels
-    pls_chart.x_axis = x
- 
+        
     pls_chart.title =  title(text="Multi Target Chart")
     return HttpResponse(pls_chart.render())
     
@@ -309,11 +329,13 @@ def get_cs_comments(response):
             
     return comment_dict
 
-##
-# Get a simple moving average for the current id
 def get_sma_values(stats, sma_window_size):
-    sma_values = []
-    
+    """
+    Get a simple moving average for the current id
+    return a list of sma values for the supplied stats list
+    @param stats A result set of stats
+    @param sma_window_size A number specifying how large of a historic data sample to be used to calculate each sma point. 
+    """
     stat_one=None
     for stat in stats:
         stat_one = stat
@@ -339,7 +361,8 @@ def get_sma_values(stats, sma_window_size):
     
     # for each stat point, add it to the sma window and calculate the current average, insert into array of averages.  (also removing the oldest data point in the window queue) 
     for stat in stats:
-        sma_window.pop(0)
+        if(len(sma_window)>0):
+            sma_window.pop(0)
         sma_window.append(stat.page_load_time)
         sma_cavg.append(sum(sma_window) / len(sma_window))
 
