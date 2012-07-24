@@ -81,6 +81,7 @@ def chart_data(request, target_id):
     load_time_request_dates = []
     alert_times_level = []
     alert_val = None
+    
     for stat in stats:
         load_times_values.append(stat.page_load_time)
             
@@ -336,13 +337,9 @@ def get_sma_values(stats, sma_window_size):
     @param stats A result set of stats
     @param sma_window_size A number specifying how large of a historic data sample to be used to calculate each sma point. 
     """
-    stat_one=None
-    for stat in stats:
-        stat_one = stat
-        break
     
-    start_ts = stat_one.timestamp
-    target_id = stat_one.target_id
+    start_ts = stats[0].timestamp
+    target_id = stats[0].target_id
     historic_stats = Stat_Rich.objects.filter(target_id=target_id).filter(timestamp__lt=start_ts).order_by("-timestamp")[:sma_window_size]
     #print("* current("+str(len(current_values))+")")
     #for stat in current_values:
@@ -361,7 +358,7 @@ def get_sma_values(stats, sma_window_size):
     
     # for each stat point, add it to the sma window and calculate the current average, insert into array of averages.  (also removing the oldest data point in the window queue) 
     for stat in stats:
-        if(len(sma_window)>0):
+        if(len(sma_window)>=sma_window_size):
             sma_window.pop(0)
         sma_window.append(stat.page_load_time)
         sma_cavg.append(sum(sma_window) / len(sma_window))
