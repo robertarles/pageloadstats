@@ -10,7 +10,7 @@
 		{% for target in latest_target_data %}
 			<li>{{ target.name }}&nbsp;&nbsp;&nbsp;
 				<a href="/pls/chart/{{target.id}}"> view chart</a>&nbsp;&nbsp;|&nbsp;&nbsp;
-				<a href="/pls/check/{{target.id}}"> check now</a></li>
+				<span href="/pls/check/{{target.id}}"> check now</span></li>
 		{% endfor %}
     </ul>
 {% else %}
