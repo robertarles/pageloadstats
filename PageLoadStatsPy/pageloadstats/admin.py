@@ -1,9 +1,13 @@
 from PageLoadStatsPy.pageloadstats.models import Alert, Target, Stat, AlertAlertRecipients, AlertRecipients, TargetAlert
 from django.contrib import admin
 
+class TargetAlertInline(admin.StackedInline):
+    model = TargetAlert
+    fk_name = "target"
 
 class TargetAdmin(admin.ModelAdmin):
     list_display = ('id','name','url')
+    inlines = [TargetAlertInline]
 
 
 class AlertAdmin(admin.ModelAdmin):    

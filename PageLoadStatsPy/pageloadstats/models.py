@@ -102,12 +102,13 @@ class Target(models.Model):
     id = models.BigIntegerField(primary_key=True)
     type = models.TextField(blank=True)
     name = models.TextField(blank=True)
+    alerts = models.ManyToManyField("Alert", through="TargetAlert", symmetrical=False, related_name='related_to')
     class Meta:
         db_table = u'target'
 
 class TargetAlert(models.Model):
-    target_id = models.BigIntegerField()
-    alert_id = models.BigIntegerField()
+    target = models.ForeignKey(Target, related_name='target_name')
+    alert = models.ForeignKey(Alert, related_name='alert_name')
     active = models.IntegerField()
     id = models.IntegerField(primary_key=True)
     class Meta:

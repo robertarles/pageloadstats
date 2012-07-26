@@ -50,7 +50,7 @@ class Pls_Chart(object):
 		i=0
 		date_end_index = len(values)
 		for i in range(date_end_index):
-			datesStr = ""
+			dateStr = ""
 			if(i < len(dates)):
 				dateStr = dates[i]
 			txt = name + "<br>" + dateStr + "<br>" + "#val#ms"
