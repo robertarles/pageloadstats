@@ -48,6 +48,15 @@ def chart_multi(request):
         'start_end_params': "%26start_date="+start_date+"%26end_date="+end_date,
         'end_date': end_date,
     })
+    return HttpResponse(t.render(c))
+
+def perf_daily(request):
+    t = loader.get_template('perfdaily.html')
+    start_date=""
+    end_date=""
+    c = Context({
+        'start_end_params': "%26start_date="+start_date+"%26end_date="+end_date,
+    })
     return HttpResponse(t.render(c))    
 
 ##
@@ -364,6 +373,10 @@ def get_sma_values(stats, sma_window_size):
         sma_cavg.append(sum(sma_window) / len(sma_window))
 
     return sma_cavg
+
+def perf_chart_data(request):
+    pass
+
 
 def user_logout(request):
     auth.logout(request)
