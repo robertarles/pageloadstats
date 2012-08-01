@@ -45,6 +45,7 @@ def chart_multi(request):
     c = Context({
         'chart_data_url': "chart_multi_data",
         'target_id_list_param': "%26target_id_list="+target_id_list,
+        'target_name': "multiple targets",
         'start_date': start_date,
         'start_end_params': "%26start_date="+start_date+"%26end_date="+end_date,
         'end_date': end_date,
