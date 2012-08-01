@@ -12,6 +12,30 @@
 	
 
 {% block content %}
-
+	
+	<div class="row">
+		<div class="span8"> <h3>Yesterday's avg times</h3> </div>
+	</div>
+	<div class="row">
+		<div class="span8"> home:{{ home_average }}</div>
+	</div>
+	<div class="row">
+		<div class="span8"> bpp:{{ bpp_average }}</div>
+	</div>
+	<div class="row">
+		<div class="span8"> browse:{{ browse_average }}</div>
+	</div>
+	<div class="row">
+		<div class="span8"> deals:{{ deals_average }}</div>
+	</div>
+	<div class="row">
+		<div class="span8"> solr:{{ solr_average }}</div>
+	</div>
+	<div class="row">
+		<div class="span8"> api:{{ api_average }}</div>
+	</div>
+	<div class="row">
+		<div class="span8"> mobile app:{{ mobile_app_average }}</div>
+	</div>
 
 {% endblock %}

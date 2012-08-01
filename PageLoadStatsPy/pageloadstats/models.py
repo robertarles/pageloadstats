@@ -72,6 +72,18 @@ class Stat(models.Model):
     result_count = models.BigIntegerField(null=True, blank=True)
     class Meta:
         db_table = u'stat'
+
+
+class Target(models.Model):
+    url = models.TextField()
+    active = models.IntegerField()
+    id = models.BigIntegerField(primary_key=True)
+    type = models.TextField(blank=True)
+    name = models.TextField(blank=True)
+    alerts = models.ManyToManyField("Alert", through="TargetAlert", symmetrical=False, related_name='related_to')
+    tags = models.TextField()
+    class Meta:
+        db_table = u'target'
     
 class Stat_Rich(models.Model):
     url = models.TextField()
@@ -88,6 +100,7 @@ class Stat_Rich(models.Model):
     http_status = models.BigIntegerField(null=True, blank=True)
     query_time = models.BigIntegerField(null=True, blank=True)
     result_count = models.BigIntegerField(null=True, blank=True)
+    target = models.ForeignKey(Target)
     class Meta:
         db_table = u'stat'
     def alert_level(self):
@@ -95,17 +108,7 @@ class Stat_Rich(models.Model):
         target_alert = TargetAlert.objects.get(target_id=self.target_id)
         alert_info = Alert.objects.get(pk=target_alert.alert_id)
         return alert_info.limit_high
-
-class Target(models.Model):
-    url = models.TextField()
-    active = models.IntegerField()
-    id = models.BigIntegerField(primary_key=True)
-    type = models.TextField(blank=True)
-    name = models.TextField(blank=True)
-    alerts = models.ManyToManyField("Alert", through="TargetAlert", symmetrical=False, related_name='related_to')
-    class Meta:
-        db_table = u'target'
-
+    
 class TargetAlert(models.Model):
     target = models.ForeignKey(Target, related_name='target_name')
     alert = models.ForeignKey(Alert, related_name='alert_name')

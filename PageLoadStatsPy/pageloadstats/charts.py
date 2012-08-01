@@ -48,31 +48,55 @@ class Pls_Chart(object):
 		fmt1 = "%Y/%m/%d %H:%M:%S"
 		fmt2 = "%Y-%m-%d %H:%M:%S"
 		i=0
-		date_end_index = len(values)
+		date_end_index = len(self.date_array)
+		date_differential = 0 #
 		for i in range(date_end_index):
 			dateStr = ""
-			if(i < len(dates)):
-				dateStr = dates[i]
+			if(i+date_differential >= len(values)):
+				break;
+			if(i+date_differential >= len(dates)):
+				break;
+			dateStr = dates[i+date_differential]
 			txt = name + "<br>" + dateStr + "<br>" + "#val#ms"
-			dot = dot_value(value=values[i], tip=txt)
-			# if the dots date value is more than 15 minutes (the chart resolution) ahead of 
-			# this point on the x-axis of the chart plop, try the next spot
+			dot = dot_value(value=values[i+date_differential], tip=txt)
 			datestr1 = dateStr
 			dot_date = datetimefunc.strptime(datestr1, fmt1)
 			if(i < len(self.date_array)):
 				datestr2 = self.date_array[i]
 			xaxis_date = datetimefunc.strptime(datestr2, fmt2)
+			# while the dot is older than the currrent spot on the chart, toss it out and get the next
+			while(dot_date<xaxis_date):
+				date_differential +=1
+				if(i+date_differential >= len(values)):
+					break;
+				if(i < len(dates)):
+					dateStr = dates[i+date_differential]
+				txt = name + "<br>" + dateStr + "<br>" + "#val#ms"
+				dot = dot_value(value=values[i+date_differential], tip=txt)
+				# bad fix for lines that lie outside the chart y-axis
+				#if( values[i+date_differential]>self.y_axis.max):
+				#	dot = dot_value(value=None,tip="no data") # dont plot dots that lie outside the chart
+				datestr1 = dateStr
+				dot_date = datetimefunc.strptime(datestr1, fmt1)
+				if(i < len(self.date_array)):
+					datestr2 = self.date_array[i]
+				xaxis_date = datetimefunc.strptime(datestr2, fmt2)
+				
 			
 			delta = dot_date - xaxis_date
 			
+			# if the dots date value is more than 15 minutes (the chart resolution) ahead of 
+			# this point on the x-axis of the chart, set the time differential and try the next datetime spot on th echart
 			if(delta > datetime.timedelta(minutes=15)): # is this data later than the current spot (some data missing, likely)
-				pass
-
-			if(dot_date > xaxis_date): # do we have more data for the previous date spot on the chart?
-				pass
-			
+				date_differential -= 1
+				dot = dot_value(value=None,tip="no data")
+				
 			dots.append(dot)
-		
+
+			#if(dot_date > xaxis_date): # do we have more data for the previous date spot on the chart?
+			#	pass
+			
+			
 		chart_line.values = dots
 		chart_line.colour = color
 		chart_line.text = legend_entry

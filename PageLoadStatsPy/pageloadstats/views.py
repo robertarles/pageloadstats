@@ -52,12 +52,44 @@ def chart_multi(request):
 
 def perf_daily(request):
     t = loader.get_template('perfdaily.html')
+    start_date = request.GET.get('start_date',"")
+    end_date = request.GET.get("end_date","")
     start_date=""
     end_date=""
+    home_average = get_daily_avg("home")
+    bpp_average = get_daily_avg("bpp")
+    browse_average = get_daily_avg("browse")
+    deals_average = get_daily_avg("deals")
+    solr_average = get_daily_avg("solr")
+    api_average = get_daily_avg("api")
+    mobile_app_average = get_daily_avg("mobile_app")
     c = Context({
+        'home_average': home_average,
+        'bpp_average': bpp_average,
+        'browse_average': browse_average,
+        'deals_average': deals_average,
+        'solr_average': solr_average,
+        'api_average': api_average,
+        'mobile_app_average': mobile_app_average,
         'start_end_params': "%26start_date="+start_date+"%26end_date="+end_date,
     })
     return HttpResponse(t.render(c))    
+
+def get_daily_avg(tag):
+    now = int(time.time())
+    t_midnight = now - (now % (24 * 60 * 60))
+    y_midnight = t_midnight - (24 * 60 * 60)
+    #print now
+    #print t_midnight
+    #print y_midnight
+    stats = Stat_Rich.objects.filter(timestamp__gte=y_midnight).filter(timestamp__lte=t_midnight).filter(target__tags__icontains=tag)
+    sum = 0
+    avg = 0
+    for stat in stats:
+        sum += stat.page_load_time
+    avg = sum / len(stats)
+    return avg
+        
 
 ##
 # Return the html/javascript vars required to generate a SINGLE TARGET Open Flash Chart
@@ -140,7 +172,15 @@ def chart_data(request, target_id):
     x = x_axis()        
     x_axis_step_size = len(load_time_request_dates)/15
     xlabels = x_axis_labels(steps=x_axis_step_size, rotate='vertical')
-    xlabels.labels = pls_chart.get_x_axis_array( load_time_request_dates[0], load_time_request_dates[-1], 15)
+    #xlabels.labels = pls_chart.get_x_axis_array( load_time_request_dates[0], load_time_request_dates[-1], 15)
+    if(start_date and end_date):
+        fmt = "%Y/%m/%d %H:%M:%S"
+        start_date_dt = datetime.datetime.fromtimestamp(int(start_date)).strftime(fmt)
+        end_date_dt = datetime.datetime.fromtimestamp(int(end_date)).strftime(fmt)
+    else:
+        start_date_dt = load_time_request_dates[0]
+        end_date_dt = load_time_request_dates[-1]
+    xlabels.labels = pls_chart.get_x_axis_array( start_date_dt, end_date_dt, 15)
     x.labels = xlabels
     pls_chart.x_axis = x
     
@@ -194,8 +234,6 @@ def chart_multi_data(request):
     target_id_list = target_id_value.split(",")
     chart_range = 100
     largest_load_time = 100
-    date_range = []
-    date_range_set = False
 
 
     pls_chart = Pls_Chart()
@@ -208,6 +246,8 @@ def chart_multi_data(request):
         stats_list= []
         target_id = int(target_id)
         load_times = []
+        date_range = []
+        date_range_set = False
         
         target = Target.objects.get(pk=target_id)
         if(start_date and end_date):
@@ -236,7 +276,8 @@ def chart_multi_data(request):
                 date_range.append(load_str)
             
         date_range_set=True # once we've parsed a stat list, the date range is filled in.
-        
+        if(len(date_range)<5):
+            date_range.append("1001/01/01 01:01:01")
         # setup the x axis
         if(chart_axis_set == False):
             x = x_axis()        
@@ -373,9 +414,6 @@ def get_sma_values(stats, sma_window_size):
         sma_cavg.append(sum(sma_window) / len(sma_window))
 
     return sma_cavg
-
-def perf_chart_data(request):
-    pass
 
 
 def user_logout(request):
