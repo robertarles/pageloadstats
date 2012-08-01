@@ -20,7 +20,11 @@
 
 
 {% block content %}
-	<h3 id="chart.title" class="stack_medium">Monitor Data for: {{target_name}} &nbsp&nbsp&nbspID: {{ target_id }}</h3>
+	<div id="chart_title" class="stack_medium">
+		Monitor Data for: {{target_name}} &nbsp&nbsp&nbsp
+		ID: {{ target_id }} &nbsp&nbsp&nbsp
+		Target url: <a id="target_url" class="stack_small" href="{{ target_url }}" target="_blank">link</a>
+	</div>
   	<div id="resizeable" class="chart_container ui-resizable">
   		<div class="chart resizeable" id="chart_target"></div>
 	</div>

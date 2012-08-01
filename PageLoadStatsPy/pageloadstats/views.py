@@ -30,6 +30,7 @@ def chart(request, target_id):
         'target_id_list_param': "&target_id_list=",
         'target_id': target_id,
         'target_name': target.name,
+        'target_url': target.url,
         'start_date': start_date,
         'start_end_params': "%26start_date="+start_date+"%26end_date="+end_date,
         'end_date': end_date,
