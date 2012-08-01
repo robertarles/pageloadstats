@@ -174,14 +174,9 @@ def chart_data(request, target_id):
     x = x_axis()        
     x_axis_step_size = len(load_time_request_dates)/15
     xlabels = x_axis_labels(steps=x_axis_step_size, rotate='vertical')
-    #xlabels.labels = pls_chart.get_x_axis_array( load_time_request_dates[0], load_time_request_dates[-1], 15)
-    if(start_date and end_date):
-        fmt = "%Y/%m/%d %H:%M:%S"
-        start_date_dt = datetime.datetime.fromtimestamp(int(start_date)).strftime(fmt)
-        end_date_dt = datetime.datetime.fromtimestamp(int(end_date)).strftime(fmt)
-    else:
-        start_date_dt = load_time_request_dates[0]
-        end_date_dt = load_time_request_dates[-1]
+
+    start_date_dt = load_time_request_dates[0]
+    end_date_dt = load_time_request_dates[-1]
     xlabels.labels = pls_chart.get_x_axis_array( start_date_dt, end_date_dt, 15)
     x.labels = xlabels
     pls_chart.x_axis = x
