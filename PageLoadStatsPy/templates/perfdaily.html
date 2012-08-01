@@ -14,28 +14,30 @@
 {% block content %}
 	
 	<div class="row">
-		<div class="span8"> <h3>Yesterday's avg times</h3> </div>
-	</div>
-	<div class="row">
-		<div class="span8"> home:{{ home_average }}</div>
-	</div>
-	<div class="row">
-		<div class="span8"> bpp:{{ bpp_average }}</div>
-	</div>
-	<div class="row">
-		<div class="span8"> browse:{{ browse_average }}</div>
-	</div>
-	<div class="row">
-		<div class="span8"> deals:{{ deals_average }}</div>
-	</div>
-	<div class="row">
-		<div class="span8"> solr:{{ solr_average }}</div>
-	</div>
-	<div class="row">
-		<div class="span8"> api:{{ api_average }}</div>
-	</div>
-	<div class="row">
-		<div class="span8"> mobile app:{{ mobile_app_average }}</div>
+		<div class="span4">
+			<table>
+				<tr><th>Yesterdays Average Times</th></tr>
+				<tr><td style="min-width:75px"> home</td><td>{{ home_average }}</td></tr>
+				<tr><td> bpp</td><td>{{ bpp_average }}</td></tr>
+				<tr><td> browse</td><td>{{ browse_average }}</td></tr>
+			    <tr><td> deals</td><td>{{ deals_average }}</td></tr>
+				<tr><td> solr</td><td>{{ solr_average }}</td></tr>
+				<tr><td> api</td><td>{{ api_average }}</td></tr>
+				<tr><td> mobile app</td><td>{{ mobile_app_average }}</td></tr>
+			</table>
+		</div>
+		<div class="span4">
+			<table>
+				<tr><th>Yesterday-1 Average Times</th></tr>
+				<tr><td style="min-width:75px"> home</td><td>{{ home_average2 }}</td></tr>
+				<tr><td> bpp</td><td>{{ bpp_average2 }}</td></tr>
+				<tr><td> browse</td><td>{{ browse_average2 }}</td></tr>
+				<tr><td> deals</td><td>{{ deals_average2 }}</td></tr>
+				<tr><td> solr</td><td>{{ solr_average2 }}</td></tr>
+				<tr><td> api</td><td>{{ api_average2 }}</td></tr>
+				<tr><td> mobile app</td><td>{{ mobile_app_average2 }}</td></tr>
+			</table>
+		</div>
 	</div>
 
 {% endblock %}
