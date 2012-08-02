@@ -73,15 +73,25 @@ def daily_avg(request, tag, days_ago):
     #print t_midnight
     #print y_midnight
     stats = Stat_Rich.objects.filter(timestamp__gte=y_midnight).filter(timestamp__lte=t_midnight).filter(target__tags__icontains=tag)
-    sum = 0
-    avg = 0
+    
+    sumElapsed = 0
+    avgElapsed = 0
+    sumLoad = 0
+    avgLoad = 0
+    
     for stat in stats:
-        sum += stat.page_load_time
-    avg = sum / len(stats)
+        sumLoad += int(stat.page_load_time) if stat.page_load_time else 0
+        sumElapsed += int(stat.elapsed) if stat.elapsed else 0
+    avgLoad = sumLoad / len(stats)
+    avgElapsed = sumElapsed / len(stats)
+    
+    
     response_data = {}
+    response_data['data_type'] = "daily averages" 
     response_data['tag'] = tag
     response_data['days_ago'] = days_ago
-    response_data['avg'] = avg
+    response_data['load'] = avgLoad
+    response_data['elapsed'] = avgElapsed
     return HttpResponse(simplejson.dumps(response_data), mimetype="application/json")
         
 

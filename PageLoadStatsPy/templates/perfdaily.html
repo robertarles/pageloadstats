@@ -15,7 +15,9 @@
 			$.ajax({
 				  url: '/pls/dailyavg/'+tag+'/'+days_ago+'/',
 				  success: function(data) {
-				    $(target_el).append(tag+": " + data["avg"] + "<br>");
+				    $(target_el+"_tag").html(tag);
+				    $(target_el+"_load").html(data["load"]);
+				    $(target_el+"_elapsed").html(data["elapsed"]);
 				    console.log(target_el + " -- " + tag+": " + data["avg"]);
 				  }
 				});
@@ -28,51 +30,59 @@
 {% block content %}
 	
 	<div class="row">
-		<div class="span2">
-			<div class="row">yesterday</div>	
-				<span class="home_1"></span>	
-				<span class="bpp_1"></span>	
-				<span class="browse_1"></span>	
-				<span class="deals_1"></span>	
-				<span class="srp_1"></span>	
-				<span class="solr_1"></span>
-				<span class="api_1"></span>
-				<span class="mobile_app_1"></span>	
+		<div class="span4">
+			<table class="table table-striped">
+				<tr><th>Yesterday</th><th>Avg Load ms</th><th>Avg Elapsed ms</th></tr>
+				<tr><td class="home_1_tag">...</td><td class="home_1_load"></td><td class="home_1_elapsed"></td></tr>	
+				<tr><td class="bpp_1_tag">...</td><td class="bpp_1_load"></td><td class="bpp_1_elapsed"></td></tr>	
+				<tr><td class="browse_1_tag">...</td><td class="browse_1_load"></td><td class="browse_1_elapsed"></td></tr>	
+				<tr><td class="deals_1_tag">...</td><td class="deals_1_load"></td><td class="deals_1_elapsed"></td></tr>	
+				<tr><td class="srp_1_tag">...</td><td class="srp_1_load"></td><td class="srp_1_elapsed"></td></tr>	
+				<tr><td class="solr_1_tag">...</td><td class="solr_1_load"></td><td class="solr_1_elapsed"></td></tr>
+				<tr><td class="api_1_tag">...</td><td class="api_1_load"></td><td class="api_1_elapsed"></td></tr>
+				<tr><td class="mobile_app_1_tag">...</td><td class="mobile_app_1_load"></td><td class="mobile_app_1_elapsed"></td></tr>
+			</table>	
 		</div>
-		<div class="span2">
-			<div class="row">yesterday-1</div>	
-				<span class="home_2"></span>	
-				<span class="bpp_2"></span>	
-				<span class="browse_2"></span>	
-				<span class="deals_2"></span>	
-				<span class="srp_2"></span>	
-				<span class="solr_2"></span>
-				<span class="api_2"></span>
-				<span class="mobile_app_2"></span>	
+		<div class="span4">
+			<table class="table table-striped">
+				<tr><th>Yesterday-1</th><th>Avg Load ms</th><th>Avg Elapsed ms</th></tr>
+				<tr><td class="home_2_tag">...</td><td class="home_2_load"></td><td class="home_2_elapsed"></td></tr>	
+				<tr><td class="bpp_2_tag">...</td><td class="bpp_2_load"></td><td class="bpp_2_elapsed"></td></tr>	
+				<tr><td class="browse_2_tag">...</td><td class="browse_2_load"></td><td class="browse_2_elapsed"></td></tr>	
+				<tr><td class="deals_2_tag">...</td><td class="deals_2_load"></td><td class="deals_2_elapsed"></td></tr>	
+				<tr><td class="srp_2_tag">...</td><td class="srp_2_load"></td><td class="srp_2_elapsed"></td></tr>	
+				<tr><td class="solr_2_tag">...</td><td class="solr_2_load"></td><td class="solr_2_elapsed"></td></tr>
+				<tr><td class="api_2_tag">...</td><td class="api_2_load"></td><td class="api_2_elapsed"></td></tr>
+				<tr><td class="mobile_app_2_tag">...</td><td class="mobile_app_2_load"></td><td class="mobile_app_2_elapsed"></td></tr>
+			</table>	
 		</div>
 	</div>	
 	<div class="row">
-		<div class="span2">
-			<div class="row">yesterday-2</div>	
-				<span class="home_3"></span>	
-				<span class="bpp_3"></span>	
-				<span class="browse_3"></span>
-				<span class="deals_3"></span>		
-				<span class="srp_3"></span>	
-				<span class="solr_3"></span>
-				<span class="api_3"></span>
-				<span class="mobile_app_3"></span>	
+		<div class="span4">
+			<table class="table table-striped">
+				<tr><th>Yesterday-2</th><th>Avg Load ms</th><th>Avg Elapsed ms</th></tr>
+				<tr><td class="home_3_tag">...</td><td class="home_3_load"></td><td class="home_3_elapsed"></td></tr>	
+				<tr><td class="bpp_3_tag">...</td><td class="bpp_3_load"></td><td class="bpp_3_elapsed"></td></tr>	
+				<tr><td class="browse_3_tag">...</td><td class="browse_3_load"></td><td class="browse_3_elapsed"></td></tr>	
+				<tr><td class="deals_3_tag">...</td><td class="deals_3_load"></td><td class="deals_3_elapsed"></td></tr>	
+				<tr><td class="srp_3_tag">...</td><td class="srp_3_load"></td><td class="srp_3_elapsed"></td></tr>	
+				<tr><td class="solr_3_tag">...</td><td class="solr_3_load"></td><td class="solr_3_elapsed"></td></tr>
+				<tr><td class="api_3_tag">...</td><td class="api_3_load"></td><td class="api_3_elapsed"></td></tr>
+				<tr><td class="mobile_app_3_tag">...</td><td class="mobile_app_3_load"></td><td class="mobile_app_3_elapsed"></td></tr>
+			</table>
 		</div>
-		<div class="span2">
-			<div class="row">yesterday-3</div>	
-				<span class="home_4"></span>	
-				<span class="bpp_4"></span>	
-				<span class="browse_4"></span>	
-				<span class="deals_4"></span>	
-				<span class="srp_4"></span>	
-				<span class="solr_4"></span>
-				<span class="api_4"></span>
-				<span class="mobile_app_4"></span>	
+		<div class="span4">
+			<table class="table table-striped">
+				<tr><th>Yesterday-3</th><th>Avg Load ms</th><th>Avg Elapsed ms</th></tr>
+				<tr><td class="home_4_tag">...</td><td class="home_4_load"></td><td class="home_4_elapsed"></td></tr>	
+				<tr><td class="bpp_4_tag">...</td><td class="bpp_4_load"></td><td class="bpp_4_elapsed"></td></tr>	
+				<tr><td class="browse_4_tag">...</td><td class="browse_4_load"></td><td class="browse_4_elapsed"></td></tr>	
+				<tr><td class="deals_4_tag">...</td><td class="deals_4_load"></td><td class="deals_4_elapsed"></td></tr>	
+				<tr><td class="srp_4_tag">...</td><td class="srp_4_load"></td><td class="srp_4_elapsed"></td></tr>	
+				<tr><td class="solr_4_tag">...</td><td class="solr_4_load"></td><td class="solr_4_elapsed"></td></tr>
+				<tr><td class="api_4_tag">...</td><td class="api_4_load"></td><td class="api_4_elapsed"></td></tr>
+				<tr><td class="mobile_app_4_tag">...</td><td class="mobile_app_4_load"></td><td class="mobile_app_4_elapsed"></td></tr>
+			</table>
 		</div>
 	</div>
 
