@@ -9,6 +9,7 @@ import datetime
 from datetime import datetime as datetimefunc
 from django.contrib import auth
 from django.http import HttpResponseRedirect
+from django.utils import simplejson
 
 cs_comment_tags = ["request id:", "tag:","server:", "elapsed:", "elapsed2:"]
 
@@ -58,46 +59,15 @@ def perf_daily(request):
     end_date = request.GET.get("end_date","")
     start_date=""
     end_date=""
-    
-    home_average = get_daily_avg("home", 1)
-    bpp_average = get_daily_avg("bpp", 1)
-    browse_average = get_daily_avg("browse",1)
-    deals_average = get_daily_avg("deals",1)
-    solr_average = get_daily_avg("solr",1)
-    api_average = get_daily_avg("api",1)
-    mobile_app_average = get_daily_avg("mobile_app",1)
-    
-    home_average2 = get_daily_avg("home", 2)
-    bpp_average2 = get_daily_avg("bpp",2)
-    browse_average2 = get_daily_avg("browse",2)
-    deals_average2 = get_daily_avg("deals",2)
-    solr_average2 = get_daily_avg("solr",2)
-    api_average2 = get_daily_avg("api",2)
-    mobile_app_average2 = get_daily_avg("mobile_app",2)
-    
     c = Context({
-        'home_average': home_average,
-        'bpp_average': bpp_average,
-        'browse_average': browse_average,
-        'deals_average': deals_average,
-        'solr_average': solr_average,
-        'api_average': api_average,
-        'mobile_app_average': mobile_app_average,
-        'home_average2': home_average2,
-        'bpp_average2': bpp_average2,
-        'browse_average2': browse_average2,
-        'deals_average2': deals_average2,
-        'solr_average2': solr_average2,
-        'api_average2': api_average2,
-        'mobile_app_average2': mobile_app_average2,
         'start_end_params': "%26start_date="+start_date+"%26end_date="+end_date,
     })
     return HttpResponse(t.render(c))    
 
-def get_daily_avg(tag, daysBack):
+def daily_avg(request, tag, days_ago):
     now = int(time.time())
-    daysBack = daysBack-1; # we're going back one day by default, so 2 means "1 more"
-    t_midnight = now - (now % (24 * 60 * 60)) - ((24*60*60)*daysBack)
+    days_ago = int(days_ago)-1; # we're going back one day by default, so 2 means "1 more than default"
+    t_midnight = now - (now % (24 * 60 * 60)) - ((24*60*60)*days_ago)
     y_midnight = t_midnight - (24 * 60 * 60)
     #print now
     #print t_midnight
@@ -108,7 +78,11 @@ def get_daily_avg(tag, daysBack):
     for stat in stats:
         sum += stat.page_load_time
     avg = sum / len(stats)
-    return avg
+    response_data = {}
+    response_data['tag'] = tag
+    response_data['days_ago'] = days_ago
+    response_data['avg'] = avg
+    return HttpResponse(simplejson.dumps(response_data), mimetype="application/json")
         
 
 ##

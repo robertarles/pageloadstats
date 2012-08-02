@@ -3,9 +3,23 @@
     <script type="text/javascript">
     
 		$(document).ready(function(){
-			
+			tags = ["home", "bpp", "browse", "deals", "srp", "solr", "mobile_app", "api"];
+			for(tag in tags){
+				for(i=1;i<=4;i++){
+					get_avgs_days_ago(i,tags[tag], "."+tags[tag]+"_"+i);
+				}
+			}
 		});
 
+		function get_avgs_days_ago(days_ago, tag, target_el){
+			$.ajax({
+				  url: '/pls/dailyavg/'+tag+'/'+days_ago+'/',
+				  success: function(data) {
+				    $(target_el).append(tag+": " + data["avg"] + "<br>");
+				    console.log(target_el + " -- " + tag+": " + data["avg"]);
+				  }
+				});
+		}
 
     </script>
 {% endblock%}
@@ -14,29 +28,51 @@
 {% block content %}
 	
 	<div class="row">
-		<div class="span4">
-			<table>
-				<tr><th>Yesterdays Average Times</th></tr>
-				<tr><td style="min-width:75px"> home</td><td>{{ home_average }}</td></tr>
-				<tr><td> bpp</td><td>{{ bpp_average }}</td></tr>
-				<tr><td> browse</td><td>{{ browse_average }}</td></tr>
-			    <tr><td> deals</td><td>{{ deals_average }}</td></tr>
-				<tr><td> solr</td><td>{{ solr_average }}</td></tr>
-				<tr><td> api</td><td>{{ api_average }}</td></tr>
-				<tr><td> mobile app</td><td>{{ mobile_app_average }}</td></tr>
-			</table>
+		<div class="span2">
+			<div class="row">yesterday</div>	
+				<span class="home_1"></span>	
+				<span class="bpp_1"></span>	
+				<span class="browse_1"></span>	
+				<span class="deals_1"></span>	
+				<span class="srp_1"></span>	
+				<span class="solr_1"></span>
+				<span class="api_1"></span>
+				<span class="mobile_app_1"></span>	
 		</div>
-		<div class="span4">
-			<table>
-				<tr><th>Yesterday-1 Average Times</th></tr>
-				<tr><td style="min-width:75px"> home</td><td>{{ home_average2 }}</td></tr>
-				<tr><td> bpp</td><td>{{ bpp_average2 }}</td></tr>
-				<tr><td> browse</td><td>{{ browse_average2 }}</td></tr>
-				<tr><td> deals</td><td>{{ deals_average2 }}</td></tr>
-				<tr><td> solr</td><td>{{ solr_average2 }}</td></tr>
-				<tr><td> api</td><td>{{ api_average2 }}</td></tr>
-				<tr><td> mobile app</td><td>{{ mobile_app_average2 }}</td></tr>
-			</table>
+		<div class="span2">
+			<div class="row">yesterday-1</div>	
+				<span class="home_2"></span>	
+				<span class="bpp_2"></span>	
+				<span class="browse_2"></span>	
+				<span class="deals_2"></span>	
+				<span class="srp_2"></span>	
+				<span class="solr_2"></span>
+				<span class="api_2"></span>
+				<span class="mobile_app_2"></span>	
+		</div>
+	</div>	
+	<div class="row">
+		<div class="span2">
+			<div class="row">yesterday-2</div>	
+				<span class="home_3"></span>	
+				<span class="bpp_3"></span>	
+				<span class="browse_3"></span>
+				<span class="deals_3"></span>		
+				<span class="srp_3"></span>	
+				<span class="solr_3"></span>
+				<span class="api_3"></span>
+				<span class="mobile_app_3"></span>	
+		</div>
+		<div class="span2">
+			<div class="row">yesterday-3</div>	
+				<span class="home_4"></span>	
+				<span class="bpp_4"></span>	
+				<span class="browse_4"></span>	
+				<span class="deals_4"></span>	
+				<span class="srp_4"></span>	
+				<span class="solr_4"></span>
+				<span class="api_4"></span>
+				<span class="mobile_app_4"></span>	
 		</div>
 	</div>
 
