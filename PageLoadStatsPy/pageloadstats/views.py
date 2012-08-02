@@ -82,6 +82,8 @@ def daily_avg(request, tag, days_ago):
     for stat in stats:
         sumLoad += int(stat.page_load_time) if stat.page_load_time else 0
         sumElapsed += int(stat.elapsed) if stat.elapsed else 0
+        if(hasattr(stat,"query_time")): # solr queries dont have elapsed times, but do have an equivilent query_time
+            sumElapsed += int(stat.query_time) if stat.query_time else 0
     avgLoad = sumLoad / len(stats)
     avgElapsed = sumElapsed / len(stats)
     
