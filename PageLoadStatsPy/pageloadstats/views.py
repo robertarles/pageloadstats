@@ -45,7 +45,7 @@ def chart_multi(request):
     end_date = request.GET.get("end_date","")
     c = Context({
         'chart_data_url': "chart_multi_data",
-        'target_id_list_param': "%26target_id_list="+target_id_list,
+        'target_id_list_param': "%26target_id_list="+str(target_id_list),
         'target_name': "multiple targets",
         'start_date': start_date,
         'start_end_params': "%26start_date="+start_date+"%26end_date="+end_date,
@@ -53,7 +53,7 @@ def chart_multi(request):
     })
     return HttpResponse(t.render(c))
 
-def perf_daily(request):
+def daily_avgs(request):
     t = loader.get_template('perfdaily.html')
     start_date = request.GET.get('start_date',"")
     end_date = request.GET.get("end_date","")
@@ -64,7 +64,7 @@ def perf_daily(request):
     })
     return HttpResponse(t.render(c))    
 
-def daily_avg(request, tag, days_ago):
+def get_daily_avg(request, tag, days_ago):
     now = int(time.time())
     days_ago = int(days_ago)-1; # we're going back one day by default, so 2 means "1 more than default"
     t_midnight = now - (now % (24 * 60 * 60)) - ((24*60*60)*days_ago)
@@ -240,6 +240,8 @@ def chart_multi_data(request):
     pls_chart = Pls_Chart()
 
     chart_axis_set = False
+    if(target_id_list == None):
+        return False
     
     for target_id in target_id_list:
             
