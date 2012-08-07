@@ -66,13 +66,14 @@ def daily_avgs(request):
 
 def get_daily_avg(request, tag, days_ago):
     now = int(time.time())
-    days_ago = int(days_ago)-1; # we're going back one day by default, so 2 means "1 more than default"
-    t_midnight = now - (now % (24 * 60 * 60)) - ((24*60*60)*days_ago)
-    y_midnight = t_midnight - (24 * 60 * 60)
+    days_offset = int(days_ago) -1
+    ending_midnight = now - (now % (24 * 60 * 60)) - ((24*60*60)*days_offset)
+    starting_midnight = ending_midnight - (24 * 60 * 60)
     #print now
-    #print t_midnight
-    #print y_midnight
-    stats = Stat_Rich.objects.filter(timestamp__gte=y_midnight).filter(timestamp__lte=t_midnight).filter(target__tags__icontains=tag)
+    #print ending_midnight
+    #print starting_midnight
+    stats = Stat_Rich.objects.filter(timestamp__gte=starting_midnight).filter(timestamp__lte=ending_midnight).filter(target__tags__icontains=tag)
+
     
     sumElapsed = 0
     avgElapsed = 0
@@ -84,8 +85,11 @@ def get_daily_avg(request, tag, days_ago):
         sumElapsed += int(stat.elapsed) if stat.elapsed else 0
         if(hasattr(stat,"query_time")): # solr queries dont have elapsed times, but do have an equivilent query_time
             sumElapsed += int(stat.query_time) if stat.query_time else 0
-    avgLoad = sumLoad / len(stats)
-    avgElapsed = sumElapsed / len(stats)
+    
+    #if there is data, calculate the averages, else stick with defaults of ZERO
+    if(len(stats)>0):
+        avgLoad = sumLoad / len(stats)
+        avgElapsed = sumElapsed / len(stats)
     
     
     response_data = {}
@@ -417,6 +421,25 @@ def get_sma_values(stats, sma_window_size):
         sma_cavg.append(sum(sma_window) / len(sma_window))
 
     return sma_cavg
+
+def get_tags(request):
+        
+    targets = Target.objects.filter(active=1)
+    
+    tag_dict = {}
+    # get a list of tags in use on the targets
+    for target in targets:
+        target_tags = target.tags.split(",")
+        for tag in target_tags:
+            tag_dict[tag] = "placing the tag as a key ensures it will be unique, no dupe's"
+    tag_list = tag_dict.keys()
+    
+    response_data = {}
+    response_data['tags']=[]
+    response_data['tags'].extend(tag_list)
+    response_data['subject']="targets"
+    
+    return HttpResponse(simplejson.dumps(response_data), mimetype="application/json")
 
 
 def user_logout(request):
