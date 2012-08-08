@@ -28,7 +28,6 @@ def chart(request, target_id):
     end_date = request.GET.get("end_date","")
     c = Context({
         'chart_data_url': "chart_data",
-        'target_id_list_param': "&target_id_list=",
         'target_id': target_id,
         'target_name': target.name,
         'target_url': target.url,
@@ -38,14 +37,14 @@ def chart(request, target_id):
     })
     return HttpResponse(t.render(c))  
 
-def chart_multi(request):
-    target_id_list = request.GET.get("target_id_list")
+def chart_multi(request, target_id_list):
+    #target_id_list = request.GET.get("target_id_list")
     t = loader.get_template('chart.html')
     start_date = request.GET.get('start_date',"")
     end_date = request.GET.get("end_date","")
     c = Context({
         'chart_data_url': "chart_multi_data",
-        'target_id_list_param': "%26target_id_list="+str(target_id_list),
+        'target_id': target_id_list,
         'target_name': "multiple targets",
         'start_date': start_date,
         'start_end_params': "%26start_date="+start_date+"%26end_date="+end_date,
@@ -227,16 +226,16 @@ def chart_data(request, target_id):
     pls_chart.title = t
     return HttpResponse(pls_chart.render())
 
-def chart_multi_data(request):
+def chart_multi_data(request,target_id_list):
     
-    target_id_value = request.GET.get("target_id_list")
+    #target_id_value = request.GET.get("target_id_list")
     start_date = request.GET.get("start_date")
     end_date = request.GET.get("end_date")
     COLOR_LIST = ("#6495ED", "#BDB76B", "#BA55D3", "#6B8E23", "#D2691E", "#DB7093", "#FF6347", "#6B8E23")
     color_index = 0
 
     
-    target_id_list = target_id_value.split(",")
+    target_id_list = target_id_list.split(",")
     chart_range = 100
     largest_load_time = 100
 

@@ -58,7 +58,7 @@ class Pls_Chart(object):
 				break;
 			dateStr = dates[i+date_differential]
 			txt = name + "<br>" + dateStr + "<br>" + "#val#ms"
-			dot = dot_value(value=values[i+date_differential], tip=txt)
+			dot = dot_value(value=values[i+date_differential], tip=txt, dot_size=4)
 			datestr1 = dateStr
 			dot_date = datetimefunc.strptime(datestr1, fmt1)
 			if(i < len(self.date_array)):

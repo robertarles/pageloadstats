@@ -8,8 +8,8 @@ urlpatterns = patterns('PageLoadStatsPy.pageloadstats.views',
     
     url(r'^chart/(?P<target_id>\d+)/$', 'chart'),           # the chart for target # <target_id>
     url(r'^chart_data/(?P<target_id>\d+)/$', 'chart_data'), # API this one returns the data for the chart view
-    url(r'^chart_multi/$', 'chart_multi'),                  # the chart for multiple targets
-    url(r'^chart_multi_data/$', 'chart_multi_data'),        # API this one returns the data for the chart_multi view
+    url(r'^chart_multi/(?P<target_id_list>.+)/$', 'chart_multi'),      # the chart for multiple targets
+    url(r'^chart_multi_data/(?P<target_id_list>.+)/$', 'chart_multi_data'),        # API this one returns the data for the chart_multi view
     
     url(r'^check/(?P<target_id>\d+)/$', 'check'),           # run a target stat check on tartet # <target_id>
     url(r'^check/(?P<target_id>all)/$', 'check'),           # run a target stat check on everything in the DB
