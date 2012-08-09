@@ -227,7 +227,17 @@ def chart_data(request, target_id):
     pls_chart.title = t
     return HttpResponse(pls_chart.render())
 
-def chart_multi_data(request,target_id_list):
+def chart_multi_data_by_tag(request,tag):
+    targets = Target.objects.filter(tags__contains=tag).filter(active=1)
+    target_id_list = ""
+    separator=""
+    for target in targets:
+        target_id_list = target_id_list+separator+str(target.id)
+        separator = ","
+        
+    return chart_multi_data_by_ids(request,target_id_list)
+
+def chart_multi_data_by_ids(request,target_id_list):
     
     #target_id_value = request.GET.get("target_id_list")
     start_date = request.GET.get("start_date")
