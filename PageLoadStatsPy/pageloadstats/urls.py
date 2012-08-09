@@ -7,9 +7,10 @@ urlpatterns = patterns('PageLoadStatsPy.pageloadstats.views',
     url(r'^targets/$', 'target_list'),                      # a list of targets in the db
     
     url(r'^chart/(?P<target_id>\d+)/$', 'chart'),           # the chart for target # <target_id>
-    url(r'^chart_data/(?P<target_id>\d+)/$', 'chart_data'), # API this one returns the data for the chart view
+    url(r'^chart/(?P<tag>\w+)/$', 'chart_multi_by_tag'),      # the chart for multiple targets
+    url(r'^chart/(?P<target_id_list>[0-9]+,[0-9,]+)/$', 'chart_multi_by_id'),      # the chart for multiple targets by id
     
-    url(r'^chart_multi/(?P<target_id_list>.+)/$', 'chart_multi'),      # the chart for multiple targets
+    url(r'^chart_data/(?P<target_id>\d+)/$', 'chart_data'), # API this one returns the data for the chart view
     url(r'^chart_multi_data/(?P<target_id_list>[0-9,]+)/$', 'chart_multi_data_by_ids'),        # API this one returns the data for the chart_multi view
     url(r'^chart_multi_data/(?P<tag>\w+)/$', 'chart_multi_data_by_tag'),        # API this one returns the data for the chart_multi view
     

@@ -87,10 +87,11 @@ class Pls_Chart(object):
 			
 			# if the dots date value is more than 15 minutes (the chart resolution) ahead of 
 			# this point on the x-axis of the chart, set the time differential and try the next datetime spot on th echart
-			if(delta > datetime.timedelta(minutes=15) and name.lower() != "alert level"): 
+			if(delta > datetime.timedelta(minutes=15)): 
 				# is this data later than the current spot (some data missing, likely) (but always show alert level
+				if(name.lower() != "alert level"):
+					dot = dot_value(value=None,tip="no data")
 				date_differential -= 1
-				dot = dot_value(value=None,tip="no data")
 				
 			dots.append(dot)
 

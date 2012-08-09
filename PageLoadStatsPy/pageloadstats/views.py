@@ -37,7 +37,17 @@ def chart(request, target_id):
     })
     return HttpResponse(t.render(c))  
 
-def chart_multi(request, target_id_list):
+def chart_multi_by_tag(request, tag):
+    targets = Target.objects.filter(tags__contains=tag).filter(active=1)
+    target_id_list = ""
+    separator=""
+    for target in targets:
+        target_id_list = target_id_list+separator+str(target.id)
+        separator = ","
+        
+    return chart_multi_by_id(request, target_id_list)
+
+def chart_multi_by_id(request, target_id_list):
     #target_id_list = request.GET.get("target_id_list")
     t = loader.get_template('chart.html')
     start_date = request.GET.get('start_date',"")
@@ -313,6 +323,8 @@ def chart_multi_data_by_ids(request,target_id_list):
         pls_chart.add_line(target.name, target.name+"("+str(line_avg)+")", load_times, date_range, COLOR_LIST[color_index])
         
         color_index += 1 # move to the next line color for the chart
+        if(color_index >= len(COLOR_LIST)):
+            color_index = 0
         
     # setup the y axis
     y_axis_step_size = largest_load_time / 5
