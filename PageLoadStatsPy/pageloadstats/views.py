@@ -122,6 +122,7 @@ def chart_data(request, target_id):
         stats_rs = Stat_Rich.objects.filter(target_id=target_id).order_by("-timestamp")[:chart_range] # get the latest
     stats=[]
     
+    #reverse the results for display on the chart, increasing date, left to right
     for stat in stats_rs:
         stats.insert(0,stat)
         
@@ -262,7 +263,7 @@ def chart_multi_data(request,target_id_list):
             stats_rs_list = Stat_Rich.objects.filter(target_id=target_id).order_by("-timestamp")[:chart_range]
         
             
-        for stat in stats_rs_list: # reverse the list to get them oldest to newest
+        for stat in stats_rs_list: # reverse the list to get them oldest to newest for display on the chart
             stats_list.insert(0,stat) 
         
         for stat in stats_list:

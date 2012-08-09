@@ -51,6 +51,7 @@ class Pls_Chart(object):
 		date_end_index = len(self.date_array)
 		date_differential = 0 #
 		for i in range(date_end_index):
+			
 			dateStr = ""
 			if(i+date_differential >= len(values)):
 				break;
@@ -82,12 +83,12 @@ class Pls_Chart(object):
 					datestr2 = self.date_array[i]
 				xaxis_date = datetimefunc.strptime(datestr2, fmt2)
 				
-			
 			delta = dot_date - xaxis_date
 			
 			# if the dots date value is more than 15 minutes (the chart resolution) ahead of 
 			# this point on the x-axis of the chart, set the time differential and try the next datetime spot on th echart
-			if(delta > datetime.timedelta(minutes=15)): # is this data later than the current spot (some data missing, likely)
+			if(delta > datetime.timedelta(minutes=15) and name.lower() != "alert level"): 
+				# is this data later than the current spot (some data missing, likely) (but always show alert level
 				date_differential -= 1
 				dot = dot_value(value=None,tip="no data")
 				
