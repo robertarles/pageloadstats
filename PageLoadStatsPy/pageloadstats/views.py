@@ -27,7 +27,7 @@ def chart(request, target_id):
     start_date = request.GET.get('start_date',"")
     end_date = request.GET.get("end_date","")
     c = Context({
-        'chart_data_url': "chart_data",
+        'chart_data_url': "api/ofc2chart/",
         'target_id': target_id,
         'target_name': target.name,
         'target_url': target.url,
@@ -53,7 +53,7 @@ def chart_multi_by_id(request, target_id_list):
     start_date = request.GET.get('start_date',"")
     end_date = request.GET.get("end_date","")
     c = Context({
-        'chart_data_url': "chart_multi_data",
+        'chart_data_url': "api/ofc2chart/",
         'target_id': target_id_list,
         'target_name': "multiple targets",
         'start_date': start_date,
@@ -252,7 +252,7 @@ def chart_multi_data_by_ids(request,target_id_list):
     #target_id_value = request.GET.get("target_id_list")
     start_date = request.GET.get("start_date")
     end_date = request.GET.get("end_date")
-    COLOR_LIST = ("#6495ED", "#BDB76B", "#BA55D3", "#6B8E23", "#D2691E", "#DB7093", "#FF6347", "#6B8E23")
+    COLOR_LIST = ("#6495ED", "#FF6347", "#BA55D3", "#6B8E23", "#D2691E", "#DB7093", "#666699", "#33cc33")
     color_index = 0
 
     
