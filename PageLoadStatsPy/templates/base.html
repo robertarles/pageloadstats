@@ -30,16 +30,28 @@
 			$("#resizeable").resizable();
 			
 			$('.menu_top').click(function() {
+
+				closeMenus();
+				
 				target = $(this).attr("target")
 				if($("."+target).is(":visible")){
 					return true;
 				}
-				$(".menu_sub").slideUp();
+				
+				// slide the selected menu down
 				$("."+target).slideDown();
-				console.log("clicked: " + $(this).children(".menu_sub").att("class"));
+				$(this).find("i").attr("class","icon-minus-sign");
+				
+				console.log("clicked: " + target);
 			});
 			
 		});
+		
+		function closeMenus(){
+			// slide everything up
+			$(".menu_sub").slideUp();
+			$(".menu_top").find("i").attr("class","icon-plus-sign");
+		}
 		
 	</script>
 </head>
