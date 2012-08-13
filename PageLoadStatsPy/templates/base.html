@@ -28,6 +28,17 @@
 			setTZOffsetCookie();
 			$(".date_time_picker").datetimepicker();
 			$("#resizeable").resizable();
+			
+			$('.menu_top').click(function() {
+				target = $(this).attr("target")
+				if($("."+target).is(":visible")){
+					return true;
+				}
+				$(".menu_sub").slideUp();
+				$("."+target).slideDown();
+				console.log("clicked: " + $(this).children(".menu_sub").att("class"));
+			});
+			
 		});
 		
 	</script>
@@ -42,36 +53,22 @@
 			</header>
 		</div>
 		<div class="row">
-			<div id="sidebar" class="span stack_medium">
+			<div id="sidebar" class="span2 stack_medium">
 			
 				{% block sidebar %}
 				<h4 class="stack_small">Menu</h4>
 				<ul class="nav nav-list stack_small">
-                    <li><a href="/pls/"><i class="icon-home"></i>home</a></li>
-                    <li><a href="/pls/targets"><i class="icon-th-list"></i>targets</a></li>
-                    <li><a href="/pls/dailyavgs/">daily avgs</a></li>
-					<li><span href="/pls/check/all">check all</span></li>
-				</ul>				
-				<h4 class="stack_small">Multi-charts</h4>
+                    <li><a href="/pls/targets"><i class="icon-home"></i>home</a></li>
+                    <li><a href="/pls/dailyavgs/"><i class="icon-calendar"></i>daily avgs</a></li>
+                    <li><a href="/pls/user_logout" onclick="logout();return(false);"><i class="icon-lock"></i>logout</a></li>
+				</ul>	
+				{% target_menu %}			
+				<h4 class="stack_small">custom overlays</h4>
 				<ul class="nav nav-list stack_small">
-					<li><a href="/pls/chart/39,40,52">Solr(subset)</a></li>
-					<li><a href="/pls/chart/api">APIs</a></li>
-					<li><a href="/pls/chart/denver">Denver</a></li>
-					<li><a href="/pls/chart/los_angeles">LA</a></li>
-					<li><a href="/pls/chart/phoenix">phoenix</a></li>
-					<li><a href="/pls/chart/portland">Portland</a></li>
-					<li><a href="/pls/chart/home">Home</a></li>
-					<li><a href="/pls/chart/bpp">BPP</a></li>
-					<li><a href="/pls/chart/deals">Deals</a></li>
-					<li><a href="/pls/chart/browse">Browse</a></li>
-					<li><a href="/pls/chart/srp">SRP</a></li>
-					<li><a href="/pls/chart/55,56,57,58">Mobile Search(subset)</a></li>
+					<li><a href="/pls/chart/39,40,52"><i class="icon-star-empty"></i>Solr(0,1,7)</a></li>
+					<li><a href="/pls/chart/55,56,57,58"><i class="icon-star-empty"></i>Mobile Search(subset)</a></li>
 				</ul>
-				<!-- target_menu  -->
-				<h4 class="stack_small">Settings</h4>
-				<ul class="nav nav-list stack_small">
-                    <li><a href="/pls/user_logout" onclick="logout();return(false);"><i class="icon-lock"></i>Logout</a></li>
-				</ul>
+
 				{% endblock %}
 			</div>
 

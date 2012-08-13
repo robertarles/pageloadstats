@@ -463,6 +463,23 @@ def get_tags(request):
     
     return HttpResponse(simplejson.dumps(response_data), mimetype="application/json")
 
+def get_targets_by_tag_json(request, tag):
+    targets = Target.objects.filter(active=1).filter(tags__contains=tag)
+
+    response_data = {}
+    response_data['targets'] = []
+    response_data['with_tag'] = tag
+    response_data['subject'] = "targets_with_tag"
+    
+    for target in targets:
+        target_dict  = {}
+        target_dict["id"] = target.id
+        target_dict["name"] = target.name
+        target_dict["target_url"] = target.url
+        target_dict["tags"] = target.tags
+        response_data["targets"].append(target_dict)
+        
+    return HttpResponse(simplejson.dumps(response_data), mimetype="application/json")
 
 def user_logout(request):
     auth.logout(request)

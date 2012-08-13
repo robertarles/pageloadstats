@@ -3,7 +3,7 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('PageLoadStatsPy.pageloadstats.views',
-    url(r'^$', 'target_list'),                              # default view url
+    url(r'^$', 'daily_avgs'),                              # default view url
     url(r'^targets/$', 'target_list'),                      # a list of targets in the db
     
     url(r'^chart/(?P<target_id>\d+)/$', 'chart'),           # the chart for target # <target_id>
@@ -22,6 +22,7 @@ urlpatterns = patterns('PageLoadStatsPy.pageloadstats.views',
     
     # API 
     url(r'^api/tags/$', 'get_tags'), # API get a list of tags in use
+    url(r'^api/targets/(?P<tag>\w+)/$', 'get_targets_by_tag_json'), # API get a list of ID's for the given tag
     
     url(r'^check/(?P<target_id>\d+)/$', 'check'),           # run a target stat check on tartet # <target_id>
     url(r'^check/(?P<target_id>all)/$', 'check'),           # run a target stat check on everything in the DB

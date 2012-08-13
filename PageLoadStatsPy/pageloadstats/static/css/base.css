@@ -1,3 +1,8 @@
+a:link {color:#090;}      /* unvisited link */
+a:visited {color:#090;}  /* visited link */
+a:hover {color:#099;}  /* mouse over link */
+a:active {color:#099;}  /* selected link */
+
 .header{
 	font-size: 42px;
 	color: #009900;
@@ -11,8 +16,29 @@
 }
 
 .menu{
+	
+}
+
+
+.menu_top{
+	cursor: hand; 
+	cursor: pointer;
 	margin-left: -5px;
+	margin-top:-1px; /* get the items in the list to overlap, not having top+bottom borders showing */
+	padding:2px;
+	padding-left: 5px;
 	list-style-type: none;
+	/*
+	border-radius: 15px;
+	border: 1px solid #090;
+	*/
+}
+
+.menu_sub{
+	margin-left: -5px;
+	font-size: .80em;
+	list-style-type: none;
+	display: none;
 }
 
 .chart_container{
