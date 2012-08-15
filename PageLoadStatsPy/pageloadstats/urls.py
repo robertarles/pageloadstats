@@ -28,7 +28,8 @@ urlpatterns = patterns('PageLoadStatsPy.pageloadstats.views',
     url(r'^check/(?P<target_id>all)/$', 'check'),           # run a target stat check on everything in the DB
     
     url(r'^dailyavgs/$', 'daily_avgs'),              # show the current daily overall performance stats
-    url(r'^dailyavg/(?P<tag>.+)/(?P<days_ago>\d+)/$', 'get_daily_avg'),              # show the current daily overall performance stats
+    url(r'^dailyavg/(?P<target_id>\d+)/(?P<days_ago>\d+)/$', 'get_daily_avg_by_id'),
+    url(r'^dailyavg/(?P<tag>\w+)/(?P<days_ago>\d+)/$', 'get_daily_avg_by_tag'),              # show the current daily overall performance stats
     
     url(r'^user_logout/$', 'user_logout'),           # log a user out
 )

@@ -71,9 +71,49 @@ def daily_avgs(request):
     c = Context({
         'start_end_params': "%26start_date="+start_date+"%26end_date="+end_date,
     })
-    return HttpResponse(t.render(c))    
+    return HttpResponse(t.render(c))  
+  
+def get_daily_avg_by_id(request, target_id, days_ago):
+    now = int(time.time())
+    days_offset = int(days_ago) -1
+    ending_midnight = now - (now % (24 * 60 * 60)) - ((24*60*60)*days_offset)
+    starting_midnight = ending_midnight - (24 * 60 * 60)
+    #print now
+    #print ending_midnight
+    #print starting_midnight
+    stats = Stat_Rich.objects.filter(timestamp__gte=starting_midnight).filter(timestamp__lte=ending_midnight).filter(target_id=target_id)
 
-def get_daily_avg(request, tag, days_ago):
+    
+    sumElapsed = 0
+    avgElapsed = 0
+    sumLoad = 0
+    avgLoad = 0
+    target_name = ""
+    
+    for stat in stats:
+        sumLoad += int(stat.page_load_time) if stat.page_load_time else 0
+        sumElapsed += int(stat.elapsed) if stat.elapsed else 0
+        if(hasattr(stat,"query_time")): # solr queries dont have elapsed times, but do have an equivilent query_time
+            sumElapsed += int(stat.query_time) if stat.query_time else 0
+        if(hasattr(stat,"name")):
+            target_name = stat.name()
+    
+    #if there is data, calculate the averages, else stick with defaults of ZERO
+    if(len(stats)>0):
+        avgLoad = sumLoad / len(stats)
+        avgElapsed = sumElapsed / len(stats)
+    
+    
+    response_data = {}
+    response_data['data_type'] = "daily averages for id" 
+    response_data['id'] = target_id
+    response_data['days_ago'] = days_ago
+    response_data['load'] = avgLoad
+    response_data['elapsed'] = avgElapsed
+    response_data['target_name'] = target_name
+    return HttpResponse(simplejson.dumps(response_data), mimetype="application/json")
+
+def get_daily_avg_by_tag(request, tag, days_ago):
     now = int(time.time())
     days_offset = int(days_ago) -1
     ending_midnight = now - (now % (24 * 60 * 60)) - ((24*60*60)*days_offset)
@@ -102,7 +142,7 @@ def get_daily_avg(request, tag, days_ago):
     
     
     response_data = {}
-    response_data['data_type'] = "daily averages" 
+    response_data['data_type'] = "daily average for tag" 
     response_data['tag'] = tag
     response_data['days_ago'] = days_ago
     response_data['load'] = avgLoad

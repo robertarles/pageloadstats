@@ -108,6 +108,10 @@ class Stat_Rich(models.Model):
         target_alert = TargetAlert.objects.get(target_id=self.target_id)
         alert_info = Alert.objects.get(pk=target_alert.alert_id)
         return alert_info.limit_high
+    def name(self):
+        target = Target.objects.get(id=self.target_id)
+        target_name = target.name
+        return target_name
     
 class TargetAlert(models.Model):
     target = models.ForeignKey(Target, related_name='target_name')
