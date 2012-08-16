@@ -13,7 +13,7 @@
 
 		function get_avgs_days_ago(days_ago, tag, target_el){
 			$.ajax({
-				  url: '/pls/dailyavg/'+tag+'/'+days_ago+'/',
+				  url: '/pls/api/dailyavg/'+tag+'/'+days_ago+'/',
 				  success: function(data) {
 				    $(target_el+"_tag").html(tag);
 				    $(target_el+"_load").html(data["load"]);
