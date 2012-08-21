@@ -503,7 +503,24 @@ def get_tags(request):
     
     return HttpResponse(simplejson.dumps(response_data), mimetype="application/json")
 
-def get_targets_by_tag_json(request, tag):
+def get_targets_all(request, return_type):
+    targets = Target.objects.filter(active=1)
+
+    response_data = {}
+    response_data['targets'] = []
+    response_data['subject'] = "all_targets"
+    
+    for target in targets:
+        target_dict  = {}
+        target_dict["id"] = target.id
+        target_dict["name"] = target.name
+        target_dict["target_url"] = target.url
+        target_dict["tags"] = target.tags
+        response_data["targets"].append(target_dict)
+        
+    return HttpResponse(simplejson.dumps(response_data), mimetype="application/json")
+
+def get_targets_by_tag(request, tag, return_type):
     targets = Target.objects.filter(active=1).filter(tags__contains=tag)
 
     response_data = {}
