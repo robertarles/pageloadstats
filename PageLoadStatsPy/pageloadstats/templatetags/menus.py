@@ -21,15 +21,16 @@ def get_targets_by_tag():
     
     # get a list of tags in use on the targets
     for target in targets:
-        tag_list= target.tags.replace(" ","")
-        target_tags = tag_list.split(",")
-        for tag in target_tags:
-            if (not tag in tag_dict):
-                tag_dict[tag] = {}
-            if (not target.name in tag_dict[tag]):
-                tag_dict[tag][target.name] = {}
-            tag_dict[tag][target.name] = target.id
-            #{"home":{"la":1,"phoenix",2}, "bpp":{"denver":21,"portland":24}}
+        if(target.tags):
+            tag_list= target.tags.replace(" ","")
+            target_tags = tag_list.split(",")
+            for tag in target_tags:
+                if (not tag in tag_dict):
+                    tag_dict[tag] = {}
+                if (not target.name in tag_dict[tag]):
+                    tag_dict[tag][target.name] = {}
+                tag_dict[tag][target.name] = target.id
+                #{"home":{"la":1,"phoenix",2}, "bpp":{"denver":21,"portland":24}}
     
     
     return tag_dict
