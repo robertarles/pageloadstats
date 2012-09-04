@@ -62,14 +62,19 @@ def chart_multi_by_id(request, target_id_list):
     })
     return HttpResponse(t.render(c))
 
-def daily_avgs(request):
+def daily_avgs(request,tags=["home", "bpp", "browse", "deals", "srp", "solr_cluster", "solr_shard", "api"],days=4):
     t = loader.get_template('perfdaily.html')
     start_date = request.GET.get('start_date',"")
     end_date = request.GET.get("end_date","")
     start_date=""
     end_date=""
+    days = range(1,int(days)+1)
+    if(type(tags) != list):
+        tags = tags.split(",")
     c = Context({
         'start_end_params': "%26start_date="+start_date+"%26end_date="+end_date,
+        'days': days,
+        'tags':tags,
     })
     return HttpResponse(t.render(c))  
   

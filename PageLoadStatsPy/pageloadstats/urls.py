@@ -10,6 +10,8 @@ urlpatterns = patterns('PageLoadStatsPy.pageloadstats.views',
     url(r'^chart/(?P<tag>\w+)/$', 'chart_multi_by_tag'),      # the chart for multiple targets
     url(r'^chart/(?P<target_id_list>[0-9]+,[0-9,]+)/$', 'chart_multi_by_id'),      # the chart for multiple targets by id
     url(r'^dailyavgs/$', 'daily_avgs'),              # show the current daily overall performance stats
+    #url(r'^dailyavgs/(?P<days>[0-9]+)/$', 'daily_avgs'),              # show the current daily overall performance stats
+    url(r'^dailyavgs/(?P<tags>[\w,]+)/(?P<days>[0-9]+)/$', 'daily_avgs'),              # show the current daily overall performance stats
       
     # API for OFC2 charting
     url(r'^api/ofc2chart/(?P<target_id>\d+)/$', 'chart_data'), # API this one returns the data for the chart view
@@ -22,7 +24,7 @@ urlpatterns = patterns('PageLoadStatsPy.pageloadstats.views',
     url(r'^api/targets/(?P<tag>\w+)/(?P<return_type>)\w+/$', 'get_targets_by_tag'), # API get a list of targets for the given tag
         
     url(r'^api/dailyavg/(?P<target_id>\d+)/(?P<days_ago>\d+)/$', 'get_daily_avg_by_id'),
-    url(r'^api/dailyavg/(?P<tag>\w+)/(?P<days_ago>\d+)/$', 'get_daily_avg_by_tag'),              # show the current daily overall performance stats
+    url(r'^api/dailyavg/(?P<tag>[\w,]+)/(?P<days_ago>\d+)/$', 'get_daily_avg_by_tag'),              # show the current daily overall performance stats
     
     # request app to run checks against targets 
     url(r'^check/(?P<target_id>\d+)/$', 'check'),           # run a target stat check on tartet # <target_id>

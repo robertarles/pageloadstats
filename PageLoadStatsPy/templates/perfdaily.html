@@ -3,22 +3,21 @@
     <script type="text/javascript">
     
 		$(document).ready(function(){
-			tags = ["home", "bpp", "browse", "deals", "srp", "solr_cluster", "solr_shard", "api"];
-			for(tag in tags){
-				for(i=1;i<=4;i++){
-					get_avgs_days_ago(i,tags[tag], "."+tags[tag]+"_"+i);
-				}
-			}
+			{% for tag in tags %}
+				{% for day in days %}
+					get_avgs_days_ago("{{day}}","{{tag}}");
+				{% endfor %}
+			{% endfor %}
 		});
 
-		function get_avgs_days_ago(days_ago, tag, target_el){
+		function get_avgs_days_ago(days_ago, tag){
 			$.ajax({
 				  url: '/pls/api/dailyavg/'+tag+'/'+days_ago+'/',
 				  success: function(data) {
-				    $(target_el+"_tag").html(tag);
-				    $(target_el+"_load").html(data["load"]);
-				    $(target_el+"_elapsed").html(data["elapsed"]);
-				    console.log(target_el + " -- " + tag+": " + data["avg"]);
+				    $("."+tag+"_"+days_ago+"_name").html(tag);
+				    $("."+tag+"_"+days_ago+"_load").html(data["load"]);
+				    $("."+tag+"_"+days_ago+"_elapsed").html(data["elapsed"]);
+				    console.log("."+tag + " elapsed " + tag+": " + data["elapsed"]);
 				  }
 				});
 		}
@@ -30,60 +29,16 @@
 {% block content %}
 	
 	<div class="row">
+	{% for day in days %}
 		<div class="span4">
 			<table class="table table-striped">
-				<tr><th>1 day ago</th><th>Avg Load ms</th><th>Avg Elapsed ms</th></tr>
-				<tr><td class="home_1_tag">...</td><td class="home_1_load"></td><td class="home_1_elapsed"></td></tr>	
-				<tr><td class="bpp_1_tag">...</td><td class="bpp_1_load"></td><td class="bpp_1_elapsed"></td></tr>	
-				<tr><td class="browse_1_tag">...</td><td class="browse_1_load"></td><td class="browse_1_elapsed"></td></tr>	
-				<tr><td class="deals_1_tag">...</td><td class="deals_1_load"></td><td class="deals_1_elapsed"></td></tr>	
-				<tr><td class="srp_1_tag">...</td><td class="srp_1_load"></td><td class="srp_1_elapsed"></td></tr>	
-				<tr><td class="solr_cluster_1_tag">...</td><td class="solr_cluster_1_load"></td><td class="solr_cluster_1_elapsed"></td></tr>
-				<tr><td class="solr_shard_1_tag">...</td><td class="solr_shard_1_load"></td><td class="solr_shard_1_elapsed"></td></tr>
-				<tr><td class="api_1_tag">...</td><td class="api_1_load"></td><td class="api_1_elapsed"></td></tr>
+				<tr><th>{{day}} day(s) ago</th><th>Avg Load ms</th><th>Avg Elapsed ms</th></tr>
+				{% for tag in tags %}
+					<tr><td class="{{tag}}_{{day}}_name">...</td><td class="{{tag}}_{{day}}_load"></td><td class="{{tag}}_{{day}}_elapsed"></td></tr>
+				{% endfor %}
 			</table>	
 		</div>
-		<div class="span4">
-			<table class="table table-striped">
-				<tr><th>2 days ago</th><th>Avg Load ms</th><th>Avg Elapsed ms</th></tr>
-				<tr><td class="home_2_tag">...</td><td class="home_2_load"></td><td class="home_2_elapsed"></td></tr>	
-				<tr><td class="bpp_2_tag">...</td><td class="bpp_2_load"></td><td class="bpp_2_elapsed"></td></tr>	
-				<tr><td class="browse_2_tag">...</td><td class="browse_2_load"></td><td class="browse_2_elapsed"></td></tr>	
-				<tr><td class="deals_2_tag">...</td><td class="deals_2_load"></td><td class="deals_2_elapsed"></td></tr>	
-				<tr><td class="srp_2_tag">...</td><td class="srp_2_load"></td><td class="srp_2_elapsed"></td></tr>	
-				<tr><td class="solr_cluster_2_tag">...</td><td class="solr_cluster_2_load"></td><td class="solr_cluster_2_elapsed"></td></tr>
-				<tr><td class="solr_shard_2_tag">...</td><td class="solr_shard_2_load"></td><td class="solr_shard_2_elapsed"></td></tr>
-				<tr><td class="api_2_tag">...</td><td class="api_2_load"></td><td class="api_2_elapsed"></td></tr>
-			</table>	
-		</div>
-	</div>	
-	<div class="row">
-		<div class="span4">
-			<table class="table table-striped">
-				<tr><th>3 days ago</th><th>Avg Load ms</th><th>Avg Elapsed ms</th></tr>
-				<tr><td class="home_3_tag">...</td><td class="home_3_load"></td><td class="home_3_elapsed"></td></tr>	
-				<tr><td class="bpp_3_tag">...</td><td class="bpp_3_load"></td><td class="bpp_3_elapsed"></td></tr>	
-				<tr><td class="browse_3_tag">...</td><td class="browse_3_load"></td><td class="browse_3_elapsed"></td></tr>	
-				<tr><td class="deals_3_tag">...</td><td class="deals_3_load"></td><td class="deals_3_elapsed"></td></tr>	
-				<tr><td class="srp_3_tag">...</td><td class="srp_3_load"></td><td class="srp_3_elapsed"></td></tr>	
-				<tr><td class="solr_cluster_3_tag">...</td><td class="solr_cluster_3_load"></td><td class="solr_cluster_3_elapsed"></td></tr>
-				<tr><td class="solr_shard_3_tag">...</td><td class="solr_shard_3_load"></td><td class="solr_shard_3_elapsed"></td></tr>
-				<tr><td class="api_3_tag">...</td><td class="api_3_load"></td><td class="api_3_elapsed"></td></tr>
-			</table>
-		</div>
-		<div class="span4">
-			<table class="table table-striped">
-				<tr><th>4 days ago</th><th>Avg Load ms</th><th>Avg Elapsed ms</th></tr>
-				<tr><td class="home_4_tag">...</td><td class="home_4_load"></td><td class="home_4_elapsed"></td></tr>	
-				<tr><td class="bpp_4_tag">...</td><td class="bpp_4_load"></td><td class="bpp_4_elapsed"></td></tr>	
-				<tr><td class="browse_4_tag">...</td><td class="browse_4_load"></td><td class="browse_4_elapsed"></td></tr>	
-				<tr><td class="deals_4_tag">...</td><td class="deals_4_load"></td><td class="deals_4_elapsed"></td></tr>	
-				<tr><td class="srp_4_tag">...</td><td class="srp_4_load"></td><td class="srp_4_elapsed"></td></tr>	
-				<tr><td class="solr_cluster_4_tag">...</td><td class="solr_cluster_4_load"></td><td class="solr_cluster_4_elapsed"></td></tr>
-				<tr><td class="solr_shard_4_tag">...</td><td class="solr_shard_4_load"></td><td class="solr_shard_4_elapsed"></td></tr>
-				<tr><td class="api_4_tag">...</td><td class="api_4_load"></td><td class="api_4_elapsed"></td></tr>
-			</table>
-		</div>
+	{% endfor %}
 	</div>
 
 {% endblock %}
