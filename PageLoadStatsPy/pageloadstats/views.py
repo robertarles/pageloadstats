@@ -172,9 +172,9 @@ def chart_data(request, target_id):
     end_date = request.GET.get("end_date")
 
     if( start_date and end_date):
-        stats_rs = Stat_Rich.objects.filter(target_id=target_id).filter(timestamp__gte=start_date).filter(timestamp__lte=end_date).order_by("-timestamp")
+        stats_rs = Stat_Rich.objects.filter(target_id=target_id).filter(timestamp__gte=start_date).filter(timestamp__lte=end_date).exclude(page_load_time__isnull=True).order_by("-timestamp")
     else:
-        stats_rs = Stat_Rich.objects.filter(target_id=target_id).order_by("-timestamp")[:chart_range] # get the latest
+        stats_rs = Stat_Rich.objects.filter(target_id=target_id).exclude(page_load_time__isnull=True).order_by("-timestamp")[:chart_range] # get the latest
     stats=[]
     
     #reverse the results for display on the chart, increasing date, left to right
