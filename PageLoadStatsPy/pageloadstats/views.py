@@ -478,7 +478,8 @@ def get_sma_values(stats, sma_window_size):
     
     # load up the sma window
     for stat in historic_stats:
-        sma_window.append(stat.page_load_time)
+        if(stat.page_load_time != None):
+            sma_window.append(stat.page_load_time)
     
     # for each stat point, add it to the sma window and calculate the current average, insert into array of averages.  (also removing the oldest data point in the window queue) 
     for stat in stats:
