@@ -323,9 +323,9 @@ def chart_multi_data_by_ids(request,target_id_list):
         
         target = Target.objects.get(pk=target_id)
         if(start_date and end_date):
-            stats_rs_list = Stat_Rich.objects.filter(target_id=target_id).filter(timestamp__gte=start_date).filter(timestamp__lte=end_date).order_by("-timestamp")
+            stats_rs_list = Stat_Rich.objects.filter(target_id=target_id).filter(timestamp__gte=start_date).filter(timestamp__lte=end_date).exclude(page_load_time__isnull=True).order_by("-timestamp")
         else:
-            stats_rs_list = Stat_Rich.objects.filter(target_id=target_id).order_by("-timestamp")[:chart_range]
+            stats_rs_list = Stat_Rich.objects.filter(target_id=target_id).exclude(page_load_time__isnull=True).order_by("-timestamp")[:chart_range]
         
             
         for stat in stats_rs_list: # reverse the list to get them oldest to newest for display on the chart
