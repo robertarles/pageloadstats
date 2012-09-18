@@ -61,7 +61,7 @@ def chart_multi_by_id(request, target_id_list):
     end_date = request.GET.get("end_date","")
     trim_above = request.GET.get("trim_above","")
     if(trim_above):
-        trim_params = "&trim_above="+trim_above
+        trim_params = "%26trim_above="+trim_above
     else:
         trim_params = ""
     c = Context({
@@ -186,14 +186,7 @@ def chart_data(request, target_id):
     end_date = request.GET.get("end_date")
     trim_above = request.GET.get("trim_above")
 
-    if( start_date and end_date and trim_above):
-        stats_rs = Stat_Rich.objects.filter(target_id=target_id).filter(timestamp__gte=start_date).filter(timestamp__lte=end_date).filter(page_load_time__lte=trim_above).exclude(page_load_time__isnull=True).order_by("-timestamp")
-    elif (start_date and end_date):
-        stats_rs = Stat_Rich.objects.filter(target_id=target_id).filter(timestamp__gte=start_date).filter(timestamp__lte=end_date).exclude(page_load_time__isnull=True).order_by("-timestamp")
-    elif (trim_above):
-        stats_rs = Stat_Rich.objects.filter(target_id=target_id).filter(page_load_time__lte=trim_above).exclude(page_load_time__isnull=True).order_by("-timestamp")[:chart_range]
-    else:
-        stats_rs = Stat_Rich.objects.filter(target_id=target_id).exclude(page_load_time__isnull=True).order_by("-timestamp")[:chart_range] # get the latest
+    stats_rs = get_stats(target_id, start_date, end_date, trim_above)
     stats=[]
     
     #reverse the results for display on the chart, increasing date, left to right
@@ -316,14 +309,13 @@ def chart_multi_data_by_ids(request,target_id_list):
     #target_id_value = request.GET.get("target_id_list")
     start_date = request.GET.get("start_date")
     end_date = request.GET.get("end_date")
+    trim_above = request.GET.get("trim_above")
     COLOR_LIST = ("#6495ED", "#FF6347", "#BA55D3", "#6B8E23", "#D2691E", "#DB7093", "#666699", "#33cc33")
     color_index = 0
 
-    
     target_id_list = target_id_list.split(",")
     chart_range = 100
     largest_load_time = 100
-
 
     pls_chart = Pls_Chart()
 
@@ -333,7 +325,7 @@ def chart_multi_data_by_ids(request,target_id_list):
     
     for target_id in target_id_list:
             
-        stats_rs_list= []
+        stats_rs= []
         stats_list= []
         target_id = int(target_id)
         load_times = []
@@ -341,13 +333,10 @@ def chart_multi_data_by_ids(request,target_id_list):
         date_range_set = False
         
         target = Target.objects.get(pk=target_id)
-        if(start_date and end_date):
-            stats_rs_list = Stat_Rich.objects.filter(target_id=target_id).filter(timestamp__gte=start_date).filter(timestamp__lte=end_date).exclude(page_load_time__isnull=True).order_by("-timestamp")
-        else:
-            stats_rs_list = Stat_Rich.objects.filter(target_id=target_id).exclude(page_load_time__isnull=True).order_by("-timestamp")[:chart_range]
-        
+
+        stats_rs = get_stats(target_id, start_date, end_date,trim_above)
             
-        for stat in stats_rs_list: # reverse the list to get them oldest to newest for display on the chart
+        for stat in stats_rs: # reverse the list to get them oldest to newest for display on the chart
             stats_list.insert(0,stat) 
         
         for stat in stats_list:
@@ -401,7 +390,7 @@ def chart_multi_data_by_ids(request,target_id_list):
         
     pls_chart.title =  title(text="Multi Target Chart")
     return HttpResponse(pls_chart.render())
-    
+
 ##
 # This function calls getCheckOutput.  (TODO: Why is it merely a proxy for getCheckOutput()? and why did it need the request object?)
 # @param request the http request
@@ -566,6 +555,18 @@ def get_targets_by_tag(request, tag, return_type):
 def user_logout(request):
     auth.logout(request)
     return HttpResponseRedirect('/accounts/login/?next=/pls/')
+
+def get_stats(target_id, start_date, end_date, trim_above):
+    default_chart_range=100;
+    if( start_date and end_date and trim_above):
+        stats_rs = Stat_Rich.objects.filter(target_id=target_id).filter(timestamp__gte=start_date).filter(timestamp__lte=end_date).filter(page_load_time__lte=trim_above).exclude(page_load_time__isnull=True).order_by("-timestamp")
+    elif (start_date and end_date):
+        stats_rs = Stat_Rich.objects.filter(target_id=target_id).filter(timestamp__gte=start_date).filter(timestamp__lte=end_date).exclude(page_load_time__isnull=True).order_by("-timestamp")
+    elif (trim_above):
+        stats_rs = Stat_Rich.objects.filter(target_id=target_id).filter(page_load_time__lte=trim_above).exclude(page_load_time__isnull=True).order_by("-timestamp")[:default_chart_range]
+    else:
+        stats_rs = Stat_Rich.objects.filter(target_id=target_id).exclude(page_load_time__isnull=True).order_by("-timestamp")[:default_chart_range] # get the latest
+    return stats_rs
     
     
     
