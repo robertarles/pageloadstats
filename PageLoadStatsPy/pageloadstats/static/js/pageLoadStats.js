@@ -61,6 +61,11 @@ function fillDateRange(){
 			$("#date_selection_start_date").val(start_time);
 			$("#date_selection_end_date").val(end_time);
 		}
+		if(url_parameters.indexOf("trim_above")>-1){
+			parameters=getUrlVars();
+			trim_above_val = parameters['trim_above'];
+			$("#trim_above_selection").val(trim_above_val);
+		}
 	}
 	
 }
@@ -76,22 +81,37 @@ function tsToString(timestamp){
 	if(minute<10) minute = "0" + minute;
 	return ( month+"/"+day+"/"+year+" "+hour+":"+minute );
 }
-function submitDateRange(){
+
+function submitChartParams(){
 	start_date = $("#date_selection_start_date").val();
 	end_date = $("#date_selection_end_date").val();
-	if(start_date=="" || end_date ==""){
-		alert("That date range wont work. Dont be silly.");
-		return false;
+	trim_above = $("#trim_above_selection").val();
+
+	if(!isInt(trim_above)){ // we must have a valid date range if there is no trim value
+		if ( start_date=="" || end_date==""){
+			alert("That date range wont work. Dont be silly.");
+			return false;
+		}
+	}
+
+	if(isInt(trim_above)){
+		trim_above_param = "&trim_above="+trim_above;		
+	}else{
+		trim_above_param = ""; 
 	}
 	
 	var startStamp = Date.parse(start_date)/1000;
 	var endStamp = Date.parse(end_date)/1000;
 	
-	if ( ! isInt(startStamp) || ! isInt(endStamp)){
-		alert("Bad date values, try again");
-		return false
+
+	// setup the start and end stamp params
+	start_date_param = "";
+	end_date_param = "";
+	if(isInt(startStamp) && isInt(endStamp)){
+		start_date_param = "&start_date="+startStamp;
+		end_date_param = "&end_date="+endStamp;
 	}
-	
+
 	if(startStamp>=endStamp){
 		alert("Sorry, but you really cannot end before you start. Try a more realistic date range and I'll try to be more helpful.");
 		return false;
@@ -105,9 +125,14 @@ function submitDateRange(){
 	if(url_vars["target_id_list"]){
 		target_id_list_param = "&target_id_list="+url_vars["target_id_list"];
 	}
+
 	
 	//console.log(main_url+"?start_date="+startStamp+"&end_date="+endStamp+target_id_list_param);
-	window.open(main_url+"?start_date="+startStamp+"&end_date="+endStamp+target_id_list_param,"_top");
+	window.open(main_url+"?" +
+			start_date_param + 
+			end_date_param +
+			target_id_list_param +
+			trim_above_param,"_top");
 }
 
 /**

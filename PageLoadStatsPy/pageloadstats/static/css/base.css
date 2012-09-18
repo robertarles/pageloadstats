@@ -48,6 +48,16 @@ a:active {color:#099;}  /* selected link */
 	background-color:gray;
 }
 
+.date_selection{
+	height: 1.5em;
+	width: 10em;
+}
+#trim_above_selection{
+	height:1.5em;
+	width: 6em;
+	
+}
+
 #chart_title{
 	font-size: 18px;
 }

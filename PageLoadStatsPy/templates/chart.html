@@ -5,7 +5,7 @@
     	swfobject.embedSWF(
     	  "/static/open-flash-chart.swf", "chart_target",
     	  "100%", "100%", "9.0.0", "/static/expressInstall.swf",
-    	  {"data-file":"/pls/{{chart_data_url}}{{ target_id }}?{{start_end_params}}"}, {"wmode" : "transparent"} );
+    	  {"data-file":"/pls/{{chart_data_url}}{{ target_id }}?{{start_end_params}}{{trim_params}}"}, {"wmode" : "transparent"} );
     	
     </script>
     <script type="text/javascript">
@@ -35,9 +35,10 @@
 		<div id="date_selection_header" class="stack_small">
 			<h4 id="date_selection_title">Choose a date range</h4>
 		</div>
-		start: <input type='text' id='date_selection_start_date' class='date_time_picker' style='height:1.5em'/>&nbsp
-		end: <input type='text' id='date_selection_end_date' class='date_time_picker' style='height:1.5em'/>&nbsp
-		<button id='date_selection_button' name='date_selection_button' class="btn btn-success" onclick="submitDateRange(); return false;">Display Range</button>
+		start: <input type='text' id='date_selection_start_date' class='date_selection date_time_picker'/>&nbsp
+		end: <input type='text' id='date_selection_end_date' class='date_selection date_time_picker'/>&nbsp
+		trim data above <input type='text' id='trim_above_selection' class='trim trim_above'/> ms&nbsp
+		<button id='date_selection_button' name='date_selection_button' class="btn btn-success" onclick="submitChartParams(); return false;">Display Range</button>
 		<button id='page_refresh_button' name='page_refresh_button' class="btn btn-success float_right" onclick="location.reload(); return false;">Refresh</button>
 	</form>
 {% endblock %}

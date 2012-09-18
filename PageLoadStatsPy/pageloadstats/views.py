@@ -26,12 +26,19 @@ def chart(request, target_id):
     t = loader.get_template('chart.html')
     start_date = request.GET.get('start_date',"")
     end_date = request.GET.get("end_date","")
+    trim_above = request.GET.get("trim_above","")    
+    if(trim_above):
+        trim_params = "%26trim_above="+trim_above
+    else:
+        trim_params=""
     c = Context({
         'chart_data_url': "api/ofc2chart/",
         'target_id': target_id,
         'target_name': target.name,
         'target_url': target.url,
         'start_date': start_date,
+        'trim_above': trim_above,
+        'trim_params': trim_params,
         'start_end_params': "%26start_date="+start_date+"%26end_date="+end_date,
         'end_date': end_date,
     })
@@ -52,11 +59,18 @@ def chart_multi_by_id(request, target_id_list):
     t = loader.get_template('chart.html')
     start_date = request.GET.get('start_date',"")
     end_date = request.GET.get("end_date","")
+    trim_above = request.GET.get("trim_above","")
+    if(trim_above):
+        trim_params = "&trim_above="+trim_above
+    else:
+        trim_params = ""
     c = Context({
         'chart_data_url': "api/ofc2chart/",
         'target_id': target_id_list,
         'target_name': "multiple targets",
         'start_date': start_date,
+        'trim_above': trim_above,
+        'trim_params': trim_params,
         'start_end_params': "%26start_date="+start_date+"%26end_date="+end_date,
         'end_date': end_date,
     })
@@ -170,9 +184,14 @@ def chart_data(request, target_id):
     chart_range = 100  # default number of data points to show if no date range is specified
     start_date = request.GET.get('start_date')
     end_date = request.GET.get("end_date")
+    trim_above = request.GET.get("trim_above")
 
-    if( start_date and end_date):
+    if( start_date and end_date and trim_above):
+        stats_rs = Stat_Rich.objects.filter(target_id=target_id).filter(timestamp__gte=start_date).filter(timestamp__lte=end_date).filter(page_load_time__lte=trim_above).exclude(page_load_time__isnull=True).order_by("-timestamp")
+    elif (start_date and end_date):
         stats_rs = Stat_Rich.objects.filter(target_id=target_id).filter(timestamp__gte=start_date).filter(timestamp__lte=end_date).exclude(page_load_time__isnull=True).order_by("-timestamp")
+    elif (trim_above):
+        stats_rs = Stat_Rich.objects.filter(target_id=target_id).filter(page_load_time__lte=trim_above).exclude(page_load_time__isnull=True).order_by("-timestamp")[:chart_range]
     else:
         stats_rs = Stat_Rich.objects.filter(target_id=target_id).exclude(page_load_time__isnull=True).order_by("-timestamp")[:chart_range] # get the latest
     stats=[]
