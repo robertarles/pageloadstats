@@ -90,7 +90,7 @@ class Pls_Chart(object):
 			if(delta > datetime.timedelta(minutes=15)): 
 				# is this data later than the current spot (some data missing, likely) (but always show alert level
 				if(name.lower() != "alert level"):
-					dot = dot_value(value=None,tip="no data")
+					dot = dot_value(value='null')
 				date_differential -= 1
 				
 			dots.append(dot)
