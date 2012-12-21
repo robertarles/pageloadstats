@@ -7,6 +7,7 @@ urlpatterns = patterns('PageLoadStatsPy.pageloadstats.views',
     url(r'^targets/$', 'target_list'),                      # a list of targets in the db
     
     url(r'^chart/(?P<target_id>\d+)/$', 'chart'),           # the chart for target # <target_id>
+    url(r'^chartimage/(?P<target_id>\d+)/$', 'matlab_chart'),           # the matlab based chart for target # <target_id>
     url(r'^chart/(?P<tag>\w+)/$', 'chart_multi_by_tag'),      # the chart for multiple targets
     url(r'^chart/(?P<target_id_list>[0-9]+,[0-9,]+)/$', 'chart_multi_by_id'),      # the chart for multiple targets by id
     url(r'^dailyavgs/$', 'daily_avgs'),              # show the current daily overall performance stats
@@ -15,6 +16,7 @@ urlpatterns = patterns('PageLoadStatsPy.pageloadstats.views',
       
     # API for OFC2 charting
     url(r'^api/ofc2chart/(?P<target_id>\d+)/$', 'chart_data'), # API this one returns the data for the chart view
+    url(r'^api/matlabchartimage/(?P<target_id>\d+)/$', 'matlab_chart_image'), # API this one returns the data for the chart view
     url(r'^api/ofc2chart/(?P<target_id_list>[0-9,]+)/$', 'chart_multi_data_by_ids'),        # API this one returns the data for the chart_multi view
     url(r'^api/ofc2chart/(?P<tag>\w+)/$', 'chart_multi_data_by_tag'),        # API this one returns the data for the chart_multi view
     

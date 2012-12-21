@@ -10,6 +10,8 @@ from datetime import datetime as datetimefunc
 from django.contrib import auth
 from django.http import HttpResponseRedirect
 from django.utils import simplejson
+from matplotlib import pyplot as plt
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 cs_comment_tags = ["request id:", "tag:","server:", "elapsed:", "elapsed2:"]
 
@@ -33,6 +35,29 @@ def chart(request, target_id):
         trim_params=""
     c = Context({
         'chart_data_url': "api/ofc2chart/",
+        'target_id': target_id,
+        'target_name': target.name,
+        'target_url': target.url,
+        'start_date': start_date,
+        'trim_above': trim_above,
+        'trim_params': trim_params,
+        'start_end_params': "%26start_date="+start_date+"%26end_date="+end_date,
+        'end_date': end_date,
+    })
+    return HttpResponse(t.render(c)) 
+
+def matlab_chart(request, target_id):
+    target = Target.objects.get(pk=target_id)
+    t = loader.get_template('chart_image.html')
+    start_date = request.GET.get('start_date',"")
+    end_date = request.GET.get("end_date","")
+    trim_above = request.GET.get("trim_above","")    
+    if(trim_above):
+        trim_params = "%26trim_above="+trim_above
+    else:
+        trim_params=""
+    c = Context({
+        'chart_data_url': "api/matlabchartimage/",
         'target_id': target_id,
         'target_name': target.name,
         'target_url': target.url,
@@ -265,7 +290,7 @@ def chart_data(request, target_id):
     pls_chart.add_line("load", "load("+str(load_average)+")", load_times_values, load_time_request_dates, '#458B00')
 
     # Create the SMA line
-    sma_values = get_sma_values(stats, 96)
+    sma_values = get_sma(stats, 96, "page_load_time")
     sma_avg = sum(sma_values) / len(sma_values)
     if(sma_values!=None and len(sma_values)>0):
         pls_chart.add_line("SMA", "SMA("+str(sma_avg)+")", sma_values, load_time_request_dates, "#0000FF")
@@ -293,6 +318,70 @@ def chart_data(request, target_id):
  
     pls_chart.title = t
     return HttpResponse(pls_chart.render())
+##
+# Return the html/javascript vars required to generate a SINGLE TARGET Open Flash Chart
+##
+def matlab_chart_image(request, target_id):    
+    target = Target.objects.get(pk=target_id)
+    t = text=time.strftime( '%a %Y %b %d') + " for Target ID:" + target_id + " Name: " + target.name
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get("end_date")
+    trim_above = request.GET.get("trim_above")
+    stats_rs = get_stats(target_id, start_date, end_date, trim_above)
+    
+    pageLoads=[]
+    pageElapsed=[]
+    for stat in stats_rs:
+        pageLoads.insert(0,int(stat.page_load_time))
+        pageElapsed.insert(0,int(stat.elapsed))
+    pageLoads_avg = sum(pageLoads)/len(pageLoads)
+    pageElapsed_avg = sum(pageElapsed)/len(pageElapsed)
+    # Create the SMA lines for elapsed times
+    smaElapsed = get_sma(stats_rs, 96, "elapsed")
+    smaElapsed_avg = sum(smaElapsed) / len(smaElapsed)
+    smaPageLoads = get_sma(stats_rs, 96, "page_load_time")
+    smaPageLoads_avg = sum(smaPageLoads) / len(smaPageLoads)
+    
+    xAxis = range(0,len(pageLoads))
+    plt.figure(figsize=(13,5))
+    plt.plot(xAxis,pageLoads, color='blue')
+    plt.plot(xAxis,smaPageLoads,color='blue', linestyle="-", linewidth=1)
+    plt.plot(xAxis,pageElapsed, color='green')
+    plt.plot(xAxis,smaElapsed,color='green', linestyle="-", linewidth=1)
+    #figure(num=None, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
+    plt.xlabel('date+time', fontsize=14, color='blue')
+    plt.ylabel('ms', fontsize=14, color='blue')
+    from matplotlib.font_manager import FontProperties
+    
+    import pylab
+    # pylab.nan for empty slots
+    
+    fontP = FontProperties()
+    fontP.set_size('small')
+    #legend([plot1], "title", prop = fontP)
+    ax = plt.subplot(111)
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0, box.width * 0.97, box.height])
+    plt.legend(('Load('+str(pageLoads_avg)+')',
+                'Load SMA('+str(smaPageLoads_avg)+')',
+                'Elapsed('+str(pageElapsed_avg)+')',
+                'Elapsed SMA('+str(smaElapsed_avg)+')'),
+                'top left',
+                shadow=True,
+                fancybox=True,
+                prop=fontP,
+                bbox_to_anchor=(1.160,1.105))
+    plt.title(t, fontsize=16, color='black')
+    plt.grid(True)
+    plt.legend()
+    
+    #plt.text(60, .025, r'$\mu=100,\ \sigma=15$') label on the chart
+    
+    canvas = FigureCanvasAgg(plt.figure(1)) 
+    plt.close()   
+    response = HttpResponse(content_type='image/png')
+    canvas.print_png(response)
+    return response
 
 def chart_multi_data_by_tag(request,tag):
     targets = Target.objects.filter(tags__contains=tag).filter(active=1)
@@ -462,7 +551,7 @@ def get_cs_comments(response):
             
     return comment_dict
 
-def get_sma_values(stats, sma_window_size):
+def get_sma(stats, sma_window_size, column):
     """
     Get a simple moving average for the current id
     return a list of sma values for the supplied stats list
@@ -486,14 +575,14 @@ def get_sma_values(stats, sma_window_size):
     
     # load up the sma window
     for stat in historic_stats:
-        if(stat.page_load_time != None):
-            sma_window.append(stat.page_load_time)
+        if(getattr(stat,column) != None):
+            sma_window.append(int(getattr(stat,column)))
     
     # for each stat point, add it to the sma window and calculate the current average, insert into array of averages.  (also removing the oldest data point in the window queue) 
     for stat in stats:
         if(len(sma_window)>=sma_window_size):
             sma_window.pop(0)
-        sma_window.append(stat.page_load_time)
+        sma_window.append(int(getattr(stat,column)))
         sma_cavg.append(sum(sma_window) / len(sma_window))
 
     return sma_cavg
