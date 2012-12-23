@@ -12,6 +12,9 @@ from django.http import HttpResponseRedirect
 from django.utils import simplejson
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg
+from matplotlib.font_manager import FontProperties
+import pylab
+import numpy as np
 
 cs_comment_tags = ["request id:", "tag:","server:", "elapsed:", "elapsed2:"]
 
@@ -55,7 +58,7 @@ def matlab_chart(request, target_id):
     if(trim_above):
         trim_params = "%26trim_above="+trim_above
     else:
-        trim_params=""
+        trim_params = ""
     c = Context({
         'chart_data_url': "api/matlabchartimage/",
         'target_id': target_id,
@@ -63,8 +66,6 @@ def matlab_chart(request, target_id):
         'target_url': target.url,
         'start_date': start_date,
         'trim_above': trim_above,
-        'trim_params': trim_params,
-        'start_end_params': "%26start_date="+start_date+"%26end_date="+end_date,
         'end_date': end_date,
     })
     return HttpResponse(t.render(c))  
@@ -262,7 +263,7 @@ def chart_data(request, target_id):
     
     # setup the y axis
     y_axis_step_size = largest_load_time / 5
-    y = y_axis()
+    y = pls_chart.y_axis
     y.min, y.max, y.steps = 0, largest_load_time, y_axis_step_size
     y.min =0 
     y.max =largest_load_time + 100
@@ -271,7 +272,7 @@ def chart_data(request, target_id):
     
     
     # setup the x axis
-    x = x_axis()        
+    x = pls_chart.y_axis     
     x_axis_step_size = len(load_time_request_dates)/15
     xlabels = x_axis_labels(steps=x_axis_step_size, rotate='vertical')
 
@@ -279,7 +280,7 @@ def chart_data(request, target_id):
     end_date_dt = load_time_request_dates[-1]
     xlabels.labels = pls_chart.get_x_axis_array( start_date_dt, end_date_dt, 15)
     x.labels = xlabels
-    pls_chart.x_axis = x
+    x_axis = x
     
     #### Create the chart line objects
 
@@ -327,34 +328,67 @@ def matlab_chart_image(request, target_id):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get("end_date")
     trim_above = request.GET.get("trim_above")
+    if(trim_above==None): trim_above=999999
+    earliestTimestamp = None
+    latestTimestamp = None
+    
     stats_rs = get_stats(target_id, start_date, end_date, trim_above)
     
     pageLoads=[]
     pageElapsed=[]
+    
     for stat in stats_rs:
-        pageLoads.insert(0,int(stat.page_load_time))
-        pageElapsed.insert(0,int(stat.elapsed))
-    pageLoads_avg = sum(pageLoads)/len(pageLoads)
-    pageElapsed_avg = sum(pageElapsed)/len(pageElapsed)
+        alertLevel = stat.alert_level()
+        if(latestTimestamp==None):
+            latestTimestamp=stat.timestamp
+        earliestTimestamp = stat.timestamp
+        if (stat.page_load_time!=None and stat.page_load_time < trim_above):
+            pageLoads.insert(0,int(stat.page_load_time)) 
+        else:
+            pageLoads.insert(0,np.ma.masked)
+            
+        if (stat.elapsed!=None and stat.page_load_time < trim_above): 
+            pageElapsed.insert(0,int(stat.elapsed))  
+        else:
+            pageElapsed.insert(0,np.ma.masked)
+            
+    startEntry = datetime.datetime.fromtimestamp(earliestTimestamp)
+    endEntry = datetime.datetime.fromtimestamp(latestTimestamp)
+    
+    #pageLoads_m=ma.masked_where(isnan(pageLoads),pageLoads)
+    pageLoads_avg=0
+    if(len(pageLoads)>0): pageLoads_avg = sum(pageLoads)/len(pageLoads)
+    pageElapsed_avg=0
+    if(len(pageElapsed)>0): pageElapsed_avg = sum(pageElapsed)/len(pageElapsed)
     # Create the SMA lines for elapsed times
-    smaElapsed = get_sma(stats_rs, 96, "elapsed")
-    smaElapsed_avg = sum(smaElapsed) / len(smaElapsed)
-    smaPageLoads = get_sma(stats_rs, 96, "page_load_time")
-    smaPageLoads_avg = sum(smaPageLoads) / len(smaPageLoads)
+    smaElapsed = get_sma_new(stats_rs, 96, "elapsed")
+    smaElapsed_avg = 0
+    if(len(smaElapsed)>0): smaElapsed_avg = sum(smaElapsed) / len(smaElapsed)
+    smaPageLoads = get_sma_new(stats_rs, 96, "page_load_time")
+    smaPageLoads_avg = 0
+    if(len(smaPageLoads)>0): smaPageLoads_avg = sum(smaPageLoads) / len(smaPageLoads)
     
     xAxis = range(0,len(pageLoads))
-    plt.figure(figsize=(13,5))
-    plt.plot(xAxis,pageLoads, color='blue')
-    plt.plot(xAxis,smaPageLoads,color='blue', linestyle="-", linewidth=1)
-    plt.plot(xAxis,pageElapsed, color='green')
-    plt.plot(xAxis,smaElapsed,color='green', linestyle="-", linewidth=1)
-    #figure(num=None, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
+    alertLevels=[]
+    if(alertLevel != None):
+        for i in range(len(pageLoads)):
+            alertLevels.append(alertLevel)
+    plt.figure(figsize=(13,5.5), dpi=400, facecolor="white", edgecolor="darkslategray")
+    
+    if(len(pageLoads)>0):
+        plt.plot(xAxis,pageLoads, color='blue', linewidth=0.5, antialiased=True)
+    if(len(smaPageLoads)>0):
+        plt.plot(xAxis,smaPageLoads,color='blue', linestyle="-", linewidth=0.5, antialiased=True)
+    if(len(pageElapsed)>0):
+        plt.plot(xAxis,pageElapsed, color='green', linewidth=0.5, antialiased=True)
+    if(len(smaElapsed)>0):
+        plt.plot(xAxis,smaElapsed,color='green', linestyle="-", linewidth=0.5, antialiased=True)
+    if(len(alertLevels)>0):
+        plt.plot(xAxis,alertLevels, color='red', linewidth=0.5, antialiased=True)
+        
     plt.xlabel('date+time', fontsize=14, color='blue')
     plt.ylabel('ms', fontsize=14, color='blue')
-    from matplotlib.font_manager import FontProperties
-    
-    import pylab
-    # pylab.nan for empty slots
+    plt.autoscale(True,"both",True)
     
     fontP = FontProperties()
     fontP.set_size('small')
@@ -362,15 +396,18 @@ def matlab_chart_image(request, target_id):
     ax = plt.subplot(111)
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.97, box.height])
-    plt.legend(('Load('+str(pageLoads_avg)+')',
+    plt.subplots_adjust(left=.05, right=.99)
+    plt.legend((
+                'Load('+str(pageLoads_avg)+')',
                 'Load SMA('+str(smaPageLoads_avg)+')',
                 'Elapsed('+str(pageElapsed_avg)+')',
-                'Elapsed SMA('+str(smaElapsed_avg)+')'),
-                'top left',
+                'Elapsed SMA('+str(smaElapsed_avg)+')',
+                'Alert At ' + str(alertLevel),),
+                'upper left',
                 shadow=True,
                 fancybox=True,
                 prop=fontP,
-                bbox_to_anchor=(1.160,1.105))
+                bbox_to_anchor=(.025,1.14))
     plt.title(t, fontsize=16, color='black')
     plt.grid(True)
     plt.legend()
@@ -562,12 +599,6 @@ def get_sma(stats, sma_window_size, column):
     start_ts = stats[0].timestamp
     target_id = stats[0].target_id
     historic_stats = Stat_Rich.objects.filter(target_id=target_id).filter(timestamp__lt=start_ts).order_by("-timestamp")[:sma_window_size]
-    #print("* current("+str(len(current_values))+")")
-    #for stat in current_values:
-    #    print(str(stat.timestamp))
-    #print("* history("+str(len(historic_values))+")")
-    #for stat in historic_values:
-    #    print(str(stat.timestamp))
     
     # calculate an SMA for the first values
     sma_cavg = []
@@ -580,10 +611,46 @@ def get_sma(stats, sma_window_size, column):
     
     # for each stat point, add it to the sma window and calculate the current average, insert into array of averages.  (also removing the oldest data point in the window queue) 
     for stat in stats:
+        if(getattr(stat,column)==None): stat["column"] = 0
         if(len(sma_window)>=sma_window_size):
             sma_window.pop(0)
         sma_window.append(int(getattr(stat,column)))
         sma_cavg.append(sum(sma_window) / len(sma_window))
+
+    return sma_cavg
+
+def get_sma_new(stats, sma_window_size, column):
+    """
+    Get a simple moving average for the current id
+    return a list of sma values for the supplied stats list
+    @param stats A result set of stats
+    @param sma_window_size A number specifying how large of a historic data sample to be used to calculate each sma point. 
+    @param column the column from the db result set to create an SMA for
+    """
+    
+    start_ts = stats[0].timestamp
+    target_id = stats[0].target_id
+    historic_stats = Stat_Rich.objects.filter(target_id=target_id).filter(timestamp__lt=start_ts).order_by("-timestamp")[:sma_window_size]
+    
+    # calculate an SMA for the first values
+    sma_cavg = []
+    sma_window = []
+    
+    # load up the sma window
+    for hstat in historic_stats:
+        if(getattr(hstat,column) != None):
+            sma_window.append(int(getattr(hstat,column)))
+            
+    reversedStats = stats.reverse()
+    # for each stat point, add it to the sma window and calculate the current average, insert into array of averages.  (also removing the oldest data point in the window queue) 
+    for stat in reversedStats:
+        print column +" "+ str(int(getattr(stat,column)))
+        if(getattr(stat,column)==None): stat["column"] = 0
+        while(len(sma_window)>=sma_window_size):
+            sma_window.pop(0)
+        sma_window.append(int(getattr(stat,column)))
+        sma_cavg.append(sum(sma_window) / len(sma_window))
+        print "average " + str(sum(sma_window) / len(sma_window))
 
     return sma_cavg
 
