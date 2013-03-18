@@ -102,7 +102,7 @@ def chart_multi_by_id(request, target_id_list):
     })
     return HttpResponse(t.render(c))
 
-def daily_avgs(request,tags=["home", "bpp", "browse", "deals", "srp", "solr_cluster", "solr_shard", "api"],days=4):
+def daily_avgs(request,tags=["home", "bpp", "browse", "deals", "srp", "api"],days=4):
     t = loader.get_template('perfdaily.html')
     start_date = request.GET.get('start_date',"")
     end_date = request.GET.get("end_date","")
@@ -322,7 +322,8 @@ def chart_data(request, target_id):
 ##
 # Return the html/javascript vars required to generate a SINGLE TARGET Open Flash Chart
 ##
-def matlab_chart_image(request, target_id):    
+def matlab_chart_image(request, target_id):
+    SMA_WINDOW_SIZE= 100    
     target = Target.objects.get(pk=target_id)
     t = text=time.strftime( '%a %Y %b %d') + " for Target ID:" + target_id + " Name: " + target.name
     start_date = request.GET.get('start_date')
@@ -361,10 +362,10 @@ def matlab_chart_image(request, target_id):
     pageElapsed_avg=0
     if(len(pageElapsed)>0): pageElapsed_avg = sum(pageElapsed)/len(pageElapsed)
     # Create the SMA lines for elapsed times
-    smaElapsed = get_sma_new(stats_rs, 96, "elapsed")
+    smaElapsed = get_sma_new(stats_rs, SMA_WINDOW_SIZE, "elapsed")
     smaElapsed_avg = 0
     if(len(smaElapsed)>0): smaElapsed_avg = sum(smaElapsed) / len(smaElapsed)
-    smaPageLoads = get_sma_new(stats_rs, 96, "page_load_time")
+    smaPageLoads = get_sma_new(stats_rs, SMA_WINDOW_SIZE, "page_load_time")
     smaPageLoads_avg = 0
     if(len(smaPageLoads)>0): smaPageLoads_avg = sum(smaPageLoads) / len(smaPageLoads)
     
@@ -378,11 +379,11 @@ def matlab_chart_image(request, target_id):
     if(len(pageLoads)>0):
         plt.plot(xAxis,pageLoads, color='blue', linewidth=0.5, antialiased=True)
     if(len(smaPageLoads)>0):
-        plt.plot(xAxis,smaPageLoads,color='blue', linestyle="-", linewidth=0.5, antialiased=True)
+        plt.plot(xAxis,smaPageLoads,color='black', linestyle="-", linewidth=0.5, antialiased=True)
     if(len(pageElapsed)>0):
         plt.plot(xAxis,pageElapsed, color='green', linewidth=0.5, antialiased=True)
     if(len(smaElapsed)>0):
-        plt.plot(xAxis,smaElapsed,color='green', linestyle="-", linewidth=0.5, antialiased=True)
+        plt.plot(xAxis,smaElapsed,color='black', linestyle="-", linewidth=0.5, antialiased=True)
     if(len(alertLevels)>0):
         plt.plot(xAxis,alertLevels, color='red', linewidth=0.5, antialiased=True)
         
@@ -635,23 +636,27 @@ def get_sma_new(stats, sma_window_size, column):
     # calculate an SMA for the first values
     sma_cavg = []
     sma_window = []
-    
-    # load up the sma window
+    # load up the sma window history
     for hstat in historic_stats:
         if(getattr(hstat,column) != None):
-            sma_window.append(int(getattr(hstat,column)))
+            sma_window.insert(0,int(getattr(hstat,column)))
+        else:
+            sma_window.insert(0,0)
             
-    reversedStats = stats.reverse()
+    reversedStats = []
+    for stat in stats:
+        reversedStats.insert(0,stat)
     # for each stat point, add it to the sma window and calculate the current average, insert into array of averages.  (also removing the oldest data point in the window queue) 
     for stat in reversedStats:
-        print column +" "+ str(int(getattr(stat,column)))
-        if(getattr(stat,column)==None): stat["column"] = 0
+        value = int(getattr(stat,column))
+        print column +" "+ str(value)
+        if(value==None): value = 0
         while(len(sma_window)>=sma_window_size):
             sma_window.pop(0)
-        sma_window.append(int(getattr(stat,column)))
-        sma_cavg.append(sum(sma_window) / len(sma_window))
-        print "average " + str(sum(sma_window) / len(sma_window))
-
+        sma_window.append(value)
+        avgValue = sum(sma_window) / len(sma_window)
+        sma_cavg.append(avgValue)
+        print "average " + str(avgValue)
     return sma_cavg
 
 def get_tags(request):

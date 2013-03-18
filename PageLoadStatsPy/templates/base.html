@@ -58,11 +58,8 @@
 
 <body>
 	<div class="container">
-		<div class="row">
-			<header class="header">
-				<div class="span">&nbsp;</div>
-				<div class="span10"><img src="/static/img/magnifying_glass.svg" class="logo">PageLoadStats</div>
-			</header>
+		<div class="row header">
+			<div class="span10"><img src="/static/img/magnifying_glass.svg" class="logo">PageLoadStats</div>
 		</div>
 		<div class="row">
 			<div id="sidebar" class="span2 stack_medium">
@@ -75,11 +72,6 @@
 	                    <li><a href="/pls/user_logout" onclick="logout();return(false);"><i class="icon-lock"></i>logout</a></li>
 					</ul>	
 					{% target_menu %}			
-					<li class="nav-header stack_small">custom overlays</li>
-					<ul class="nav nav-list stack_small">
-						<li><a href="/pls/chart/39,40,52"><i class="icon-star-empty"></i>Solr(0,1,7)</a></li>
-						<li><a href="/pls/chart/55,56,57,58"><i class="icon-star-empty"></i>Mobile Search(subset)</a></li>
-					</ul>
 					{% endblock %}
 				</ul>
 			</div>
