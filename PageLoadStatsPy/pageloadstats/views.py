@@ -49,6 +49,30 @@ def chart(request, target_id):
     })
     return HttpResponse(t.render(c)) 
 
+def http_errors(request,pageNumber=1):
+    t = loader.get_template('httperrors.html')
+    c = Context({
+        'page': pageNumber,
+    })
+    return HttpResponse(t.render(c)) 
+
+def get_http_errors(request,pageNumber = 1):
+    errorList = Stat.objects.filter(http_status__gt="200")[:50]
+    
+    response_data = {}
+    response_data['errors'] = []
+    response_data['page'] = pageNumber
+    for error in errorList:
+        error_dict  = {}
+        error_dict["id"] = error.id
+        error_dict["url"] = error.url
+        error_dict["http_status"] = error.http_status
+        error_dict["request_date"] =  error.request_date
+        response_data["errors"].append(error_dict)
+    return HttpResponse(simplejson.dumps(response_data), mimetype="application/json")
+
+
+
 def matlab_chart(request, target_id):
     target = Target.objects.get(pk=target_id)
     t = loader.get_template('chart_image.html')
@@ -117,7 +141,7 @@ def daily_avgs(request,tags=["home", "bpp", "browse", "deals", "srp", "api"],day
         'tags':tags,
     })
     return HttpResponse(t.render(c))  
-  
+
 def get_daily_avg_by_id(request, target_id, days_ago):
     now = int(time.time())
     days_offset = int(days_ago) -1

@@ -16,12 +16,12 @@ function setTZOffsetCookie(){
  * @param expiredays
  */
 function setCookie(c_name,value,expiredays, path){
-	var exdate=new Date();
-	exdate.setDate(exdate.getDate()+expiredays);
-
-	document.cookie=c_name+ "=" +escape(value)+
-	((expiredays==null) ? "" : ";expires="+exdate.toGMTString()) + 
-	";path=/";
+        var exdate=new Date();
+        exdate.setDate(exdate.getDate()+expiredays);
+        
+        document.cookie=c_name+ "=" +escape(value)+
+        ((expiredays==null) ? "" : ";expires="+exdate.toGMTString()) + 
+        ";path=/";
 }
 
 /**
@@ -30,17 +30,17 @@ function setCookie(c_name,value,expiredays, path){
  * @returns
  */
 function getCookie(c_name){
-	if (document.cookie.length>0){
-		c_start=document.cookie.indexOf(c_name + "=");
-		if (c_start!=-1)
-		{
-			c_start=c_start + c_name.length+1;
-			c_end=document.cookie.indexOf(";",c_start);
-			if (c_end==-1) c_end=document.cookie.length;
-			return unescape(document.cookie.substring(c_start,c_end));
-		}
-	}
-	return "";
+        if (document.cookie.length>0){
+                c_start=document.cookie.indexOf(c_name + "=");
+                if (c_start!=-1)
+                {
+                        c_start=c_start + c_name.length+1;
+                        c_end=document.cookie.indexOf(";",c_start);
+                        if (c_end==-1) c_end=document.cookie.length;
+                        return unescape(document.cookie.substring(c_start,c_end));
+                }
+        }
+        return "";
 }
 
 function fillDateRange(){
@@ -70,25 +70,16 @@ function fillDateRange(){
 	
 }
 function fillErrorList(pageNumber){
-	errorListHtml = "";
-	pageNumber = 1
+    errorListHtml = "";
 	$.ajax({
-		url: '/pls/api/httperrors/'+pageNumber+'/',
-		success: function(errorResponse) {
-			errors = errorResponse.errors;
-			errorListHtml += "<thead><tr><th>ID</th><th>Status</th><th>Date</th><th>URL</th></tr></thead>";
-			for(error in errorResponse.errors){
-				errorListHtml += "<tr>";
-				errorListHtml += "ID: <td>"+errors[error].id+"</td>"
-				errorListHtml += "Status: <td>"+errors[error].http_status+"</td>"
-				errorListHtml += "Date: <td>"+errors[error].request_date+"</td>"
-				errorListHtml += "Url: <td>"+errors[error].url+"</td>"
-				errorListHtml += "</tr>";
-				//console.log("[INFO] errorlisthtml line added " + errorListHtml);
-			}
-			$("#error_list_target").html(errorListHtml);
-		}
-	});
+		  url: '/pls/api/httperrors/'+pageNumber+'/',
+		  success: function(data) {
+		    for(row in data){
+		        errorListHtml += "<tr><td>"+data["url"]+"</td></tr>";
+		        console.log("[INFO] added: " + data["url"]);
+		  }
+		});
+	$("#error_list_target").html(errorListHtml);
 }
 
 function tsToString(timestamp){

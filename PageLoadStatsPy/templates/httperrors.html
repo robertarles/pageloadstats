@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block header %} 
+
+    <script type="text/javascript">
+    
+		$(document).ready(function(){
+			fillErrorList();
+		});
+
+    </script>
+{% endblock%}
+
+
+{% block content %}
+	<div id="error_list_container">
+		<table id="error_list_target" class="table table-striped">
+			
+		</table>
+	</div>
+
+{% endblock %}

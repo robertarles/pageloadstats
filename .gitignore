@@ -1,3 +1,4 @@
 PageLoadStatsPy/settings.py
+PageLoadStatsPy/pageloadstats/*.pyc
 PageLoadStatsPy/*.pyc
 *.pyc

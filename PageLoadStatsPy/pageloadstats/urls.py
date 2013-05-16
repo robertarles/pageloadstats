@@ -13,6 +13,7 @@ urlpatterns = patterns('PageLoadStatsPy.pageloadstats.views',
     url(r'^dailyavgs/$', 'daily_avgs'),              # show the current daily overall performance stats
     #url(r'^dailyavgs/(?P<days>[0-9]+)/$', 'daily_avgs'),              # show the current daily overall performance stats
     url(r'^dailyavgs/(?P<tags>[\w,]+)/(?P<days>[0-9]+)/$', 'daily_avgs'),              # show the current daily overall performance stats
+    url(r'^httperrors/$', 'http_errors'), # show stats of tests that did not return http 200
       
     # API for OFC2 charting
     url(r'^api/ofc2chart/(?P<target_id>\d+)/$', 'chart_data'), # API this one returns the data for the chart view
@@ -27,6 +28,8 @@ urlpatterns = patterns('PageLoadStatsPy.pageloadstats.views',
         
     url(r'^api/dailyavg/(?P<target_id>\d+)/(?P<days_ago>\d+)/$', 'get_daily_avg_by_id'),
     url(r'^api/dailyavg/(?P<tag>[\w,]+)/(?P<days_ago>\d+)/$', 'get_daily_avg_by_tag'),              # show the current daily overall performance stats
+    
+    url(r'^api/httperrors/(?P<pageNumber>[0-9]+)/$', 'get_http_errors'), # get a page of  http errors
     
     # request app to run checks against targets 
     url(r'^check/(?P<target_id>\d+)/$', 'check'),           # run a target stat check on tartet # <target_id>
