@@ -4,7 +4,8 @@
     <script type="text/javascript">
     
 		$(document).ready(function(){
-			fillErrorList();
+			page = {{page}}
+			fillErrorList(page);
 		});
 
     </script>
@@ -12,10 +13,43 @@
 
 
 {% block content %}
+	<div id="pager]" class="pager">
+		<ul>
+
+				<li class="previous"><a href="#" class="previous">newer</a></li>
+				<span class="page"></span>
+				<li class="next"><a href="#" class="next">older</a></li>
+		</ul>
+
+	</div>
 	<div id="error_list_container">
-		<table id="error_list_target" class="table table-striped">
+		<table id="error_list_target" class="table table-striped table-border">
 			
 		</table>
 	</div>
+	<div id="pager]" class="pager">
+		<ul>
 
+				<li class="previous"><a href="#" class="previous">newer</a></li>
+				<span class="page"></span>
+				<li class="next"><a href="#" class="next">older</a></li>
+		</ul>
+
+	</div>
+	<script type="text/javascript">
+			page = parseInt({{page}});
+			$(".page").html("Page " + page);
+			previous =parseInt(page)-1;
+			console.log("[INFO] previous = " + previous);
+			$(".previous").attr("href", "/pls/httperrors?page="+previous);
+			if(previous<1){
+				console.log("[INFO] previous is less than 1");
+				$(".previous").attr("class", "previous disabled");
+			}
+			next = parseInt(page)+1;
+			$(".next").attr("href", "/pls/httperrors?page="+next);
+			if(next>5){
+				$(".previous").attr("class", "next disabled");
+			}
+	</script>
 {% endblock %}

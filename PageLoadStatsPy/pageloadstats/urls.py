@@ -29,7 +29,7 @@ urlpatterns = patterns('PageLoadStatsPy.pageloadstats.views',
     url(r'^api/dailyavg/(?P<target_id>\d+)/(?P<days_ago>\d+)/$', 'get_daily_avg_by_id'),
     url(r'^api/dailyavg/(?P<tag>[\w,]+)/(?P<days_ago>\d+)/$', 'get_daily_avg_by_tag'),              # show the current daily overall performance stats
     
-    url(r'^api/httperrors/(?P<pageNumber>[0-9]+)/$', 'get_http_errors'), # get a page of  http errors
+    url(r'^api/httperrors/$', 'get_http_errors'), # get a page of  http errors
     
     # request app to run checks against targets 
     url(r'^check/(?P<target_id>\d+)/$', 'check'),           # run a target stat check on tartet # <target_id>

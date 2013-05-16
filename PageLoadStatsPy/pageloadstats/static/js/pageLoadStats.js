@@ -69,11 +69,10 @@ function fillDateRange(){
 	}
 	
 }
-function fillErrorList(pageNumber){
+function fillErrorList(page){
 	errorListHtml = "";
-	pageNumber = 1
 	$.ajax({
-		url: '/pls/api/httperrors/'+pageNumber+'/',
+		url: '/pls/api/httperrors/?page='+page,
 		success: function(errorResponse) {
 			errors = errorResponse.errors;
 			errorListHtml += "<thead><tr><th>ID</th><th>Status</th><th>Date</th><th>URL</th></tr></thead>";

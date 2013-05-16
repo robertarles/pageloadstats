@@ -1,6 +1,7 @@
 from django.template import Context, loader
 from PageLoadStatsPy.pageloadstats.models import Target, Alert, Stat, Stat_Rich
 from PageLoadStatsPy.pageloadstats.charts import Pls_Chart
+from django.core.paginator import Paginator
 from pyofc2 import *
 from django.http import HttpResponse
 import urllib2
@@ -49,19 +50,34 @@ def chart(request, target_id):
     })
     return HttpResponse(t.render(c)) 
 
-def http_errors(request,pageNumber=1):
+def http_errors(request):
+    page=1
+    if(request.GET.get('page')):
+        page = request.GET.get('page')
     t = loader.get_template('httperrors.html')
     c = Context({
-        'page': pageNumber,
+        'page': page,
     })
     return HttpResponse(t.render(c)) 
 
-def get_http_errors(request,pageNumber = 1):
-    errorList = Stat.objects.filter(http_status__gt="200")[:50]
-    
+def get_http_errors(request):
+    rpp = 50
+    page=1
+    if(request.GET.get('page')):
+        page = request.GET.get('page')
+    errorListAll = Stat.objects.filter(http_status__gt="200").order_by("-timestamp")
+    # contact_list = Contacts.objects.all()
+    paginator = Paginator(errorListAll, rpp)
+    try:
+        errorList = paginator.page(page)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        contacts = paginator.page(paginator.num_pages)
+    #return render_to_response('list.html', {"contacts": contacts})
     response_data = {}
     response_data['errors'] = []
-    response_data['page'] = pageNumber
+    response_data['page'] = page
+    response_data["num_pages"] = paginator.num_pages
     for error in errorList:
         error_dict  = {}
         error_dict["id"] = error.id
