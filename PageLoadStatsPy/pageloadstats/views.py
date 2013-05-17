@@ -18,7 +18,7 @@ import pylab
 import numpy as np
 
 cs_comment_tags = ["request id:", "tag:","server:", "elapsed:", "elapsed2:"]
-SCATTER_DAY_RANGE = 7
+SCATTER_DAY_RANGE = 14
 
 def target_list(request):
     latest_target_data = Target.objects.filter(active=1).order_by('name')[:50]
@@ -82,14 +82,16 @@ def chart_httperrors(request):
     
     oldestDay = datetime.datetime.fromtimestamp(stats[0].timestamp).timetuple().tm_yday
     newestDay = datetime.datetime.fromtimestamp(stats[len(stats)-1].timestamp).timetuple().tm_yday
-    
+    tsList = [] #to hold a list of timestamps from the stats set
     for stat in stats:
+        tsList.append(stat.timestamp)
         jsonStat = {}
        # jsonStat["url"] = stat.url
         if( stat.url not in urlList):
             urlList.append(stat.url)
         jsonStat["y"]=urlList.index(stat.url) + 1
-        jsonStat["x"]= str(datetime.datetime.fromtimestamp(stat.timestamp).timetuple().tm_yday) +"." + str(datetime.datetime.fromtimestamp(stat.timestamp).timetuple().tm_hour)  +str(datetime.datetime.fromtimestamp(stat.timestamp).timetuple().tm_min)
+        tenthOfDay=str(datetime.datetime.fromtimestamp(stat.timestamp).timetuple().tm_hour / 2.4).replace(".","")
+        jsonStat["x"]= str(datetime.datetime.fromtimestamp(stat.timestamp).timetuple().tm_yday) +"." + tenthOfDay +str(datetime.datetime.fromtimestamp(stat.timestamp).timetuple().tm_min)
         #jsonStat["http_status"] = stat.http_status
         #jsonStat["timestamp"] = stat.timestamp
         type["values"].append(jsonStat)
@@ -100,8 +102,21 @@ def chart_httperrors(request):
     title["text"]="test title"
     jsonStats["title"]=title
     x_axis = {}
-    x_axis["min"]=oldestDay
-    x_axis["max"]=newestDay
+    #x_axis["min"]=oldestDay-1
+    #x_axis["max"]=newestDay+1
+    x_axis["labels"] = {}
+    x_axis["steps"] = "1"
+    x_label_obj = {}
+    x_labels = []
+    for day in range(SCATTER_DAY_RANGE-1,-1,-1):
+        date = datetime.datetime.now()
+        labelDate = date-datetime.timedelta(days=day)
+        dateString = labelDate.strftime('%m/%d/%Y')
+        label = dateString
+        if(label not in x_labels):
+            x_labels.append(label)
+    x_label_obj["labels"]=x_labels
+    x_axis["labels"] = x_label_obj
     jsonStats["x_axis"]=x_axis
     y_axis = {}
     y_axis["min"]="0"
