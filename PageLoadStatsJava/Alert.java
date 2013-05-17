@@ -162,33 +162,31 @@ public class Alert {
 		 Connection con = db.openDb();
 		 ResultSet rs = null;	 
 		 String recipientList="";
+		 boolean sendStatus=true;
 		 if(con==null){
 			 return false;
 		 }
 		 // create a recipient list of those emails associated to the current alert_def
 		 try{
+			 BufferedWriter logfile = new BufferedWriter(new FileWriter(PageLoadStats.LOGFILE, true));
 			 Statement stmt = (Statement)con.createStatement();
 			 rs = stmt.executeQuery(sqlQuery);
 			 while(rs.next()){
 				 recipientList += rs.getString("email_address") + ";";
 			 }
+
+			sendStatus = SimpleSendmail.send(alertSubjectTextAppended, alertText, recipientList);
+			logfile.write("[ALERT] "+ alertSubjectTextAppended+" : " +alertText+"\n");
+			if(sendStatus == true ){
+				System.out.println("[INFO] ALERT SENT.  mail successfully sent: "+sendStatus);
+			}else{
+				logfile.write("failed to send alert at "+ new Date().toString() + " \n" + alertSubjectTextAppended + "\n" + alertText + "\n\n");
+			}
+			logfile.close();
 		 }catch(Exception e){
 			 e.printStackTrace();
+		 }finally{
 		 }
-		boolean sendStatus = true;
-		sendStatus = SimpleSendmail.send(alertSubjectTextAppended, alertText, recipientList);
-		if(sendStatus == true ){
-			System.out.println("[INFO] ALERT SENT.  mail successfully sent: "+sendStatus);
-		}else{
-			 try{
-				BufferedWriter logfile = new BufferedWriter(new FileWriter(PageLoadStats.LOGFILE, true));
-				logfile.write("failed to send alert at "+ new Date().toString() + " \n" + alertSubjectTextAppended + "\n" + alertText + "\n\n");
-				logfile.close();
-			}catch(Exception e){
-				e.printStackTrace();
-			}finally{
-			}
-		}
 		return sendStatus;
 	 }
 	 

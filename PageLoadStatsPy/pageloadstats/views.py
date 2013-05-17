@@ -18,6 +18,7 @@ import pylab
 import numpy as np
 
 cs_comment_tags = ["request id:", "tag:","server:", "elapsed:", "elapsed2:"]
+SCATTER_DAY_RANGE = 7
 
 def target_list(request):
     latest_target_data = Target.objects.filter(active=1).order_by('name')[:50]
@@ -49,6 +50,67 @@ def chart(request, target_id):
         'end_date': end_date,
     })
     return HttpResponse(t.render(c)) 
+
+def  http_errorchart(request):
+    t = loader.get_template('httperrorchart.html')
+    c = Context({
+        'chart_data_url': "api/ofc2chart/httperrors/",
+    })
+    return HttpResponse(t.render(c)) 
+
+def chart_httperrors(request):
+    urlList = [] #store urls for mapping to y-axis
+    today = datetime.datetime.now()
+    daysAgo =today - datetime.timedelta(days=SCATTER_DAY_RANGE)
+    stats = Stat_Rich.objects.filter(http_status__gt="200").filter(timestamp__gt=time.mktime(daysAgo.timetuple()) )
+    jsonStats = {}
+    jsonStats["elements"]=[]
+    type={}
+    type["type"]="scatter"
+    type["colour"]="#FFD600"
+    dotStyle = {}
+    dotStyle["type"]="anchor"
+    dotStyle["colour"]="#D600ff"
+    dotStyle["dot-size"]="2"
+    dotStyle["rotation"]="45"
+    dotStyle["sides"]= "4"
+    type["dot-style"]=dotStyle
+    
+    jsonStats["elements"].append(type)
+    values={}
+    type["values"]=[]
+    
+    oldestDay = datetime.datetime.fromtimestamp(stats[0].timestamp).timetuple().tm_yday
+    newestDay = datetime.datetime.fromtimestamp(stats[len(stats)-1].timestamp).timetuple().tm_yday
+    
+    for stat in stats:
+        jsonStat = {}
+       # jsonStat["url"] = stat.url
+        if( stat.url not in urlList):
+            urlList.append(stat.url)
+        jsonStat["y"]=urlList.index(stat.url) + 1
+        jsonStat["x"]= str(datetime.datetime.fromtimestamp(stat.timestamp).timetuple().tm_yday) +"." + str(datetime.datetime.fromtimestamp(stat.timestamp).timetuple().tm_hour)  +str(datetime.datetime.fromtimestamp(stat.timestamp).timetuple().tm_min)
+        #jsonStat["http_status"] = stat.http_status
+        #jsonStat["timestamp"] = stat.timestamp
+        type["values"].append(jsonStat)
+    
+    jsonStats["elements"].append(type)
+        
+    title={}
+    title["text"]="test title"
+    jsonStats["title"]=title
+    x_axis = {}
+    x_axis["min"]=oldestDay
+    x_axis["max"]=newestDay
+    jsonStats["x_axis"]=x_axis
+    y_axis = {}
+    y_axis["min"]="0"
+    y_axis["max"]=len(urlList)
+    jsonStats["y_axis"]=y_axis
+    
+        
+    return HttpResponse(simplejson.dumps(jsonStats), mimetype="application/json")
+
 
 def http_errors(request):
     page=1

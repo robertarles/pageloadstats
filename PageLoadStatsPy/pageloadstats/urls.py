@@ -14,8 +14,10 @@ urlpatterns = patterns('PageLoadStatsPy.pageloadstats.views',
     #url(r'^dailyavgs/(?P<days>[0-9]+)/$', 'daily_avgs'),              # show the current daily overall performance stats
     url(r'^dailyavgs/(?P<tags>[\w,]+)/(?P<days>[0-9]+)/$', 'daily_avgs'),              # show the current daily overall performance stats
     url(r'^httperrors/$', 'http_errors'), # show stats of tests that did not return http 200
+    url(r'^httperrorchart/$', 'http_errorchart'), # get a chart of  http errors
       
     # API for OFC2 charting
+    url(r'^api/ofc2chart/httperrors/$', 'chart_httperrors'),        # API this one returns the data for the chart_multi view
     url(r'^api/ofc2chart/(?P<target_id>\d+)/$', 'chart_data'), # API this one returns the data for the chart view
     url(r'^api/matlabchartimage/(?P<target_id>\d+)/$', 'matlab_chart_image'), # API this one returns the data for the chart view
     url(r'^api/ofc2chart/(?P<target_id_list>[0-9,]+)/$', 'chart_multi_data_by_ids'),        # API this one returns the data for the chart_multi view
