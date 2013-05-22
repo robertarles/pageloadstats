@@ -178,9 +178,11 @@ public class Alert {
 			sendStatus = SimpleSendmail.send(alertSubjectTextAppended, alertText, recipientList);
 			logfile.write("[ALERT] "+ alertSubjectTextAppended+" : " +alertText+"\n");
 			if(sendStatus == true ){
-				System.out.println("[INFO] ALERT SENT.  mail successfully sent: "+sendStatus);
+				System.out.println("[INFO] ALERT SENT.  mail successfully sent: "+sendStatus + "  '"+ alertSubjectTextAppended + "'" );
 			}else{
-				logfile.write("failed to send alert at "+ new Date().toString() + " \n" + alertSubjectTextAppended + "\n" + alertText + "\n\n");
+				logfile.write("[FAIL] failed to send alert at "+ new Date().toString() + 
+						" \n[FAIL] failed to send alert: " + alertSubjectTextAppended + 
+						"\n[FAIL] failed to send alert" + alertText + "\n");
 			}
 			logfile.close();
 		 }catch(Exception e){

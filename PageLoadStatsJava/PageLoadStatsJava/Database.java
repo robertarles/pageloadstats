@@ -66,7 +66,7 @@ public class Database {
 			 rs = stmt.executeQuery(query);
 			 while (rs.next()) {
 				 String dbtime = rs.getString(1);
-				 System.out.println("[INFO] "+ dbtime);
+				 System.out.println("[INFO] queryDb() dbtime "+ dbtime);
 				 targets.add(dbtime);
 			}
 	
@@ -157,7 +157,7 @@ public class Database {
 		 target.put("targetId",dbTargetId);
 		 target.put("url", dbUrl);
 		 target.put("type", type);
-		 System.out.println("[INFO] " + dbUrl+ ", " + dbTargetId);
+		 System.out.println("[INFO] getTargetMap() retrieved " + dbUrl+ ", " + dbTargetId);
 		return target;
 	} 
 	

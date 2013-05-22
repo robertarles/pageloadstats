@@ -53,6 +53,7 @@ public class PageLoadStats {
 			Test test = new Test(targetData.get("url"), targetData.get("targetId"), targetData.get("type"));
 			Thread testThread = new  Thread( new Test( targetData.get("url"), targetData.get("targetId"), targetData.get("type")) );
 			testThread.start();  // TODO implement as thread launch
+			try{Thread.sleep(1000);}catch(InterruptedException sleepE){/**/}
 		}
 	}
 
