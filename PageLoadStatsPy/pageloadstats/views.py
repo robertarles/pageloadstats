@@ -1,7 +1,7 @@
 from django.template import Context, loader
 from PageLoadStatsPy.pageloadstats.models import Target, Alert, Stat, Stat_Rich
 from PageLoadStatsPy.pageloadstats.charts import Pls_Chart
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage
 from pyofc2 import *
 from django.http import HttpResponse
 import urllib2
@@ -15,7 +15,7 @@ from matplotlib import pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.font_manager import FontProperties
 import pylab
-import numpy as np
+import numpy
 
 cs_comment_tags = ["request id:", "tag:","server:", "elapsed:", "elapsed2:"]
 SCATTER_DAY_RANGE = 14
@@ -29,11 +29,14 @@ def target_list(request):
     return HttpResponse(t.render(c))
 
 def chart(request, target_id):
+    """
+    create a chart page
+    """
     target = Target.objects.get(pk=target_id)
-    t = loader.get_template('chart.html')
+    chartTemplate = loader.get_template('chart.html')
     start_date = request.GET.get('start_date',"")
     end_date = request.GET.get("end_date","")
-    trim_above = request.GET.get("trim_above","")    
+    trim_above = request.GET.get("trim_above","")
     if(trim_above):
         trim_params = "%26trim_above="+trim_above
     else:
@@ -49,7 +52,7 @@ def chart(request, target_id):
         'start_end_params': "%26start_date="+start_date+"%26end_date="+end_date,
         'end_date': end_date,
     })
-    return HttpResponse(t.render(c)) 
+    return HttpResponse(chartTemplate.render(c)) 
 
 def  http_errorchart(request):
     t = loader.get_template('httperrorchart.html')
@@ -188,6 +191,9 @@ def matlab_chart(request, target_id):
     return HttpResponse(t.render(c))  
 
 def chart_multi_by_tag(request, tag):
+    """
+    create a page with a multi-target chart based on TAGs sent in the url params
+    """
     targets = Target.objects.filter(tags__contains=tag).filter(active=1)
     target_id_list = ""
     separator=""
@@ -198,8 +204,11 @@ def chart_multi_by_tag(request, tag):
     return chart_multi_by_id(request, target_id_list)
 
 def chart_multi_by_id(request, target_id_list):
+    """
+    create a page to display a multi-target chart
+    """
     #target_id_list = request.GET.get("target_id_list")
-    t = loader.get_template('chart.html')
+    chartTemplate = loader.get_template('chart.html')
     start_date = request.GET.get('start_date',"")
     end_date = request.GET.get("end_date","")
     trim_above = request.GET.get("trim_above","")
@@ -217,7 +226,7 @@ def chart_multi_by_id(request, target_id_list):
         'start_end_params': "%26start_date="+start_date+"%26end_date="+end_date,
         'end_date': end_date,
     })
-    return HttpResponse(t.render(c))
+    return HttpResponse(chartTemplate.render(c))
 
 def daily_avgs(request,tags=["home", "bpp", "browse", "deals", "srp", "api"],days=4):
     t = loader.get_template('perfdaily.html')
@@ -312,16 +321,16 @@ def get_daily_avg_by_tag(request, tag, days_ago):
     return HttpResponse(simplejson.dumps(response_data), mimetype="application/json")
         
 
-##
-# Return the html/javascript vars required to generate a SINGLE TARGET Open Flash Chart
-##
 def chart_data(request, target_id):
+    """
+    Return the html/javascript vars required to generate a SINGLE TARGET Open Flash Chart
+    """
     #pls_chart = Pls_Chart("http://robert.arles.us?some=someval&other=otherVal&booyah=argh")
     #pls_chart.init_param_vars()
     
     target = Target.objects.get(pk=target_id)
     
-    t = title(text=time.strftime( '%a %Y %b %d') + " for Target ID:" + target_id + " Name: " + target.name )
+    t = title(text=time.strftime( '%a %Y %b %d') + " for Target ID:" + target_id + " Name: " + target.name )  # @UndefinedVariable
     
     largest_load_time = 100
     chart_range = 100  # default number of data points to show if no date range is specified
@@ -344,6 +353,8 @@ def chart_data(request, target_id):
     alert_val = None
     
     for stat in stats:
+        
+        if (numpy.isnan(stat.page_load_time)): next
         load_times_values.append(stat.page_load_time)
             
         fmt = "%Y/%m/%d %H:%M:%S"
@@ -391,7 +402,7 @@ def chart_data(request, target_id):
     # setup the x axis
     x = pls_chart.y_axis     
     x_axis_step_size = len(load_time_request_dates)/15
-    xlabels = x_axis_labels(steps=x_axis_step_size, rotate='vertical')
+    xlabels = x_axis_labels(steps=x_axis_step_size, rotate='vertical')  # @UndefinedVariable
 
     start_date_dt = load_time_request_dates[0]
     end_date_dt = load_time_request_dates[-1]
@@ -463,12 +474,12 @@ def matlab_chart_image(request, target_id):
         if (stat.page_load_time!=None and stat.page_load_time < trim_above):
             pageLoads.insert(0,int(stat.page_load_time)) 
         else:
-            pageLoads.insert(0,np.ma.masked)
+            pageLoads.insert(0,np.ma.masked)  # @UndefinedVariable
             
         if (stat.elapsed!=None and stat.page_load_time < trim_above): 
             pageElapsed.insert(0,int(stat.elapsed))  
         else:
-            pageElapsed.insert(0,np.ma.masked)
+            pageElapsed.insert(0,np.ma.masked)  # @UndefinedVariable
             
     startEntry = datetime.datetime.fromtimestamp(earliestTimestamp)
     endEntry = datetime.datetime.fromtimestamp(latestTimestamp)
@@ -539,6 +550,9 @@ def matlab_chart_image(request, target_id):
     return response
 
 def chart_multi_data_by_tag(request,tag):
+    """
+    generate the javascript to create a chart for multiple target urls based on the TAGs 
+    """
     targets = Target.objects.filter(tags__contains=tag).filter(active=1)
     target_id_list = ""
     separator=""
@@ -549,7 +563,9 @@ def chart_multi_data_by_tag(request,tag):
     return chart_multi_data_by_ids(request,target_id_list)
 
 def chart_multi_data_by_ids(request,target_id_list):
-    
+    """
+    generate the javascript to create a chart for multiple target urls
+    """
     #target_id_value = request.GET.get("target_id_list")
     start_date = request.GET.get("start_date")
     end_date = request.GET.get("end_date")
@@ -604,9 +620,9 @@ def chart_multi_data_by_ids(request,target_id_list):
             date_range.append("1001/01/01 01:01:01")
         # setup the x axis
         if(chart_axis_set == False):
-            x = x_axis()        
+            x = x_axis()        # @UndefinedVariable
             x_axis_step_size = len(date_range)/15
-            xlabels = x_axis_labels(steps=x_axis_step_size, rotate='vertical')
+            xlabels = x_axis_labels(steps=x_axis_step_size, rotate='vertical')  # @UndefinedVariable
             xlabels.labels = pls_chart.get_x_axis_array( date_range[0], date_range[-1], 15)
             x.labels = xlabels
             pls_chart.x_axis = x
@@ -625,14 +641,14 @@ def chart_multi_data_by_ids(request,target_id_list):
         
     # setup the y axis
     y_axis_step_size = largest_load_time / 5
-    y = y_axis()
+    y = y_axis()  # @UndefinedVariable
     y.min, y.max, y.steps = 0, largest_load_time, y_axis_step_size
     y.min =0 
     y.max =largest_load_time + 100
     y.steps = y_axis_step_size
     pls_chart.y_axis = y
         
-    pls_chart.title =  title(text="Multi Target Chart")
+    pls_chart.title =  title(text="Multi Target Chart")  # @UndefinedVariable
     return HttpResponse(pls_chart.render())
 
 ##

@@ -71,7 +71,8 @@ function fillDateRange(){
 }
 function fillErrorList(page){
 	errorListHtml = "";
-	page = 1
+	// show activity indication
+	$("#error_list_target").html("loading...");
 	$.ajax({
 		url: '/pls/api/httperrors/?page='+page,
 		success: function(errorResponse) {
@@ -89,6 +90,7 @@ function fillErrorList(page){
 			$("#error_list_target").html(errorListHtml);
 		}
 	});
+	// remove ajax activity indication
 }
 
 function tsToString(timestamp){

@@ -71,6 +71,8 @@ function fillDateRange(){
 }
 function fillErrorList(page){
 	errorListHtml = "";
+	// show activity indication
+	$("#error_list_target").html("<tr><td class='text-center'><img src='/static/img/throbber_b.gif'/></td></tr>");
 	$.ajax({
 		url: '/pls/api/httperrors/?page='+page,
 		success: function(errorResponse) {
@@ -88,6 +90,7 @@ function fillErrorList(page){
 			$("#error_list_target").html(errorListHtml);
 		}
 	});
+	// remove ajax activity indication
 }
 
 function tsToString(timestamp){

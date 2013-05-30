@@ -9,10 +9,10 @@ class Pls_Chart(object):
 	"""
 	
 	def __init__(self):
-		self.chart = open_flash_chart()
+		self.chart = open_flash_chart()  # @UndefinedVariable
 		self.chart_lines = []
-		self.x_axis = x_axis()
-		self.y_axis = y_axis()
+		self.x_axis = x_axis()  # @UndefinedVariable
+		self.y_axis = y_axis()  # @UndefinedVariable
 		self.title = "Page Load Stats"
 		self.line_width = 1
 		
@@ -43,7 +43,7 @@ class Pls_Chart(object):
 		Create and return a line object
 		return a pyOfc2 line object
 		"""
-		chart_line = line()
+		chart_line = line()  # @UndefinedVariable
 		dots = []
 		fmt1 = "%Y/%m/%d %H:%M:%S"
 		fmt2 = "%Y-%m-%d %H:%M:%S"
@@ -59,7 +59,7 @@ class Pls_Chart(object):
 				break;
 			dateStr = dates[i+date_differential]
 			txt = name + "<br>" + dateStr + "<br>" + "#val#ms"
-			dot = dot_value(value=values[i+date_differential], tip=txt, dot_size=4)
+			dot = dot_value(value=values[i+date_differential], tip=txt, dot_size=4)  # @UndefinedVariable
 			datestr1 = dateStr
 			dot_date = datetimefunc.strptime(datestr1, fmt1)
 			if(i < len(self.date_array)):
@@ -73,7 +73,7 @@ class Pls_Chart(object):
 				if(i < len(dates)):
 					dateStr = dates[i+date_differential]
 				txt = name + "<br>" + dateStr + "<br>" + "#val#ms"
-				dot = dot_value(value=values[i+date_differential], tip=txt)
+				dot = dot_value(value=values[i+date_differential], tip=txt)  # @UndefinedVariable
 				# bad fix for lines that lie outside the chart y-axis
 				#if( values[i+date_differential]>self.y_axis.max):
 				#	dot = dot_value(value=None,tip="no data") # dont plot dots that lie outside the chart
@@ -90,7 +90,7 @@ class Pls_Chart(object):
 			if(delta > datetime.timedelta(minutes=15)): 
 				# is this data later than the current spot (some data missing, likely) (but always show alert level
 				if(name.lower() != "alert level"):
-					dot = dot_value(value='null')
+					dot = dot_value(value=0)  # @UndefinedVariable
 				date_differential -= 1
 				
 			dots.append(dot)
