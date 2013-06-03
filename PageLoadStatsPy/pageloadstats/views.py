@@ -95,7 +95,10 @@ def chart_httperrors(request):
         jsonStat["y"]=urlList.index(stat.url) + 1
         tenthOfDay=str(datetime.datetime.fromtimestamp(stat.timestamp).timetuple().tm_hour / 2.4).replace(".","")
         jsonStat["x"]= str(datetime.datetime.fromtimestamp(stat.timestamp).timetuple().tm_yday) +"." + tenthOfDay +str(datetime.datetime.fromtimestamp(stat.timestamp).timetuple().tm_min)
-        jsonStat["tip"] =  "url: "+str(stat.url)+"\ndate: "+stat.request_date +"\nstatus: "+str(stat.http_status)
+        tipurl = stat.url[:100]
+        if(len(stat.url)>100):
+            tipurl += "..." #+ stat.url[-10:]
+        jsonStat["tip"] =  "url: "+tipurl+"\ndate: "+stat.request_date +"\nstatus: "+str(stat.http_status)
         type["values"].append(jsonStat)
     jsonStats["elements"].append(type)
     title={}
