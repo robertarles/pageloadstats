@@ -79,7 +79,7 @@ def chart_httperrors(request):
     dotStyle["sides"]= "4"
     type["dot-style"]=dotStyle
     
-    jsonStats["elements"].append(type)
+    #jsonStats["elements"].append(type)
     values={}
     type["values"]=[]
     
@@ -95,20 +95,17 @@ def chart_httperrors(request):
         jsonStat["y"]=urlList.index(stat.url) + 1
         tenthOfDay=str(datetime.datetime.fromtimestamp(stat.timestamp).timetuple().tm_hour / 2.4).replace(".","")
         jsonStat["x"]= str(datetime.datetime.fromtimestamp(stat.timestamp).timetuple().tm_yday) +"." + tenthOfDay +str(datetime.datetime.fromtimestamp(stat.timestamp).timetuple().tm_min)
-        #jsonStat["http_status"] = stat.http_status
-        #jsonStat["timestamp"] = stat.timestamp
+        jsonStat["tip"] =  "url: "+str(stat.url)+"\ndate: "+stat.request_date +"\nstatus: "+str(stat.http_status)
         type["values"].append(jsonStat)
-    
     jsonStats["elements"].append(type)
-        
     title={}
-    title["text"]="test title"
+    title["text"]="experimental display of http errors by page/day"
     jsonStats["title"]=title
     x_axis = {}
     #x_axis["min"]=oldestDay-1
     #x_axis["max"]=newestDay+1
     x_axis["labels"] = {}
-    x_axis["steps"] = "1"
+   # x_axis["steps"] = "1"
     x_label_obj = {}
     x_labels = []
     for day in range(SCATTER_DAY_RANGE-1,-1,-1):
@@ -118,8 +115,9 @@ def chart_httperrors(request):
         label = dateString
         if(label not in x_labels):
             x_labels.append(label)
-    x_label_obj["labels"]=x_labels
-    x_axis["labels"] = x_label_obj
+    x_label_obj = {}
+    x_label_obj["labels"] = x_labels
+   # x_axis["labels"] = x_label_obj
     jsonStats["x_axis"]=x_axis
     y_axis = {}
     y_axis["min"]="0"
@@ -166,7 +164,6 @@ def get_http_errors(request):
         error_dict["request_date"] =  error.request_date
         response_data["errors"].append(error_dict)
     return HttpResponse(simplejson.dumps(response_data), mimetype="application/json")
-
 
 
 def matlab_chart(request, target_id):
