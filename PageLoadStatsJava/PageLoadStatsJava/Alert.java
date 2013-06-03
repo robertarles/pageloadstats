@@ -2,6 +2,7 @@ package com.citysearch.performance.PageLoadStatsPy.PageLoadStatsJava;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
@@ -209,6 +210,16 @@ public class Alert {
 				// text alert AND log an error here!
 				System.out.println("[FAILURE] Error. Alert triggered, but email failed to send.");
 			}
+			
+			try {
+				BufferedWriter logfile = new BufferedWriter(new FileWriter(PageLoadStats.LOGFILE, true));
+				logfile.write("[ALERT] "+ alertSubjectTextAppended+" : " +alertText+"\n");
+				logfile.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 		}
 
 

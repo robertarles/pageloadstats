@@ -17,7 +17,7 @@ public class PageLoadStats {
     protected static String reportFromAddress =    	"PageLoadStats@citysearch.com";
 	protected static String reportToAddress =      	"robert.arles@citygridmedia.com";
 	protected static String reportSubjectText =    	"PageLoadStats report";
-	
+	protected static int testPause = 2000; 
 
 	protected static int smaWindowSize = 96;  // default for the simple moving avg calc, overridden by setting from sql settings tbl
 
@@ -26,8 +26,6 @@ public class PageLoadStats {
 	
 	protected Properties properties = new Properties();
 	private static final String PROPERTIES_FILE = "app.properties";
-
-
 	
 	// a place to store error messages during testing
 	protected static ArrayList<String> errorList = new ArrayList<String>();
@@ -43,17 +41,17 @@ public class PageLoadStats {
 	public static void main(String[] args){
 		PageLoadStats pls = new PageLoadStats();
 		String url = null;
-		ArrayList<HashMap<String,String>> targetDataList = new ArrayList<HashMap<String,String>>();
 
 		pls.loadPropertiesFromFile();
-		targetDataList = getTargetList(args, pls);
+		
+		ArrayList<HashMap<String,String>>targetDataList = getTargetList(args, pls);
 		for(HashMap<String,String>targetData : targetDataList) {
 			if(targetData.get("type")==null) 
 				targetData.put("type","");
 			Test test = new Test(targetData.get("url"), targetData.get("targetId"), targetData.get("type"));
 			Thread testThread = new  Thread( new Test( targetData.get("url"), targetData.get("targetId"), targetData.get("type")) );
-			testThread.start();  // TODO implement as thread launch
-			try{Thread.sleep(1000);}catch(InterruptedException sleepE){/**/}
+			testThread.start();
+			try{Thread.sleep(testPause);}catch(InterruptedException sleepE){/**/}
 		}
 	}
 
@@ -104,8 +102,11 @@ public class PageLoadStats {
 		Alert.smtpServer = properties.getProperty("smtp.server");
 		Alert.smtpUser = properties.getProperty("smtp.user");
 		Alert.smtpPassword = properties.getProperty("smtp.password");
-		
 		Alert.plsWebHost = properties.getProperty("plsWeb.host");
+		
+		PageLoadStats.testPause = Integer.valueOf(properties.getProperty("pageLoadStats.testPause"));
+		
+		
 		
 		 return true;
  	}
