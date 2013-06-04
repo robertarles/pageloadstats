@@ -16,6 +16,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.font_manager import FontProperties
 import pylab
 import numpy
+import urlparse
 
 cs_comment_tags = ["request id:", "tag:","server:", "elapsed:", "elapsed2:"]
 SCATTER_DAY_RANGE = 14
@@ -95,10 +96,14 @@ def chart_httperrors(request):
         jsonStat["y"]=urlList.index(stat.url) + 1
         tenthOfDay=str(datetime.datetime.fromtimestamp(stat.timestamp).timetuple().tm_hour / 2.4).replace(".","")
         jsonStat["x"]= str(datetime.datetime.fromtimestamp(stat.timestamp).timetuple().tm_yday) +"." + tenthOfDay +str(datetime.datetime.fromtimestamp(stat.timestamp).timetuple().tm_min)
-        tipurl = stat.url[:100]
-        if(len(stat.url)>100):
-            tipurl += "..." #+ stat.url[-10:]
-        jsonStat["tip"] =  "url: "+tipurl+"\ndate: "+stat.request_date +"\nstatus: "+str(stat.http_status)
+        parsedurl = urlparse.urlparse(stat.url)
+        tippath = parsedurl.path
+        if(parsedurl.query):
+            tippath += "?" + parsedurl.query
+        if(len(tippath)>100):
+            tippath = tippath[:100]+"..." 
+        tiphost = parsedurl.hostname
+        jsonStat["tip"] = "host: " + tiphost +"\ndate: "+stat.request_date +"\nstatus: "+str(stat.http_status)+  "\npath: "+tippath
         type["values"].append(jsonStat)
     jsonStats["elements"].append(type)
     title={}
