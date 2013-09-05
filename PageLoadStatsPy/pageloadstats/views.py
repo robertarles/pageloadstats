@@ -405,7 +405,7 @@ def chart_data(request, target_id):
     
     
     # setup the x axis
-    x = pls_chart.y_axis     
+    x = pls_chart.x_axis
     x_axis_step_size = len(load_time_request_dates)/15
     xlabels = x_axis_labels(steps=x_axis_step_size, rotate='vertical')  # @UndefinedVariable
 
@@ -413,7 +413,7 @@ def chart_data(request, target_id):
     end_date_dt = load_time_request_dates[-1]
     xlabels.labels = pls_chart.get_x_axis_array( start_date_dt, end_date_dt, 15)
     x.labels = xlabels
-    x_axis = x
+    pls_chart.x_axis = x
     
     #### Create the chart line objects
 
