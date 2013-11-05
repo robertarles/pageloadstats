@@ -367,9 +367,10 @@ def chart_data(request, target_id):
         
         #shift 8 hours to pacific time
         tz_shift = 0
-        tz_offset = request.COOKIES.get("tz_offset")
-        if(tz_offset != None):
-            tz_shift = int(tz_offset)
+        # removing TZ adjustment
+        #tz_offset = request.COOKIES.get("tz_offset")
+        #if(tz_offset != None):
+        #    tz_shift = int(tz_offset)
         load_date += datetime.timedelta(hours=-tz_shift)
         load_str = datetimefunc.strftime(load_date,fmt)
 
