@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls import patterns, url
 from django.contrib import admin
 admin.autodiscover()
 
@@ -15,6 +15,8 @@ urlpatterns = patterns('PageLoadStatsPy.pageloadstats.views',
     url(r'^dailyavgs/(?P<tags>[\w,]+)/(?P<days>[0-9]+)/$', 'daily_avgs'),              # show the current daily overall performance stats
     url(r'^httperrors/$', 'http_errors'), # show stats of tests that did not return http 200
     url(r'^httperrorchart/$', 'http_errorchart'), # get a chart of  http errors
+    url(r'^manage/$', 'manage_targets'),
+    url(r'^edit/(?P<target_id>\d+)/$', 'edit_target'),
       
     # API for OFC2 charting
     url(r'^api/ofc2chart/httperrors/$', 'chart_httperrors'),        # API this one returns the data for the chart_multi view

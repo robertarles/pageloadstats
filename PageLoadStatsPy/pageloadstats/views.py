@@ -29,6 +29,23 @@ def target_list(request):
     })
     return HttpResponse(t.render(c))
 
+
+def manage_targets(request):
+    latest_target_data = Target.objects.order_by('name')
+    t = loader.get_template('manage_targets.html')
+    c= Context({
+                'latest_target_data': latest_target_data,
+    })
+    return HttpResponse(t.render(c))
+
+def edit_target(request, target_id):
+    target_data = Target.objects.get(pk=target_id)
+    t = loader.get_template('edit_target.html')
+    c = Context({
+                'target_data': target_data
+    })
+    return HttpResponse(t.render(c))
+
 def chart(request, target_id):
     """
     create a chart page

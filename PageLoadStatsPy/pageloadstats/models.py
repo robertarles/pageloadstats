@@ -80,11 +80,11 @@ class Target(models.Model):
     id = models.BigIntegerField(primary_key=True)
     type = models.TextField(blank=True)
     name = models.TextField(blank=True)
-    alerts = models.ManyToManyField("Alert", through="TargetAlert", symmetrical=False, related_name='related_to')
+    alerts = models.ManyToManyField("Alert", through="TargetAlert", symmetrical=False, related_name='alerts')
     tags = models.TextField()
     class Meta:
         db_table = u'target'
-    
+        
 class Stat_Rich(models.Model):
     url = models.TextField()
     elapsed = models.TextField(blank=True)
@@ -111,7 +111,7 @@ class Stat_Rich(models.Model):
     def name(self):
         target = Target.objects.get(id=self.target_id)
         target_name = target.name
-        return target_name
+        return target_name    
     
 class TargetAlert(models.Model):
     target = models.ForeignKey(Target, related_name='target_name')
