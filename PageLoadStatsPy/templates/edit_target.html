@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block header %} 
+
+{% endblock%}
+
+{% block content %}
+{% if target_data %}
+
+	<h3>Edit Target</h3>
+	<form class="form-horizontal" role="form" action="/pls/api/target/update/{{target_data.id}}/" method="post">{% csrf_token %}
+		<div class="form-group">
+			<label>Name</label> 
+			<input type="text" name="target_name" class="form-control" value="{{ target_data.name }}"></input> (ID {{target_data.id}})
+			<label>Active</label>
+			<input type="text" name="target_active" class="form-control" value="{{target_data.active}}"></input>
+		</div>
+		<div class="form-group">
+			<label>URL</label> 
+			<input type="text" name="target_url" class="form-control" value="{{target_data.url}}"></input>
+		</div>
+		<div class="form-group">
+			<label>Tags</label> 
+			<input type="text" name="target_tags" class="form-control" value="{{target_data.tags}}"></input>
+		</div>
+		{% for alert in target_data.alerts.all %}
+			<div class="form-group">
+				<label>Alert name</label> 
+				<input name="alert_name" type="text" class="form-control" value="{{alert.name}}"></input>
+				<label>Alert ID</label> 
+				<input name="alert_id" class="form_control" type="text" value="{{alert.id}}"></input>
+			</div>
+		{% endfor %}
+ 			<button type="submit" class="btn btn-default">Save</button>
+	</form>
+{% else %}
+    <p>No target data available.</p>
+{% endif %}
+{% endblock %}

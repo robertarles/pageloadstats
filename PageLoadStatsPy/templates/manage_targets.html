@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block header %} 
+
+{% endblock%}
+
+{% block content %}
+{% if latest_target_data %}
+    
+    <table class="table table-striped table-hover">
+    	<theader>
+			<tr>
+				<th>Target Name</th>
+				<th>Active</th>
+				<th>Alert</th>
+				<th></th>
+				<th</th>
+			</tr>
+		</theader>
+		<tbody>
+		{% for target in latest_target_data %}
+			<tr class="target_active_{{target.active}}">
+				<td>{{target.name}}</td> 
+				<td>{{target.active}}</td>
+				<td>
+				{% for alert in target.alerts.all %}
+					{{alert.name}} (ID:{{alert.id}})</div>
+				{% endfor %}
+				</td>
+				<td>[<a href="/pls/edit/{{target.id}}">Edit</a>]<td>
+				<td>[<a href="/pls/delete/{{target.id}}"> Delete </a>]</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+    </table>
+    
+{% else %}
+    <p>No targets are available.</p>
+{% endif %}
+{% endblock %}

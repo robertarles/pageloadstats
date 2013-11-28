@@ -15,30 +15,9 @@ a:active {color:#099;}  /* selected link */
     width: 100px;
 }
 
-.menu{
-	
-}
 
-
-.menu_top{
-	cursor: hand; 
-	cursor: pointer;
-	margin-left: -5px;
-	margin-top:-1px; /* get the items in the list to overlap, not having top+bottom borders showing */
-	padding:2px;
-	padding-left: 5px;
-	list-style-type: none;
-	/*
-	border-radius: 15px;
-	border: 1px solid #090;
-	*/
-}
-
-.menu_sub{
-	margin-left: -5px;
-	font-size: .80em;
-	list-style-type: none;
-	display: none;
+.target_active_0{
+	color:gray;
 }
 
 .chart_container{
@@ -61,28 +40,12 @@ a:active {color:#099;}  /* selected link */
 	font-size: 18px;
 }
 
-.stack_small{
-	padding-top: 5px;
-	padding-bottom: 5px;
-	padding-left: 0px;
-	padding-right: 0px;
-}
-.stack_medium{
-	padding-top: 10px;
-	padding-bottom: 10px;
-	padding-left: 0px;
-	padding-right: 0px;
-}
-.stack_large{
-	padding-top: 15px;
-	padding-bottom: 15px;
-	padding-left: 0px;
-	padding-right: 0px;
-}
 .float_right{
 	postition: relative;
 	float: right;
 }
+
+
 
 /* css for timepicker */
 .ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
@@ -91,10 +54,6 @@ a:active {color:#099;}  /* selected link */
 .ui-timepicker-div dl dd { margin: 0 10px 10px 65px; }
 .ui-timepicker-div td { font-size: 90%; }
 .ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
-
-
-
-
 
 /* css for timepicker */
 .ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }

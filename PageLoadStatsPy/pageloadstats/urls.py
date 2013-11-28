@@ -29,7 +29,11 @@ urlpatterns = patterns('PageLoadStatsPy.pageloadstats.views',
     url(r'^api/tags/$', 'get_tags'), # API get a list of tags in use
     url(r'^api/targets/all/(?P<return_type>)\w+/$', 'get_targets_all'), # API get a lis of all active targets
     url(r'^api/targets/(?P<tag>\w+)/(?P<return_type>)\w+/$', 'get_targets_by_tag'), # API get a list of targets for the given tag
-        
+    
+    url(r"^api/target/update/(?P<target_id>\d+)/$", "target_update"), # save changes to a target record
+    url(r"^api/target/delete/(?P<target_id>\d+)/$", "target_delete"), # delete a target ACTUAL DELETION, you probably want to deactivate, not delete
+    url(r"^api/target/create/", "target_create"), # add a new target
+       
     url(r'^api/dailyavg/(?P<target_id>\d+)/(?P<days_ago>\d+)/$', 'get_daily_avg_by_id'),
     url(r'^api/dailyavg/(?P<tag>[\w,]+)/(?P<days_ago>\d+)/$', 'get_daily_avg_by_tag'),              # show the current daily overall performance stats
     

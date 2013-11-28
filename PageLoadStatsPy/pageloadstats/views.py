@@ -1,5 +1,5 @@
-from django.template import Context, loader
-from PageLoadStatsPy.pageloadstats.models import Target, Alert, Stat, Stat_Rich
+from django.template import Context, RequestContext, loader
+from PageLoadStatsPy.pageloadstats.models import Target, Alert, TargetAlert, Stat, Stat_Rich
 from PageLoadStatsPy.pageloadstats.charts import Pls_Chart
 from django.core.paginator import Paginator, EmptyPage
 from pyofc2 import *
@@ -41,10 +41,42 @@ def manage_targets(request):
 def edit_target(request, target_id):
     target_data = Target.objects.get(pk=target_id)
     t = loader.get_template('edit_target.html')
-    c = Context({
+    c = RequestContext(request,{
                 'target_data': target_data
     })
     return HttpResponse(t.render(c))
+
+## target api calls
+###
+
+def target_update(request, target_id):
+    target = Target.objects.get(id=target_id)
+    target.url = request.POST.get("target_url")
+    target.name = request.POST.get("target_name")
+    target.active = request.POST.get("target_active")
+    target.tags = request.POST.get("target_tags")
+    
+    for alert in target.alerts.all():
+        target_alert = TargetAlert.objects.get(alert = alert.id, target = target.id)
+        target_alert.delete()
+    
+    alert_id = request.POST.get("alert_id")
+    alert = Alert.objects.get(id=alert_id)
+    target_alert = TargetAlert(target=target,alert=alert,active=1)
+    target_alert.save()
+    
+    target.save()
+    response = HttpResponseRedirect("/pls/manage/")
+    return response
+    
+def target_create(request):
+    pass
+
+def target_delete(request):
+    pass
+
+###
+## END target api calls
 
 def chart(request, target_id):
     """

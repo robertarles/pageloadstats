@@ -1,12 +1,17 @@
-<li class='nav-header stack_small'>Charts</li>
-<ul class='menu nav nav-list stack_small'>
+<div class=''>Charts</div>
+<ul class='nav nav-pills nav-stacked'>
 {% for tag, target_dict in targets_by_tag.items %}
-	<li class='menu_top' target='menu_sub_{{tag}}'><a href="" onclick="return false;"><i class="icon-plus-sign"></i>{{tag}}</a></li>
-	<ul class='nav nav-list stack_small menu_sub menu_sub_{{tag}}'>
-		<li><a href='/pls/chart/{{tag}}'>ALL tagged {{tag}}</a></li>
-		{% for name,id in target_dict.items %}
-			<li><a href='/pls/chart/{{ id }}'>{{ name }}</a></li>
-		{% endfor %}
-	</ul>
+	<li class='dropdown_{{tag}}''>
+		<a href="#" class="dropdown-toggle" data-toggle="dropdown_{{tag}}">{{tag}}<span class="caret"></span></a>
+
+		<ul class="dropdown-menu" role="menu">
+			<li><a href='/pls/chart/{{tag}}'>ALL tagged {{tag}}</a></li>
+			<li class="divider"></li>
+			{% for name,id in target_dict.items %}
+				<li><a href='/pls/chart/{{ id }}'>{{ name }}</a></li>
+			{% endfor %}
+		</ul>
+		
+	</li>
 {% endfor %}
 </ul>
