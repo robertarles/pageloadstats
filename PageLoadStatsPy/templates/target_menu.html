@@ -1,17 +1,17 @@
 <div class=''>Charts</div>
-<ul class='nav nav-pills nav-stacked'>
-{% for tag, target_dict in targets_by_tag.items %}
-	<li class='dropdown_{{tag}}''>
-		<a href="#" class="dropdown-toggle" data-toggle="dropdown_{{tag}}">{{tag}}<span class="caret"></span></a>
-
-		<ul class="dropdown-menu" role="menu">
-			<li><a href='/pls/chart/{{tag}}'>ALL tagged {{tag}}</a></li>
-			<li class="divider"></li>
+<ul class="list-unstyled">
+	{% for tag, target_dict in targets_by_tag.items %}
+	<li class='dropdown'>
+		<a class="dropdown-toggle" href="#" id="dropdownMenu_{{tag}}" data-toggle="dropdown">
+		    {{tag}} <span class="caret"></span>
+		</a>
+		<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu_{{tag}}">
+			<li role="presentation"><a href='/pls/chart/{{tag}}' role="menuitem" tabindex=-1">ALL tagged {{tag}}</a></li>
+			<li role="presentation" class="divider"></li>
 			{% for name,id in target_dict.items %}
-				<li><a href='/pls/chart/{{ id }}'>{{ name }}</a></li>
+				<li role="presentation"><a href='/pls/chart/{{ id }}' role="menuitem" tabindex=-1">{{ name }}</a></li>
 			{% endfor %}
 		</ul>
-		
 	</li>
-{% endfor %}
+	{% endfor %}
 </ul>

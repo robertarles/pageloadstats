@@ -6,16 +6,18 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
     <link rel="stylesheet" href="/static/css/base.css"/>
-    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css"/>
-    <link rel="javascript" href="/static/bootstrap/js/bootstrap.min.js"/>
     
-    <script type="text/javascript" src="/static/js/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-2.0.3.min.js"></script>
 		
 	<script type="text/javascript" src="/static/js/pageLoadStats.js"></script>
 	
-	<script type="text/javascript" src="/static/js/jquery-ui-1.8.18.custom.min.js"></script>
-	<link type="text/css" href="/static/css/cupertino/jquery-ui-1.8.18.custom.css" rel="stylesheet" />
+ 	<script type="text/javascript" src="/static/js/jquery-ui-1.10.3.custom.min.js"></script>
+ 	<link type="text/css" href="/static/css/ui-lightness/jquery-ui-1.10.3.custom.css" rel="stylesheet" />
 	<script type="text/javascript" src="/static/js/timepicker-addon.js"></script>
+
+    <link type="text/css" href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+    <link type="text/css" href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+	<script type="text/javascript" src="/static/bootstrap/js/bootstrap.min.js"></script>
 
 	
     <title>{% block title %}PageLoadStats{% endblock %}</title>
@@ -28,7 +30,6 @@
 			setTZOffsetCookie();
 			$(".date_time_picker").datetimepicker();
 			$("#resizeable").resizable();
-			
 		});
 
 		
@@ -43,8 +44,8 @@
 		<div class="row">
 			<div id="sidebar" class="col-md-2">
 				{% block sidebar %}
-				<div class="">Menu</div>
-				<ul class='nav nav-pills nav-stacked'>
+				<div>Menu</div>
+				<ul class='nav  nav-stacked'>
                     <li><a href="/pls/manage/"><i class="glyphicon glyphicon-cog"></i> Manage</a></li>
                     <li><a href="/pls/dailyavgs/"><i class="glyphicon glyphicon-calendar"></i> Daily Avgs</a></li>
                     <li><a href="/pls/httperrors/"><i class="glyphicon glyphicon-fire"></i> HTTP Errors</a></li>
