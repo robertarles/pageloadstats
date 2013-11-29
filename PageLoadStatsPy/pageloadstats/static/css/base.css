@@ -15,6 +15,10 @@ a:active {color:#099;}  /* selected link */
     width: 100px;
 }
 
+.dropdown-toggle{
+	margin-left:15px;
+	margin-bottom: 15px;
+}
 
 .target_active_0{
 	color:gray;
