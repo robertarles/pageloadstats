@@ -1,9 +1,9 @@
 
 <div><b>Charts</b></div>
-<ul class="nav nav-stacked">
+<ul class="list-unstyled">
 	{% for tag, target_dict in targets_by_tag.items %}
 	<li class='dropdown'>
-		<a class="dropdown-toggle" href="#" id="dropdownMenu_{{tag}}" data-toggle="dropdown">
+		<a class="dropdown-toggle indented-menuitem" href="#" id="dropdownMenu_{{tag}}" data-toggle="dropdown">
 		    {{tag}} <span class="caret"></span>
 		</a>
 		<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu_{{tag}}">

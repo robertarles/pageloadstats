@@ -16,9 +16,8 @@ a:active {color:#099;}  selected link */
     width: 100px;
 }
 
-.dropdown-toggle{
-	margin-bottom: -5px;
-	margin-top: -5px;
+.indented-menuitem{
+	margin-left: 15px;
 }
 
 .target_active_0{
