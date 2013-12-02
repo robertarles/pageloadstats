@@ -1,7 +1,17 @@
 {% extends "base.html" %}
 {% block header %} 
+    <script type="text/javascript">
+    
+		$(document).ready(function(){
+			selectAlertId({{current_alert_id}});
+		});
+	
+		function selectAlertId(current_alert_id){
+			$("#alert_id_select").val(current_alert_id);
+		}
 
-{% endblock%}
+    </script>
+{% endblock %}
 
 {% block content %}
 {% if target_data %}
@@ -9,8 +19,10 @@
 	<h3>Edit Target</h3>
 	<form class="form-horizontal" role="form" action="/pls/api/target/update/{{target_data.id}}/" method="post">{% csrf_token %}
 		<div class="form-group">
-			<label>Name</label> 
-			<input type="text" name="target_name" class="form-control" value="{{ target_data.name }}"></input> (ID {{target_data.id}})
+			<label>Name (ID {{target_data.id}})</label> 
+			<input type="text" name="target_name" class="form-control" value="{{ target_data.name }}"></input>
+		</div>
+		<div class="form-group">	
 			<label>Active</label>
 			<input type="text" name="target_active" class="form-control" value="{{target_data.active}}"></input>
 		</div>
@@ -22,15 +34,16 @@
 			<label>Tags</label> 
 			<input type="text" name="target_tags" class="form-control" value="{{target_data.tags}}"></input>
 		</div>
-		{% for alert in target_data.alerts.all %}
-			<div class="form-group">
-				<label>Alert name</label> 
-				<input name="alert_name" type="text" class="form-control" value="{{alert.name}}"></input>
-				<label>Alert ID</label> 
-				<input name="alert_id" class="form_control" type="text" value="{{alert.id}}"></input>
-			</div>
-		{% endfor %}
- 			<button type="submit" class="btn btn-default">Save</button>
+		<div class="form-group">
+			<label>Alerting</label> 
+			<select class="form-control" id="alert_id_select" name="alert_id">
+				<option value="">no alert</option>
+				{% for available_alert in available_alerts %}
+					<option value="{{available_alert.id}}">{{available_alert.name}} (limit {{available_alert.limit_high}} ms)</option>
+				{% endfor %} 
+			</select>
+		</div>
+		<button type="submit" class="btn btn-default">Save</button>
 	</form>
 {% else %}
     <p>No target data available.</p>

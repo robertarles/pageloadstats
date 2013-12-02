@@ -1,11 +1,12 @@
-a:link {color:#090;}      /* unvisited link */
-a:visited {color:#090;}  /* visited link */
-a:hover {color:#099;}  /* mouse over link */
-a:active {color:#099;}  /* selected link */
+/* a:link {color:#090;}      unvisited link
+a:visited {color:#090;}  visited link
+a:hover {color:#099;}  mouse over link
+a:active {color:#099;}  selected link */
 
 .header{
 	font-size: 42px;
-	color: #009900;
+	color: #428bca;
+	/* color: #009900; */
 	margin-top: 15px;
 	margin-bottom: 20px;
     align:left;
@@ -16,8 +17,8 @@ a:active {color:#099;}  /* selected link */
 }
 
 .dropdown-toggle{
-	margin-left:15px;
-	margin-bottom: 15px;
+	margin-bottom: -5px;
+	margin-top: -5px;
 }
 
 .target_active_0{

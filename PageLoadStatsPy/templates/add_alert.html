@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block header %} 
+
+{% endblock%}
+
+{% block content %}
+
+<h3>Edit Target</h3>
+<form class="form-horizontal" role="form" action="/pls/api/alert/create/" method="post">{% csrf_token %}
+	<div class="form-group">
+		<label>Name</label> 
+		<input type="text" name="alert_name" class="form-control" value=""></input>
+		<label>Active</label>
+		<input type="text" name="alert_active" class="form-control" value=""></input>
+	</div>
+	<div class="form-group">
+		<label>Alert Limit High</label> 
+		<input type="text" name="alert_limit_high" class="form-control" value=""></input>
+	</div>
+	<button type="submit" class="btn btn-default">Save</button>
+</form>
+
+{% endblock %}

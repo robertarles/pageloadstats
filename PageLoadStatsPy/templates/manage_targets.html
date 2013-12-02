@@ -5,7 +5,7 @@
 
 {% block content %}
 {% if latest_target_data %}
-    
+    <h3>Active Targets</h3>
     <table class="table table-striped table-hover">
     	<theader>
 			<tr>
@@ -13,7 +13,7 @@
 				<th>Active</th>
 				<th>Alert</th>
 				<th></th>
-				<th</th>
+				<th><a href="/pls/target/add/">ADD TARGET</a></th>
 			</tr>
 		</theader>
 		<tbody>
@@ -26,14 +26,48 @@
 					{{alert.name}} (ID:{{alert.id}})</div>
 				{% endfor %}
 				</td>
-				<td>[<a href="/pls/edit/{{target.id}}">Edit</a>]<td>
-				<td>[<a href="/pls/delete/{{target.id}}"> Delete </a>]</td>
+				<td>[<a href="/pls/target/edit/{{target.id}}">Edit</a>]<td>
+				<td>[<a href="/pls/target/delete/{{target.id}}"> Delete </a>]</td>
 			</tr>
 		{% endfor %}
 		</tbody>
     </table>
     
 {% else %}
-    <p>No targets are available.</p>
+    <div class="alert alert-warning">No Active Targets</div>
 {% endif %}
+
+{% if latest_target_data_inactive %}
+    
+    <h3>Inactive Targets</h3>
+    <table class="table table-striped table-hover">
+    	<theader>
+			<tr>
+				<th>Target Name</th>
+				<th>Active</th>
+				<th>Alert</th>
+				<th></th>
+			</tr>
+		</theader>
+		<tbody>
+		{% for target in latest_target_data_inactive %}
+			<tr class="target_active_{{target.active}}">
+				<td>{{target.name}}</td> 
+				<td>{{target.active}}</td>
+				<td>
+				{% for alert in target.alerts.all %}
+					{{alert.name}} (ID:{{alert.id}})</div>
+				{% endfor %}
+				</td>
+				<td>[<a href="/pls/target/edit/{{target.id}}">Edit</a>]<td>
+				<td>[<a href="/pls/target/delete/{{target.id}}"> Delete </a>]</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+    </table>
+    
+{% else %}
+    <div class="alert alert-warning">No Inactive Targets</div>
+{% endif %}
+
 {% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block header %} 
+
+{% endblock%}
+
+{% block content %}
+
+<h3>Edit Target</h3>
+<form class="form-horizontal" role="form" action="/pls/api/target/create/" method="post">{% csrf_token %}
+	<div class="form-group">
+		<label>Name</label> 
+		<input type="text" name="target_name" class="form-control" value=""></input>
+		<label>Active</label>
+		<input type="text" name="target_active" class="form-control" value=""></input>
+	</div>
+	<div class="form-group">
+		<label>URL</label> 
+		<input type="text" name="target_url" class="form-control" value=""></input>
+	</div>
+	<div class="form-group">
+		<label>Tags</label> 
+		<input type="text" name="target_tags" class="form-control" value=""></input>
+	</div>
+	<button type="submit" class="btn btn-default">Save</button>
+</form>
+
+{% endblock %}

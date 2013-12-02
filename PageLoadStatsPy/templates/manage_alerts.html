@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block header %} 
+
+{% endblock%}
+
+{% block content %}
+{% if alerts %}
+    
+    <h3>Active Alerts</h3>
+    <table class="table table-striped table-hover">
+    	<theader>
+			<tr>
+				<th>Alert Name</th>
+				<th>Active</th>
+				<th>Limit High</th>
+				<th></th>
+				<th><a href="/pls/alert/add/">ADD ALERT</a></th>
+			</tr>
+		</theader>
+		<tbody>
+		{% for alert in alerts %}
+			<tr class="target_active_{{alert.active}}">
+				<td>{{alert.name}}</td> 
+				<td>{{alert.active}}</td>
+				<td>{{alert.limit_high}}</td>
+				<td>[<a href="/pls/alert/edit/{{alert.id}}">Edit</a>]<td>
+				<td>[<a href="/pls/alert/delete/{{alert.id}}"> Delete </a>]</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+    </table>
+    
+{% else %}
+    <div class="alert alert-warning" >No Active Alerts</div>
+{% endif %}
+
+{% if alerts_inactive %}
+    <h3>Inactive Alerts</h3>   
+    <table class="table table-striped table-hover">
+    	<theader>
+			<tr>
+				<th>Alert Name</th>
+				<th>Active</th>
+				<th>Limit High</th>
+				<th></th>
+			</tr>
+		</theader>
+		<tbody>
+		{% for alert in alerts_inactive %}
+			<tr class="target_active_{{alert.active}}">
+				<td>{{alert.name}}</td> 
+				<td>{{alert.active}}</td>
+				<td>{{alert.limit_high}}</td>
+				<td>[<a href="/pls/alert/edit/{{alert.id}}">Edit</a>]<td>
+				<td>[<a href="/pls/alert/delete/{{alert.id}}"> Delete </a>]</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+    </table>
+{% else %}
+	<div class="alert alert-warning">No Inactive Alerts</div>
+{% endif %}
+
+{% endblock %}

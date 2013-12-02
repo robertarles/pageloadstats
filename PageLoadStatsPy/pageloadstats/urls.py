@@ -15,8 +15,12 @@ urlpatterns = patterns('PageLoadStatsPy.pageloadstats.views',
     url(r'^dailyavgs/(?P<tags>[\w,]+)/(?P<days>[0-9]+)/$', 'daily_avgs'),              # show the current daily overall performance stats
     url(r'^httperrors/$', 'http_errors'), # show stats of tests that did not return http 200
     url(r'^httperrorchart/$', 'http_errorchart'), # get a chart of  http errors
-    url(r'^manage/$', 'manage_targets'),
-    url(r'^edit/(?P<target_id>\d+)/$', 'edit_target'),
+    url(r'^manage/targets/$', 'manage_targets'),
+    url(r'^manage/alerts/$', 'manage_alerts'),
+    url(r'^target/edit/(?P<target_id>\d+)/$', 'edit_target'),
+    url(r'^target/add/$', 'add_target'),
+    url(r'^alert/edit/(?P<alert_id>\d+)/$','edit_alert'),
+    url(r'^alert/add/$', 'add_alert'),
       
     # API for OFC2 charting
     url(r'^api/ofc2chart/httperrors/$', 'chart_httperrors'),        # API this one returns the data for the chart_multi view
@@ -33,6 +37,9 @@ urlpatterns = patterns('PageLoadStatsPy.pageloadstats.views',
     url(r"^api/target/update/(?P<target_id>\d+)/$", "target_update"), # save changes to a target record
     url(r"^api/target/delete/(?P<target_id>\d+)/$", "target_delete"), # delete a target ACTUAL DELETION, you probably want to deactivate, not delete
     url(r"^api/target/create/", "target_create"), # add a new target
+    url(r"^api/alert/update/(?P<alert_id>\d+)/$", "alert_update"), # save changes to a target record
+    url(r"^api/alert/delete/(?P<alert_id>\d+)/$", "alert_delete"), # delete a target ACTUAL DELETION, you probably want to deactivate, not delete
+    url(r"^api/alert/create/", "alert_create"), # add a new target
        
     url(r'^api/dailyavg/(?P<target_id>\d+)/(?P<days_ago>\d+)/$', 'get_daily_avg_by_id'),
     url(r'^api/dailyavg/(?P<tag>[\w,]+)/(?P<days_ago>\d+)/$', 'get_daily_avg_by_tag'),              # show the current daily overall performance stats

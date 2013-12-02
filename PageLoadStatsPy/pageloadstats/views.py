@@ -31,10 +31,12 @@ def target_list(request):
 
 
 def manage_targets(request):
-    latest_target_data = Target.objects.order_by('name')
+    latest_target_data = Target.objects.filter(active=1).order_by('name')
+    latest_target_data_inactive = Target.objects.filter(active=0).order_by('name')
     t = loader.get_template('manage_targets.html')
     c= Context({
                 'latest_target_data': latest_target_data,
+                'latest_target_data_inactive': latest_target_data_inactive,
     })
     return HttpResponse(t.render(c))
 
@@ -42,11 +44,68 @@ def edit_target(request, target_id):
     target_data = Target.objects.get(pk=target_id)
     t = loader.get_template('edit_target.html')
     c = RequestContext(request,{
-                'target_data': target_data
+                'target_data': target_data,
+                'available_alerts': get_available_alerts(),
+                'current_alert_id': get_current_alert_id(target_id),
     })
     return HttpResponse(t.render(c))
 
-## target api calls
+def add_target(request):
+    t = loader.get_template('add_target.html')
+    c = RequestContext(request,{
+                'target_data': None
+    })
+    return HttpResponse(t.render(c))
+
+def get_available_alerts():
+    ###
+    # get a list of available active alerts
+    ###
+    try:
+        available_alerts = Alert.objects.filter(active=1)
+    except:
+        available_alerts = None
+    return available_alerts
+
+def get_current_alert_id(target_id):
+    ###
+    # for target_id, return the alert that is associated, or an empty string if none
+    ###
+    current_alert_id = ''
+    try:
+        target_alerts = TargetAlert.objects.filter(target_id = target_id, active=1)
+        for target_alert in target_alerts:
+            current_alert_id = target_alert.alert_id
+    except:
+        current_alert_id = 'exception'
+    return current_alert_id
+    
+def manage_alerts(request):
+    alerts = Alert.objects.filter(active=1).order_by('name')
+    alerts_inactive = Alert.objects.filter(active=0).order_by('name')
+    t = loader.get_template('manage_alerts.html')
+    c= Context({
+                'alerts': alerts,
+                'alerts_inactive': alerts_inactive,
+    })
+    return HttpResponse(t.render(c))
+
+def edit_alert(request, alert_id):
+    alert = Alert.objects.get(pk=alert_id)
+    t = loader.get_template('edit_alert.html')
+    c = RequestContext(request,{
+                'alert': alert
+    })
+    return HttpResponse(t.render(c))
+
+def add_alert(request):
+    t = loader.get_template('add_alert.html')
+    c = RequestContext(request,{
+                'alert': None
+    })
+    return HttpResponse(t.render(c))
+
+## target and alert api calls
 ###
 
 def target_update(request, target_id):
@@ -59,24 +118,57 @@ def target_update(request, target_id):
     for alert in target.alerts.all():
         target_alert = TargetAlert.objects.get(alert = alert.id, target = target.id)
         target_alert.delete()
-    
-    alert_id = request.POST.get("alert_id")
-    alert = Alert.objects.get(id=alert_id)
-    target_alert = TargetAlert(target=target,alert=alert,active=1)
-    target_alert.save()
+    if(request.POST.has_key("alert_id")):
+        alert_id = request.POST.get("alert_id")
+        if len(alert_id) > 0:
+            alert = Alert.objects.get(id=alert_id)
+            target_alert = TargetAlert(target=target,alert=alert,active=1)
+            target_alert.save()
     
     target.save()
-    response = HttpResponseRedirect("/pls/manage/")
+    response = HttpResponseRedirect("/pls/manage/targets")
     return response
     
 def target_create(request):
-    pass
+    url = request.POST.get("target_url")
+    name = request.POST.get("target_name")
+    active = request.POST.get("target_active")
+    tags = request.POST.get("target_tags")
+    
+    target = Target(url=url, name=name, active=active, tags=tags)
+    target.save()
+    
+    response = HttpResponseRedirect("/pls/manage/targets")
+    return response
 
 def target_delete(request):
     pass
 
+def alert_update(request, alert_id):
+    alert = Alert.objects.get(id=alert_id)
+    alert.active = request.POST.get("alert_active")
+    alert.name = request.POST.get("alert_name")
+    alert.limit_high = request.POST.get("alert_limit_high")
+    alert.save()
+    response = HttpResponseRedirect("/pls/manage/alerts")
+    return response
+    
+def alert_create(request):
+    limit_high = request.POST.get("alert_limit_high")
+    active = request.POST.get("alert_active")
+    name = request.POST.get("alert_name")
+    
+    alert = Alert(name=name, active=active, limit_high=limit_high, limit_low=0, elapsed_low=0, elapsed_high=0)
+    alert.save()
+    
+    response = HttpResponseRedirect("/pls/manage/alerts")
+    return response
+
+def alert_delete(request):
+    pass
+
 ###
-## END target api calls
+## END target and alert api calls
 
 def chart(request, target_id):
     """
