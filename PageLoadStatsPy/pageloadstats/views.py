@@ -755,9 +755,9 @@ def chart_multi_data_by_ids(request,target_id_list):
                 load_date = datetimefunc.strptime(stat.request_date, fmt)
                 #shift 8 hours to pacific time
                 tz_shift = 0
-                tz_offset = request.COOKIES.get("tz_offset")
-                if(tz_offset != None):
-                    tz_shift = int(tz_offset)
+#                 tz_offset = request.COOKIES.get("tz_offset")
+#                 if(tz_offset != None):
+#                     tz_shift = int(tz_offset)
                 load_date += datetime.timedelta(hours=-tz_shift)
                 load_str = datetimefunc.strftime(load_date,fmt)
                 date_range.append(load_str)
