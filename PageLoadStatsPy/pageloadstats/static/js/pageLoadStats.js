@@ -105,7 +105,7 @@ function tsToString(timestamp){
 	return ( month+"/"+day+"/"+year+" "+hour+":"+minute );
 }
 
-function submitChartParams(){
+function submitChartParams(target_id){
 	start_date = $("#date_selection_start_date").val();
 	end_date = $("#date_selection_end_date").val();
 	trim_above = $("#trim_above_selection").val();
@@ -149,12 +149,17 @@ function submitChartParams(){
 		target_id_list_param = "&target_id_list="+url_vars["target_id_list"];
 	}
 
-	
-	//console.log(main_url+"?start_date="+startStamp+"&end_date="+endStamp+target_id_list_param);
+	targets_param="";	
+	if(url_vars["target_ids"]){
+		targets_param = "&target_ids="+target_ids;
+	}
+
+	//alert(main_url+"?start_date="+startStamp+"&end_date="+endStamp+target_id_list_param);
 	window.open(main_url+"?" +
 			start_date_param + 
 			end_date_param +
 			target_id_list_param +
+			targets_param +
 			trim_above_param,"_top");
 }
 

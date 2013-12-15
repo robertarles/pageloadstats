@@ -170,6 +170,35 @@ def alert_delete(request):
 ###
 ## END target and alert api calls
 
+
+def flot(request):
+    """
+    create a chart page
+    """
+    target_ids = request.GET.get("target_ids")
+    target = Target.objects.get(pk=target_ids)
+    chartTemplate = loader.get_template('flot.html')
+    start_date = request.GET.get('start_date',"")
+    end_date = request.GET.get("end_date","")
+    trim_above = request.GET.get("trim_above","")
+    if(trim_above):
+        trim_params = "&trim_above="+trim_above
+    else:
+        trim_params=""
+    c = Context({
+        'chart_data_url': "/pls/api/chartline/",
+        'target_ids': target_ids,
+        'target_name': target.name,
+        'target_url': target.url,
+        'start_date': start_date,
+        'trim_above': trim_above,
+        'trim_params': trim_params,
+        'start_end_params': "&start_date="+start_date+"&end_date="+end_date,
+        'end_date': end_date,
+    })
+    return HttpResponse(chartTemplate.render(c)) 
+
+
 def chart(request, target_id):
     """
     create a chart page
@@ -465,7 +494,71 @@ def get_daily_avg_by_tag(request, tag, days_ago):
     response_data['load'] = avgLoad
     response_data['elapsed'] = avgElapsed
     return HttpResponse(simplejson.dumps(response_data), mimetype="application/json")
+  
+def flot_line(request):
+    """
+    Return the array required to generate a line on a flot chart
+    """
+    #target = Target.objects.get(pk=target_id)
+    
+    largest_load_time = 100
+    chart_range = 100  # default number of data points to show if no date range is specified
+
+    target_ids = request.GET.get("target_ids")
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get("end_date")
+    trim_above = request.GET.get("trim_above")
+    
+    
+    statsarray = []
+    for target_id in target_ids.split(","):
+        targetstats = get_stats(target_id, start_date, end_date, trim_above)
+        statsarray.append(targetstats)
         
+    
+    
+    targetsdata = []
+    for targetstats in statsarray:
+        targetdata = {}
+        targetdata["label"] = "load ms"
+        targetdata["color"] = "#5ED379"
+        targetelapsed = {}
+        targetelapsed["label"] = "elapsed ms"
+        targetelapsed["color"] = "#D35EC9"
+        targetsma = {}
+        targetsma["label"] = "Moving Avg"
+        targetsma["color"] = "#5E9ED3"
+        
+        smaarray = get_sma_new(targetstats, 100, "page_load_time")
+        currentstat = 0
+        for stat in targetstats:
+            timestamp = None
+            page_load_time = None
+            elapsed = None
+            if(hasattr(stat, 'timestamp')):
+                timestamp = int(stat.timestamp)
+            if(hasattr(stat, 'page_load_time')):
+                page_load_time = int(stat.page_load_time)
+            if(hasattr(stat, 'elapsed')):
+                elapsed = int(stat.elapsed)
+            if ("data" in targetdata.keys()):
+                targetdata["data"].append([timestamp,page_load_time])
+            else:
+                targetdata["data"] = [timestamp,page_load_time]
+            if ("data" in targetelapsed.keys()):
+                targetelapsed["data"].append([timestamp,elapsed])
+            else:
+                targetelapsed["data"] = [timestamp,elapsed]
+            if ("data" in targetsma.keys()):
+                targetsma["data"].append([timestamp,smaarray[currentstat]])
+            else:
+                targetsma["data"] = [timestamp,smaarray[currentstat]]
+            currentstat += 1
+        targetsdata.append(targetdata)
+        targetsdata.append(targetelapsed)
+        targetsdata.append(targetsma)
+
+    return HttpResponse(simplejson.dumps(targetsdata), mimetype="application/json")
 
 def chart_data(request, target_id):
     """
@@ -485,11 +578,6 @@ def chart_data(request, target_id):
     trim_above = request.GET.get("trim_above")
 
     stats_rs = get_stats(target_id, start_date, end_date, trim_above)
-    stats=[]
-    
-    #reverse the results for display on the chart, increasing date, left to right
-    for stat in stats_rs:
-        stats.insert(0,stat)
         
     load_times_values = []
     elapsed_times_values = []
@@ -498,7 +586,7 @@ def chart_data(request, target_id):
     alert_times_level = []
     alert_val = None
     
-    for stat in stats:
+    for stat in stats_rs:
         
         if (numpy.isnan(stat.page_load_time)): next
         load_times_values.append(stat.page_load_time)
@@ -566,7 +654,7 @@ def chart_data(request, target_id):
     pls_chart.add_line("load", "load("+str(load_average)+")", load_times_values, load_time_request_dates, '#458B00')
 
     # Create the SMA line
-    sma_values = get_sma(stats, 96, "page_load_time")
+    sma_values = get_sma(stats_rs, 96, "page_load_time")
     sma_avg = sum(sma_values) / len(sma_values)
     if(sma_values!=None and len(sma_values)>0):
         pls_chart.add_line("SMA", "SMA("+str(sma_avg)+")", sma_values, load_time_request_dates, "#0000FF")
@@ -742,11 +830,8 @@ def chart_multi_data_by_ids(request,target_id_list):
         target = Target.objects.get(pk=target_id)
 
         stats_rs = get_stats(target_id, start_date, end_date,trim_above)
-            
-        for stat in stats_rs: # reverse the list to get them oldest to newest for display on the chart
-            stats_list.insert(0,stat) 
         
-        for stat in stats_list:
+        for stat in stats_rs:
             if(stat.page_load_time > largest_load_time):
                 largest_load_time = stat.page_load_time
             load_times.append(stat.page_load_time) 
@@ -924,8 +1009,9 @@ def get_sma_new(stats, sma_window_size, column):
             sma_window.insert(0,0)
             
     reversedStats = []
-    for stat in stats:
-        reversedStats.insert(0,stat)
+    reversedStats = stats
+    #for stat in stats:
+    #    reversedStats.insert(0,stat)
     # for each stat point, add it to the sma window and calculate the current average, insert into array of averages.  (also removing the oldest data point in the window queue) 
     for stat in reversedStats:
         value = int(getattr(stat,column))
@@ -1007,7 +1093,12 @@ def get_stats(target_id, start_date, end_date, trim_above):
         stats_rs = Stat_Rich.objects.filter(target_id=target_id).filter(page_load_time__lte=trim_above).exclude(page_load_time__isnull=True).order_by("-timestamp")[:default_chart_range]
     else:
         stats_rs = Stat_Rich.objects.filter(target_id=target_id).exclude(page_load_time__isnull=True).order_by("-timestamp")[:default_chart_range] # get the latest
-    return stats_rs
+    stats = []
+   
+    for stat in stats_rs:
+        stats.insert(0,stat)
+        
+    return stats
     
     
     

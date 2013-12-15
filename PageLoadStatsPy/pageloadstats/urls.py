@@ -21,7 +21,10 @@ urlpatterns = patterns('PageLoadStatsPy.pageloadstats.views',
     url(r'^target/add/$', 'add_target'),
     url(r'^alert/edit/(?P<alert_id>\d+)/$','edit_alert'),
     url(r'^alert/add/$', 'add_alert'),
-      
+    
+    url(r'^chart/$', 'flot'),
+    url(r'^api/chartline/$', 'flot_line'),
+     
     # API for OFC2 charting
     url(r'^api/ofc2chart/httperrors/$', 'chart_httperrors'),        # API this one returns the data for the chart_multi view
     url(r'^api/ofc2chart/(?P<target_id>\d+)/$', 'chart_data'), # API this one returns the data for the chart view
