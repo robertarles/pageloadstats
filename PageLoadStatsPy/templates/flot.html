@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block header %} 
-	<script language="javascript" type="text/javascript" src="/static/js/jquery.flot.js"></script>
+	<script language="javascript" type="text/javascript" src="/static/js/jquery.flot.min.js"></script>
+	<script language="javascript" type="text/javascript" src="/static/js/jquery.flot.time.min.js"></script>
     <script type="text/javascript">
     	target_ids = {{ target_ids }};
 		$(document).ready(function(){
@@ -8,23 +9,75 @@
 				url: "/pls/api/chartline?target_ids={{ target_ids }}{{ start_end_params }}{{ trim_params }}",
 				type: "GET",
 				dataType: "json",
-				success: onDataReceived
+				success: onFlotDataReceived
 			});
-			//$.plot($("#placeholder"), [ [[0, 0], [1, 1]] ], { yaxis: { max: 1 } });
 			fillDateRange();
+			
+			$(function() {
+			    var clickedItems = [];
+			
+			    function showTooltip(x, y, contents) {
+			        $('<div id="tooltip">' + contents + '</div>').css({
+			            position: 'absolute',
+			            display: 'none',
+			            top: y + 5,
+			            left: x + 5,
+			            border: '1px solid #fdd',
+			            padding: '2px',
+			            'background-color': '#fee',
+			            opacity: 0.80
+			        }).appendTo("body").fadeIn(200);
+			    }
+			
+			    var previousPoint = null;
+			    $("#placeholder").bind("plothover", function(event, pos, item) {
+			        $("#x").text(pos.x.toFixed(2));
+			        $("#y").text(pos.y.toFixed(2));
+			
+			        if (item) {
+			            if (previousPoint != item.datapoint) {
+			                previousPoint = item.datapoint;
+			
+			                $("#tooltip").remove();
+			                var content = item.series.data[item.dataIndex][2];
+			                
+			                // if there is a cached item object at this index use it instead
+			                if(clickedItems[item.dataIndex])
+			                    content = clickedItems[item.dataIndex].alternateText;
+			                //now show tooltip
+			                showTooltip(item.pageX, item.pageY, content);
+			            }
+			        }
+			        else {
+			            $("#tooltip").remove();
+			            previousPoint = null;
+			        }
+			
+			    });
+			
+			});
 		});
 		
-		function onDataReceived(series) {
+		function onFlotDataReceived(series) {
 			var options = {
 				lines: {
 					show: true
 				},
+				grid: {
+					hoverable: true, clickable: false
+				},
 				points: {
 					show: false
+				},
+				xaxis: {
+					mode: "time",
+					timeformat: "%m/%d/%y %I:%M %P"
 				}
 			}
 			$.plot("#placeholder", series, options);
 		}
+		
+		
 
 
     </script>
@@ -32,9 +85,11 @@
 
 
 {% block content %}
-  	<div id="resizeable" class="chart_container ui-resizable">
-  		<div id="placeholder" class="chart resizeable" style="height:400px;width:900px;"></div>
-	</div>
+	
+	<p><input id="enableTooltip" type="checkbox" checked>Enable tooltip</p>
+	<div id="chart_header"><h3>{{ target_name }} (id:{{ target_ids }} <a href="{{ target_url }}">target url</a>)</h3></div>
+ 	<div id="placeholder" class="chart resizeable" style="height:400px;width:900px;"></div>
+
 
 	<form id="date_selection_form" class="form-inline stack_large">
 		<div id="date_selection_header" class="stack_small">

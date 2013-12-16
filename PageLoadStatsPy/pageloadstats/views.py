@@ -536,21 +536,24 @@ def flot_line(request):
             page_load_time = None
             elapsed = None
             if(hasattr(stat, 'timestamp')):
-                timestamp = int(stat.timestamp)
+                timestamp = 1000 * int(stat.timestamp)
             if(hasattr(stat, 'page_load_time')):
                 page_load_time = int(stat.page_load_time)
             if(hasattr(stat, 'elapsed')):
                 elapsed = int(stat.elapsed)
             if ("data" in targetdata.keys()):
-                targetdata["data"].append([timestamp,page_load_time])
+                targetdata["data"].append([timestamp,page_load_time, 
+                                          "Load " +  str(stat.page_load_time) + " ms</br>" + stat.server + "</br>" + stat.request_date ])
             else:
                 targetdata["data"] = [timestamp,page_load_time]
             if ("data" in targetelapsed.keys()):
-                targetelapsed["data"].append([timestamp,elapsed])
+                targetelapsed["data"].append([timestamp,elapsed, 
+                                    "Elapsed " + str(stat.elapsed) + " ms</br>" + stat.server + "</br>" + stat.request_date])
             else:
                 targetelapsed["data"] = [timestamp,elapsed]
             if ("data" in targetsma.keys()):
-                targetsma["data"].append([timestamp,smaarray[currentstat]])
+                targetsma["data"].append([timestamp,smaarray[currentstat], 
+                                          "SMA " + str(smaarray[currentstat]) + "ms</br>" + stat.request_date])
             else:
                 targetsma["data"] = [timestamp,smaarray[currentstat]]
             currentstat += 1
