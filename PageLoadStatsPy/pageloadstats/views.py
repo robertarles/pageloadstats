@@ -536,7 +536,8 @@ def flot_line(request):
             page_load_time = None
             elapsed = None
             if(hasattr(stat, 'timestamp')):
-                timestamp = 1000 * int(stat.timestamp)
+                timezoneoffset = 28800 # UTC -8 hours
+                timestamp = 1000 * (int(stat.timestamp) - timezoneoffset)
             if(hasattr(stat, 'page_load_time')):
                 page_load_time = int(stat.page_load_time)
             if(hasattr(stat, 'elapsed')):
