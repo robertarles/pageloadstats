@@ -499,24 +499,16 @@ def flot_line(request):
     """
     Return the array required to generate a line on a flot chart
     """
-    #target = Target.objects.get(pk=target_id)
-    
-    largest_load_time = 100
-    chart_range = 100  # default number of data points to show if no date range is specified
-
     target_ids = request.GET.get("target_ids")
     start_date = request.GET.get('start_date')
     end_date = request.GET.get("end_date")
     trim_above = request.GET.get("trim_above")
-    
     
     statsarray = []
     for target_id in target_ids.split(","):
         targetstats = get_stats(target_id, start_date, end_date, trim_above)
         statsarray.append(targetstats)
         
-    
-    
     targetsdata = []
     for targetstats in statsarray:
         targetdata = {}
@@ -537,7 +529,8 @@ def flot_line(request):
             elapsed = None
             if(hasattr(stat, 'timestamp')):
                 timezoneoffset = 28800 # UTC -8 hours
-                timestamp = 1000 * (int(stat.timestamp) - timezoneoffset)
+                timestamp = 1000 * (int(stat.timestamp) - timezoneoffset) # javascript timestamp(ms), adj to UTC
+#                timestamp = 1000 * int(stat.timestamp) # get the javascript timestamp (unix * 1000)
             if(hasattr(stat, 'page_load_time')):
                 page_load_time = int(stat.page_load_time)
             if(hasattr(stat, 'elapsed')):

@@ -52,9 +52,7 @@
 			            $("#tooltip").remove();
 			            previousPoint = null;
 			        }
-			
 			    });
-			
 			});
 		});
 		
@@ -71,13 +69,17 @@
 				},
 				xaxis: {
 					mode: "time",
+					timezone: "browser",
 					timeformat: "%m/%d/%y %I:%M %P"
+				},
+				yaxis: {
+					tickFormatter:	function(val,axis){
+								return val + "ms";
+							}
 				}
-			}
+			};
 			$.plot("#placeholder", series, options);
 		}
-		
-		
 
 
     </script>
@@ -86,7 +88,6 @@
 
 {% block content %}
 	
-	<p><input id="enableTooltip" type="checkbox" checked>Enable tooltip</p>
 	<div id="chart_header"><h3>{{ target_name }} (id:{{ target_ids }} <a href="{{ target_url }}">target url</a>)</h3></div>
  	<div id="placeholder" class="chart resizeable" style="height:400px;width:1000px;"></div>
 
