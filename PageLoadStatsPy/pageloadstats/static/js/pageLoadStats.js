@@ -150,8 +150,8 @@ function submitChartParams(target_id){
 	}
 
 	targets_param="";	
-	if(url_vars["target_ids"]){
-		targets_param = "&target_ids="+target_ids;
+	if(url_vars["target_id"]){
+		targets_param = "&target_id="+target_ids;
 	}
 
 	//alert(main_url+"?start_date="+startStamp+"&end_date="+endStamp+target_id_list_param);

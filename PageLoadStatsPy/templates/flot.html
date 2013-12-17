@@ -99,7 +99,7 @@
 		start: <input type='text' id='date_selection_start_date' class='date_selection date_time_picker'/>&nbsp
 		end: <input type='text' id='date_selection_end_date' class='date_selection date_time_picker'/>&nbsp
 		trim data above <input type='text' id='trim_above_selection' class='trim trim_above'/> ms&nbsp
-		<button id='date_selection_button' name='date_selection_button' class="btn btn-success" onclick="submitChartParams(); return false;">Update</button>
+		<button id='date_selection_button' name='date_selection_button' class="btn btn-success" onclick="submitChartParams({{target_id}}); return false;">Update</button>
 		<button id='page_refresh_button' name='page_refresh_button' class="btn btn-success float_right" onclick="location.reload(); return false;">Refresh</button>
 	</form>
 {% endblock %}
