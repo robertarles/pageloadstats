@@ -175,7 +175,7 @@ def flot(request):
     """
     create a chart page
     """
-    target_ids = request.GET.get("target_ids")
+    target_ids = request.GET.get("target_id")
     target = Target.objects.get(pk=target_ids)
     chartTemplate = loader.get_template('flot.html')
     start_date = request.GET.get('start_date',"")
@@ -499,7 +499,7 @@ def flot_line(request):
     """
     Return the array required to generate a line on a flot chart
     """
-    target_ids = request.GET.get("target_ids")
+    target_ids = request.GET.get("target_id")
     start_date = request.GET.get('start_date')
     end_date = request.GET.get("end_date")
     trim_above = request.GET.get("trim_above")
@@ -526,23 +526,28 @@ def flot_line(request):
         for stat in targetstats:
             timestamp = None
             page_load_time = None
-            elapsed = None
+            elapsed = "0"
+            server = "unknown"
             if(hasattr(stat, 'timestamp')):
                 timezoneoffset = 28800 # UTC -8 hours
                 timestamp = 1000 * (int(stat.timestamp) - timezoneoffset) # javascript timestamp(ms), adj to UTC
 #                timestamp = 1000 * int(stat.timestamp) # get the javascript timestamp (unix * 1000)
             if(hasattr(stat, 'page_load_time')):
                 page_load_time = int(stat.page_load_time)
-            if(hasattr(stat, 'elapsed')):
-                elapsed = int(stat.elapsed)
+            if((hasattr(stat, 'elapsed')) and (stat.elapsed is not None)):
+                elapsed = stat.elapsed
+            elapsed = int(elapsed)
+            if((hasattr(stat, 'server')) and (stat.server is not None)):
+                server = stat.server
             if ("data" in targetdata.keys()):
                 targetdata["data"].append([timestamp,page_load_time, 
-                                          "Load " +  str(stat.page_load_time) + " ms</br>" + stat.server + "</br>" + stat.request_date ])
+                                          "Load " +  str(stat.page_load_time) + " ms</br>" + server + "</br>" + stat.request_date ])
             else:
                 targetdata["data"] = [timestamp,page_load_time]
             if ("data" in targetelapsed.keys()):
+                elapsedlabel = "Elapsed " + str(elapsed)
                 targetelapsed["data"].append([timestamp,elapsed, 
-                                    "Elapsed " + str(stat.elapsed) + " ms</br>" + stat.server + "</br>" + stat.request_date])
+                                    "Elapsed " + str(elapsed) + " ms</br>" + server + "</br>" + stat.request_date])
             else:
                 targetelapsed["data"] = [timestamp,elapsed]
             if ("data" in targetsma.keys()):

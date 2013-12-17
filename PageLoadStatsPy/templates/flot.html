@@ -6,7 +6,7 @@
     	target_ids = {{ target_ids }};
 		$(document).ready(function(){
 			$.ajax({
-				url: "/pls/api/chartline?target_ids={{ target_ids }}{{ start_end_params }}{{ trim_params }}",
+				url: "/pls/api/chartline?target_id={{ target_ids }}{{ start_end_params }}{{ trim_params }}",
 				type: "GET",
 				dataType: "json",
 				success: onFlotDataReceived
