@@ -529,9 +529,9 @@ def flot_line(request):
             elapsed = "0"
             server = "unknown"
             if(hasattr(stat, 'timestamp')):
-                timezoneoffset = 28800 # UTC -8 hours
-                timestamp = 1000 * (int(stat.timestamp) - timezoneoffset) # javascript timestamp(ms), adj to UTC
-#                timestamp = 1000 * int(stat.timestamp) # get the javascript timestamp (unix * 1000)
+#                timezoneoffset = 28800 # UTC -8 hours
+#                timestamp = 1000 * (int(stat.timestamp) - timezoneoffset) # javascript timestamp(ms), adj to UTC
+                timestamp = 1000 * int(stat.timestamp) # get the javascript timestamp (unix * 1000)
             if(hasattr(stat, 'page_load_time')):
                 page_load_time = int(stat.page_load_time)
             if((hasattr(stat, 'elapsed')) and (stat.elapsed is not None)):
