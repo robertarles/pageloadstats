@@ -148,13 +148,22 @@ function submitChartParams(target_id){
 	if(url_vars["target_id_list"]){
 		target_id_list_param = "&target_id_list="+url_vars["target_id_list"];
 	}
-
+	
 	targets_param="";	
 	if(url_vars["target_id"]){
-		targets_param = "&target_id="+target_ids;
+		targets_param = "&target_id="+target_id;
+	}
+	if(url_vars["target_tag"]){
+		targets_param = "&target_tag="+url_vars["target_tag"];
 	}
 
-	//alert(main_url+"?start_date="+startStamp+"&end_date="+endStamp+target_id_list_param);
+//	alert(main_url+"?" +
+//			start_date_param + 
+//			end_date_param +
+//			target_id_list_param +
+//			targets_param +
+//			trim_above_param,"_top");
+	
 	window.open(main_url+"?" +
 			start_date_param + 
 			end_date_param +

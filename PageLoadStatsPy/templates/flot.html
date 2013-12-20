@@ -3,10 +3,10 @@
 	<script language="javascript" type="text/javascript" src="/static/js/jquery.flot.min.js"></script>
 	<script language="javascript" type="text/javascript" src="/static/js/jquery.flot.time.min.js"></script>
     <script type="text/javascript">
-    	target_ids = {{ target_ids }};
+    	target_id = {{ target_id }};
 		$(document).ready(function(){
 			$.ajax({
-				url: "/pls/api/chartline?target_id={{ target_ids }}{{ start_end_params }}{{ trim_params }}",
+				url: "/pls/api/chartline?target_id={{ target_id }}{{ start_end_params }}{{ trim_params }}",
 				type: "GET",
 				dataType: "json",
 				success: onFlotDataReceived
@@ -88,7 +88,7 @@
 
 {% block content %}
 	
-	<div id="chart_header"><h3>{{ target_name }} (id:{{ target_ids }} <a href="{{ target_url }}">target url</a>)</h3></div>
+	<div id="chart_header"><h3>{{ target_name }} (id:{{ target_id }} <a href="{{ target_url }}">target url</a>)</h3></div>
  	<div id="placeholder" class="chart resizeable" style="height:400px;width:1000px;"></div>
 
 
@@ -99,7 +99,7 @@
 		start: <input type='text' id='date_selection_start_date' class='date_selection date_time_picker'/>&nbsp
 		end: <input type='text' id='date_selection_end_date' class='date_selection date_time_picker'/>&nbsp
 		trim data above <input type='text' id='trim_above_selection' class='trim trim_above'/> ms&nbsp
-		<button id='date_selection_button' name='date_selection_button' class="btn btn-success" onclick="submitChartParams({{target_id}}); return false;">Update</button>
+		<button id='date_selection_button' name='date_selection_button' class="btn btn-success" onclick="submitChartParams({{ target_id }}); return false;">Update</button>
 		<button id='page_refresh_button' name='page_refresh_button' class="btn btn-success float_right" onclick="location.reload(); return false;">Refresh</button>
 	</form>
 {% endblock %}

@@ -7,10 +7,10 @@
 		    {{tag}} <span class="caret"></span>
 		</a>
 		<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu_{{tag}}">
-			<li role="presentation"><a href='/pls/chart/{{tag}}' role="menuitem" tabindex=-1">ALL tagged {{tag}}</a></li>
+			<li role="presentation"><a href='/pls/chart/?target_tag={{ tag }}' role="menuitem" tabindex="-1">ALL tagged {{tag}}</a></li>
 			<li role="presentation" class="divider"></li>
 			{% for name,id in target_dict.items %}
-				<li role="presentation"><a href='/pls/chart/?target_id={{ id }}' role="menuitem" tabindex=-1">{{ name }}</a></li>
+				<li role="presentation"><a href='/pls/chart/?target_id={{ id }}' role="menuitem" tabindex="-1">{{ name }}</a></li>
 			{% endfor %}
 		</ul>
 	</li>

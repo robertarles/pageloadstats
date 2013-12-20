@@ -175,8 +175,19 @@ def flot(request):
     """
     create a chart page
     """
-    target_ids = request.GET.get("target_id")
-    target = Target.objects.get(pk=target_ids)
+    targetid = None
+    if(request.GET.get("target_id")):
+        targetid = request.GET.get("target_id")
+    if(request.GET.get("target_tag")):
+        targetid = get_ids_by_tag(request.GET.get("target_tag"))
+    target = None
+    if("," in targetid):
+        targeturl = ""
+        targetname = "Multiple Targets"
+    else:
+        target = Target.objects.get(pk=targetid)
+        targeturl = target.url
+        targetname = target.name
     chartTemplate = loader.get_template('flot.html')
     start_date = request.GET.get('start_date',"")
     end_date = request.GET.get("end_date","")
@@ -187,9 +198,9 @@ def flot(request):
         trim_params=""
     c = Context({
         'chart_data_url': "/pls/api/chartline/",
-        'target_ids': target_ids,
-        'target_name': target.name,
-        'target_url': target.url,
+        'target_id': targetid,
+        'target_name': targetname,
+        'target_url': targeturl,
         'start_date': start_date,
         'trim_above': trim_above,
         'trim_params': trim_params,
@@ -198,6 +209,13 @@ def flot(request):
     })
     return HttpResponse(chartTemplate.render(c)) 
 
+def get_ids_by_tag(tag):
+    targetidlist = []
+    targetlist = Target.objects.filter(tags__contains=tag).filter(active=1)
+    for target in targetlist:
+        targetidlist.append(str(target.id))
+    return ",".join(targetidlist)
+        
 
 def chart(request, target_id):
     """
@@ -496,18 +514,97 @@ def get_daily_avg_by_tag(request, tag, days_ago):
     return HttpResponse(simplejson.dumps(response_data), mimetype="application/json")
   
 def flot_line(request):
-    """
-    Return the array required to generate a line on a flot chart
-    """
+    
     target_ids = request.GET.get("target_id")
+    targetsdata = None
+    if("," in target_ids):
+        targetsdata = flot_line_multitarget(request)
+    else:
+        targetsdata = flot_line_singletarget(request)
+
+    return HttpResponse(simplejson.dumps(targetsdata), mimetype="application/json")
+
+def flot_line_multitarget(request):
+    """
+    Return the array required to generate a multi target flot chart
+    """
+    targetids = request.GET.get("target_id").split(",")
+    startdate = request.GET.get('start_date')
+    enddate = request.GET.get("end_date")
+    trimabove = request.GET.get("trim_above")
+    
+    statsarray = []
+    for targetid in targetids:
+        targetstats = get_stats(targetid, startdate, enddate, trimabove)
+        statsarray.append(targetstats)
+    
+    targetsdata = []
+    for targetstats in statsarray:
+        targetdata = get_target_load_line(targetstats, targetid)
+        targetsdata.append(targetdata)
+    
+    return targetsdata
+
+def get_target_load_line(targetstats, targetid):
+    targetdata = {}
+    targetdata["data"] = []
+    targetdata["label"] = "ID " +  str(targetid)
+    targetelapsed = {}
+    targetelapsed["label"] = "elapsed ms"
+    targetelapsed["color"] = "#D35EC9"
+    targetsma = {}
+    targetsma["label"] = "Moving Avg"
+    targetsma["color"] = "#5E9ED3"
+    loadsum = 0
+    smasum = 0
+    elapsedsum = 0
+    currentstat = 0
+    for stat in targetstats:
+        targetdata["label"] = stat.target.name
+        timestamp = None
+        page_load_time = None
+        elapsed = "0"
+        server = "unknown"
+        if(hasattr(stat, 'timestamp')):
+#            timezoneoffset = 28800 # UTC -8 hours
+#            timestamp = 1000 * (int(stat.timestamp) - timezoneoffset) # javascript timestamp(ms), adj to UTC
+            timestamp = 1000 * int(stat.timestamp) # get the javascript timestamp (unix * 1000)
+        if(hasattr(stat, 'page_load_time')):
+            page_load_time = int(stat.page_load_time)
+            loadsum += page_load_time
+        if((hasattr(stat, 'elapsed')) and (stat.elapsed is not None)):
+            elapsed = stat.elapsed
+            elapsedsum += int(elapsed)
+        elapsed = int(elapsed)
+        if((hasattr(stat, 'server')) and (stat.server is not None)):
+            server = stat.server
+        if ("data" in targetdata.keys()):
+            targetdata["data"].append([timestamp,page_load_time, 
+                                      "Load " +  str(stat.page_load_time) + " ms</br>" + server + "</br>" + stat.request_date ])
+        else:
+            targetdata["data"].append([timestamp,page_load_time])
+        if ("data" in targetelapsed.keys()):
+            elapsedlabel = "Elapsed " + str(elapsed)
+            targetelapsed["data"].append([timestamp,elapsed, 
+                                "Elapsed " + str(elapsed) + " ms</br>" + server + "</br>" + stat.request_date])
+        else:
+            targetelapsed["data"] = [timestamp,elapsed]
+        currentstat += 1
+        
+    return targetdata
+    
+def flot_line_singletarget(request):
+    """
+    Return the array required to generate a single target flot chart
+    """
+    target_id = request.GET.get("target_id")
     start_date = request.GET.get('start_date')
     end_date = request.GET.get("end_date")
     trim_above = request.GET.get("trim_above")
     
     statsarray = []
-    for target_id in target_ids.split(","):
-        targetstats = get_stats(target_id, start_date, end_date, trim_above)
-        statsarray.append(targetstats)
+    targetstats = get_stats(target_id, start_date, end_date, trim_above)
+    statsarray.append(targetstats)
         
     targetsdata = []
     for targetstats in statsarray:
@@ -520,6 +617,9 @@ def flot_line(request):
         targetsma = {}
         targetsma["label"] = "Moving Avg"
         targetsma["color"] = "#5E9ED3"
+        loadsum = 0
+        smasum = 0
+        elapsedsum = 0
         
         smaarray = get_sma_new(targetstats, 100, "page_load_time")
         currentstat = 0
@@ -534,8 +634,10 @@ def flot_line(request):
                 timestamp = 1000 * int(stat.timestamp) # get the javascript timestamp (unix * 1000)
             if(hasattr(stat, 'page_load_time')):
                 page_load_time = int(stat.page_load_time)
+                loadsum += page_load_time
             if((hasattr(stat, 'elapsed')) and (stat.elapsed is not None)):
                 elapsed = stat.elapsed
+                elapsedsum += int(elapsed)
             elapsed = int(elapsed)
             if((hasattr(stat, 'server')) and (stat.server is not None)):
                 server = stat.server
@@ -559,8 +661,8 @@ def flot_line(request):
         targetsdata.append(targetdata)
         targetsdata.append(targetelapsed)
         targetsdata.append(targetsma)
-
-    return HttpResponse(simplejson.dumps(targetsdata), mimetype="application/json")
+        
+    return targetsdata
 
 def chart_data(request, target_id):
     """

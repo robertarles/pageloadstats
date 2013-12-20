@@ -30,7 +30,6 @@ def get_targets_by_tag():
                 if (not target.name in tag_dict[tag]):
                     tag_dict[tag][target.name] = {}
                 tag_dict[tag][target.name] = target.id
-                #{"home":{"la":1,"phoenix",2}, "bpp":{"denver":21,"portland":24}}
     
     
     return tag_dict
