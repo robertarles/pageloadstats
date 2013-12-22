@@ -15,13 +15,6 @@ import numpy
 import urlparse
 
 cs_comment_tags = ["request id:", "tag:","server:", "elapsed:", "elapsed2:"]
-statcommentfields = {   # mapping of comment name and db fields
-                     "request id": "request_id",
-                     "elapsed":"elapsed", 
-                     "elapsed2":"elapsed2", 
-                     "server":"server", 
-                     "tag":"tag"
-                     }
 
 SCATTER_DAY_RANGE = 14
 
