@@ -4,7 +4,7 @@
 	{% for tag, target_dict in targets_by_tag.items %}
 	<li class='dropdown'>
 		<a class="dropdown-toggle indented-menuitem" href="#" id="dropdownMenu_{{tag}}" data-toggle="dropdown">
-		    {{tag}} <span class="caret"></span>
+		    <span class="caret"> </span> <span> {{tag}}</span>
 		</a>
 		<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu_{{tag}}">
 			<li role="presentation"><a href='/pls/chart/?target_tag={{ tag }}' role="menuitem" tabindex="-1">ALL tagged {{tag}}</a></li>

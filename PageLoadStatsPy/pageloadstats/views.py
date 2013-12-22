@@ -540,15 +540,15 @@ def flot_line_multitarget(request):
     
     targetsdata = []
     for targetstats in statsarray:
-        targetdata = get_target_load_line(targetstats, targetid)
+        targetdata = get_target_load_line(targetstats)
         targetsdata.append(targetdata)
     
     return targetsdata
 
-def get_target_load_line(targetstats, targetid):
+def get_target_load_line(targetstats):
     targetdata = {}
     targetdata["data"] = []
-    targetdata["label"] = "ID " +  str(targetid)
+    targetdata["label"] = "label not set"
     targetelapsed = {}
     targetelapsed["label"] = "elapsed ms"
     targetelapsed["color"] = "#D35EC9"
