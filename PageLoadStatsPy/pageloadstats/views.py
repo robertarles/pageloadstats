@@ -670,37 +670,6 @@ def get_comment_dict(response):
             
     return comment_dict
 
-def get_sma(stats, sma_window_size, column):
-    """
-    Get a simple moving average for the current id
-    return a list of sma values for the supplied stats list
-    @param stats A result set of stats
-    @param sma_window_size A number specifying how large of a historic data sample to be used to calculate each sma point. 
-    """
-    
-    start_ts = stats[0].timestamp
-    target_id = stats[0].target_id
-    historic_stats = Stat_Rich.objects.filter(target_id=target_id).filter(timestamp__lt=start_ts).order_by("-timestamp")[:sma_window_size]
-    
-    # calculate an SMA for the first values
-    sma_cavg = []
-    sma_window = []
-    
-    # load up the sma window
-    for stat in historic_stats:
-        if(getattr(stat,column) != None):
-            sma_window.append(int(getattr(stat,column)))
-    
-    # for each stat point, add it to the sma window and calculate the current average, insert into array of averages.  (also removing the oldest data point in the window queue) 
-    for stat in stats:
-        if(getattr(stat,column)==None): stat["column"] = 0
-        if(len(sma_window)>=sma_window_size):
-            sma_window.pop(0)
-        sma_window.append(int(getattr(stat,column)))
-        sma_cavg.append(sum(sma_window) / len(sma_window))
-
-    return sma_cavg
-
 def get_sma_new(stats, sma_window_size, column):
     """
     Get a simple moving average for the current id
@@ -731,14 +700,14 @@ def get_sma_new(stats, sma_window_size, column):
     # for each stat point, add it to the sma window and calculate the current average, insert into array of averages.  (also removing the oldest data point in the window queue) 
     for stat in reversedStats:
         value = int(getattr(stat,column))
-        print column +" "+ str(value)
+        #print column +" "+ str(value)
         if(value==None): value = 0
         while(len(sma_window)>=sma_window_size):
             sma_window.pop(0)
         sma_window.append(value)
         avgValue = sum(sma_window) / len(sma_window)
         sma_cavg.append(avgValue)
-        print "average " + str(avgValue)
+        #print "average " + str(avgValue)
     return sma_cavg
 
 def user_logout(request):
