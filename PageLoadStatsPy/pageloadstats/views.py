@@ -15,6 +15,14 @@ import numpy
 import urlparse
 
 cs_comment_tags = ["request id:", "tag:","server:", "elapsed:", "elapsed2:"]
+statcommentfields = {   # mapping of comment name and db fields
+                     "request id": "request_id",
+                     "elapsed":"elapsed", 
+                     "elapsed2":"elapsed2", 
+                     "server":"server", 
+                     "tag":"tag"
+                     }
+
 SCATTER_DAY_RANGE = 14
 
 def target_list(request):
@@ -601,10 +609,23 @@ def get_check_output(target_id):
         try:
             startTime = time.time()
             response = urllib2.urlopen(request)
-            cs_comment_list = get_cs_comments(response)
+            commentdict = get_comment_dict(response)
             endTime = time.time()
-            loadTime = int((endTime-startTime)*1000) # get the download time in milliseconds        
-            s = Stat(url=target.url, target_id=target.id,elapsed=0,elapsed2=0,result_count=0,query_time=0,timestamp=startTime, page_load_time=loadTime, http_status=str(status))
+            loadTime = int((endTime-startTime)*1000) # get the download time in milliseconds
+            requestdate = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+            s = Stat(url=target.url, 
+                     target_id=target.id,
+                     elapsed=commentdict["elapsed"],
+                     tag=commentdict["tag"],
+                     server=commentdict["server"],
+                     request_id=commentdict["request id"],
+                     request_date=requestdate,
+                     elapsed2=0,
+                     result_count=0,
+                     query_time=0,
+                     timestamp=startTime, 
+                     page_load_time=loadTime, 
+                     http_status=str(status))
             s.save()
         
             retVal += "{'id':'" + target.url + "', 'load_time':'" + str(loadTime) + "', 'http_status':'" + str(status)+"'},"
@@ -613,7 +634,7 @@ def get_check_output(target_id):
             if hasattr(e, 'reason'):
                 retVal+= '{"We failed to reach target '+ str(target_id) +'. Reason":"'+ str(e.reason) + '"}'
             elif hasattr(e, 'code'):
-                retVal+= '{The server couldn\'t fulfill the request.Error code":"'+ str(e.code) +'"}'
+                retVal+= '{The server couldn\'t fulfill the request. Error code":"'+ str(e.code) +'"}'
                 status = e.code
         else:
             retVal +=""
@@ -626,21 +647,25 @@ def get_check_output(target_id):
 # grab a list of the citysearch comments from the current page.  These include server, release, elapsed...
 # @parameter response the page's HTML source
 # @return a dict of Citysearch comments
-def get_cs_comments(response):
+def get_comment_dict(response):
     in_comment = False
-    comment_dict = None
-    
+    comment_dict = {}
+    comment_dict["tag"] = ""
+    comment_dict["server"] = ""
+    comment_dict["elapsed"] = ""
+    comment_dict["request id"] = ""
     for line in response:
         line = line.strip()
-        if(line.find("<!--")):
+        if("<!--" in line):
             in_comment = True
         if(in_comment == True):
             for tag in cs_comment_tags:
-                if(line.startswith(tag)):
-                    tag_name = tag.replace(" ", "_")
-                    comment_dict[tag_name] = "value" 
+                if(tag in line.lower()):
+                    value = line.split(":")[1].strip()
+                    tagname = tag.replace(":", "")
+                    comment_dict[tagname] = value
                     # TODO: check how this line is split and saved in the old pls
-        if(line.find("-->")):
+        if("-->" in line):
             in_comment = False
             
     return comment_dict
