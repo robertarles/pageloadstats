@@ -11,6 +11,7 @@ from django.utils import simplejson
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.font_manager import FontProperties
+from django.contrib.auth.models import User
 import numpy
 import urlparse
 
@@ -702,6 +703,59 @@ def get_sma_new(stats, sma_window_size, column):
         sma_cavg.append(avgValue)
         #print "average " + str(avgValue)
     return sma_cavg
+def get_tags(request):
+        
+    targets = Target.objects.filter(active=1)
+    
+    tag_dict = {}
+    # get a list of tags in use on the targets
+    for target in targets:
+        target_tags = target.tags.split(",")
+        for tag in target_tags:
+            tag_dict[tag] = "placing the tag as a key ensures it will be unique, no dupe's"
+    tag_list = tag_dict.keys()
+    
+    response_data = {}
+    response_data['tags']=[]
+    response_data['tags'].extend(tag_list)
+    response_data['subject']="targets"
+    
+    return HttpResponse(simplejson.dumps(response_data), mimetype="application/json")
+
+def get_targets_all(request, return_type):
+    targets = Target.objects.filter(active=1)
+
+    response_data = {}
+    response_data['targets'] = []
+    response_data['subject'] = "all_targets"
+    
+    for target in targets:
+        target_dict  = {}
+        target_dict["id"] = target.id
+        target_dict["name"] = target.name
+        target_dict["target_url"] = target.url
+        target_dict["tags"] = target.tags
+        response_data["targets"].append(target_dict)
+        
+    return HttpResponse(simplejson.dumps(response_data), mimetype="application/json")
+
+def get_targets_by_tag(request, tag, return_type):
+    targets = Target.objects.filter(active=1).filter(tags__contains=tag)
+
+    response_data = {}
+    response_data['targets'] = []
+    response_data['with_tag'] = tag
+    response_data['subject'] = "targets_with_tag"
+    
+    for target in targets:
+        target_dict  = {}
+        target_dict["id"] = target.id
+        target_dict["name"] = target.name
+        target_dict["target_url"] = target.url
+        target_dict["tags"] = target.tags
+        response_data["targets"].append(target_dict)
+        
+    return HttpResponse(simplejson.dumps(response_data), mimetype="application/json")
 
 def user_logout(request):
     auth.logout(request)
