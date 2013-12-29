@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block header %} 
+
+{% endblock%}
+
+{% block content %}
+
+<h3>Edit Alert</h3>
+<form role="form" action="/pls/api/recipient/update/{{recipient.id}}/" method="post">{% csrf_token %}
+	<div class="form-group">
+		<label>Name (ID: {{alert.id}})</label> 
+		<input type="text" name="recipient_name" class="form-control" value="{{recipient.name}}"></input>
+	</div>
+	<div class="form-group">
+		<label>Active</label>
+		<input type="text" name="recipient_active" class="form-control" value="{{recipient.active}}"></input>
+	</div>
+	<div class="form-group">
+		<label>Email Address</label> 
+		<input type="text" name="recipient_email_address" class="form-control" value="{{recipient.email_address}}"></input>
+	</div>
+	<button type="submit" class="btn btn-default">Save</button>
+</form>
+
+{% endblock %}

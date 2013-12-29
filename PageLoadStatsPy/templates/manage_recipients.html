@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block header %} 
+
+{% endblock%}
+
+{% block content %}
+{% if recipients %}
+    
+    <h3>Active recipients</h3>
+    <table class="table table-striped table-hover">
+    	<theader>
+			<tr>
+				<th>Recipient Name</th>
+				<th>Active</th>
+				<th>Email Address</th>
+				<th></th>
+				<th><a href="/pls/recipient/add/">ADD Recipient</a></th>
+			</tr>
+		</theader>
+		<tbody>
+		{% for recipient in recipients %}
+			<tr class="recipient_active_{{recipient.active}}">
+				<td>{{recipient.name}}</td> 
+				<td>{{recipient.active}}</td>
+				<td>{{recipient.email_address}}</td>
+				<td>[<a href="/pls/recipient/edit/{{recipient.id}}">Edit</a>]<td>
+				<td>[<a href="/pls/recipient/delete/{{recipient.id}}"> Delete </a>]</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+    </table>
+    
+{% else %}
+    <div class="recipient recipient-warning" >No Active Recipients</div>
+{% endif %}
+
+{% if recipients_inactive %}
+    <h3>Inactive recipients</h3>   
+    <table class="table table-striped table-hover">
+    	<theader>
+			<tr>
+				<th>recipient Name</th>
+				<th>Active</th>
+				<th>Email Address</th>
+				<th></th>
+			</tr>
+		</theader>
+		<tbody>
+		{% for recipient in recipients_inactive %}
+			<tr class="recipient_active_{{recipient.active}}">
+				<td>{{recipient.name}}</td> 
+				<td>{{recipient.active}}</td>
+				<td>{{recipient.email_address}}</td>
+				<td>[<a href="/pls/recipient/edit/{{recipient.id}}">Edit</a>]<td>
+				<td>[<a href="/pls/recipient/delete/{{recipient.id}}"> Delete </a>]</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+    </table>
+{% else %}
+	<div class="recipient recipient-warning">No Inactive Recipient</div>
+{% endif %}
+
+{% endblock %}

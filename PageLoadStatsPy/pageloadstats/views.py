@@ -1,18 +1,14 @@
 from django.template import Context, RequestContext, loader
-from PageLoadStatsPy.pageloadstats.models import Target, Alert, TargetAlert, Stat, Stat_Rich
+from PageLoadStatsPy.pageloadstats.models import Target, Alert, TargetAlert
+from PageLoadStatsPy.pageloadstats.models import AlertRecipients, AlertAlertRecipients
+from PageLoadStatsPy.pageloadstats.models import Stat, Stat_Rich
 from django.core.paginator import Paginator, EmptyPage
 from django.http import HttpResponse
 import urllib2
 import time, datetime
-from datetime import datetime as datetimefunc
 from django.contrib import auth
 from django.http import HttpResponseRedirect
 from django.utils import simplejson
-from matplotlib import pyplot as plt
-from matplotlib.backends.backend_agg import FigureCanvasAgg
-from matplotlib.font_manager import FontProperties
-from django.contrib.auth.models import User
-import numpy
 import urlparse
 
 cs_comment_tags = ["request id:", "tag:","server:", "elapsed:", "elapsed2:"]
@@ -87,19 +83,65 @@ def manage_alerts(request):
                 'alerts_inactive': alerts_inactive,
     })
     return HttpResponse(t.render(c))
+    
+def manage_recipients(request):
+    recipients = AlertRecipients.objects.filter(active=1).order_by('name')
+    recipients_inactive = AlertRecipients.objects.filter(active=0).order_by('name')
+    t = loader.get_template('manage_recipients.html')
+    c= Context({
+                'recipients': recipients,
+                'recipients_inactive': recipients_inactive,
+    })
+    return HttpResponse(t.render(c))
+
+def edit_recipient(request, recipient_id):
+    recipient = AlertRecipients.objects.get(pk=recipient_id)
+    t = loader.get_template('edit_recipient.html')
+    c = RequestContext(request,{
+                'recipient': recipient
+    })
+    return HttpResponse(t.render(c))
 
 def edit_alert(request, alert_id):
     alert = Alert.objects.get(pk=alert_id)
+    recipients_available = get_available_recipients()
+    recipient_ids_associated = get_associated_recipient_ids(alert_id)
     t = loader.get_template('edit_alert.html')
     c = RequestContext(request,{
-                'alert': alert
+                'alert': alert,
+                'recipients_available':recipients_available,
+                'recipient_ids_associated':recipient_ids_associated
     })
     return HttpResponse(t.render(c))
+
+def get_associated_recipient_ids(alertid):
+    recipient_ids_associated = []
+    alertRecipientsAssoc = AlertAlertRecipients.objects.filter(alert_id=alertid)
+    for assoc in alertRecipientsAssoc:
+        recipient_ids_associated.append(int(assoc.alert_recipient_id))
+    return recipient_ids_associated
+
+def get_available_recipients():
+    ###
+    # get a list of available active recipients
+    ###
+    try:
+        recipients_available = AlertRecipients.objects.filter(active=1)
+    except:
+        recipients_available = None
+    return recipients_available
 
 def add_alert(request):
     t = loader.get_template('add_alert.html')
     c = RequestContext(request,{
                 'alert': None
+    })
+    return HttpResponse(t.render(c))
+
+def add_recipient(request):
+    t = loader.get_template('add_recipient.html')
+    c = RequestContext(request,{
+                'recipient': None
     })
     return HttpResponse(t.render(c))
 
@@ -147,6 +189,14 @@ def alert_update(request, alert_id):
     alert.active = request.POST.get("alert_active")
     alert.name = request.POST.get("alert_name")
     alert.limit_high = request.POST.get("alert_limit_high")
+        
+    for recipient in alert.alert_recipient_list.all():
+        alertrecipientassoc = AlertAlertRecipients.objects.get(alert_recipient_id = recipient.id, alert_id=alert_id)
+        alertrecipientassoc.delete()
+    if(request.POST.has_key("recipient_ids")):
+        for id in request.POST.getlist("recipient_ids"):
+            alertrecipientassoc = AlertAlertRecipients(alert_recipient_id=id, alert_id=alert_id)
+            alertrecipientassoc.save()
     alert.save()
     response = HttpResponseRedirect("/pls/manage/alerts")
     return response
@@ -155,9 +205,14 @@ def alert_create(request):
     limit_high = request.POST.get("alert_limit_high")
     active = request.POST.get("alert_active")
     name = request.POST.get("alert_name")
-    
+
     alert = Alert(name=name, active=active, limit_high=limit_high, limit_low=0, elapsed_low=0, elapsed_high=0)
     alert.save()
+    
+    if(request.POST.has_key("recipient_ids")):
+        for id in request.POST.getlist("recipient_ids"):
+            alertrecipientassoc = AlertAlertRecipients(alert_recipient_id=id, alert_id=alert.id)
+            alertrecipientassoc.save()
     
     response = HttpResponseRedirect("/pls/manage/alerts")
     return response
@@ -165,8 +220,30 @@ def alert_create(request):
 def alert_delete(request):
     pass
 
+def recipient_update(request, recipient_id):
+    recipient = AlertRecipients.objects.get(id=recipient_id)
+    recipient.active = request.POST.get("recipient_active")
+    recipient.name = request.POST.get("recipient_name")
+    recipient.email_address = request.POST.get("recipient_email_address")
+    recipient.save()
+    response = HttpResponseRedirect("/pls/manage/recipients")
+    return response
+    
+def recipient_create(request):
+    name = request.POST.get("recipient_name")
+    active = request.POST.get("recipient_active")
+    email_address = request.POST.get("recipient_email_address")
+    
+    recipient = AlertRecipients(name=name, active=active, email_address=email_address)
+    recipient.save()
+    
+    response = HttpResponseRedirect("/pls/manage/recipients")
+    return response
+
+def recipient_delete(request):
+    pass
 ###
-## END target and alert api calls
+## END target recipients and alert api calls
 
 
 def flot(request):

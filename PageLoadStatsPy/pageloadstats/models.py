@@ -17,15 +17,12 @@ class Alert(models.Model):
     elapsed_low = models.BigIntegerField()
     elapsed_high = models.BigIntegerField()
     active = models.IntegerField()
+    alert_recipient_list = models.ManyToManyField("AlertRecipients", 
+                                              through="AlertAlertRecipients", 
+                                              symmetrical=False, 
+                                              related_name='alert_recipients_list')
     class Meta:
         db_table = u'alert'
-
-class AlertAlertRecipients(models.Model):
-    alert_id = models.BigIntegerField()
-    alert_recipient_id = models.BigIntegerField()
-    id = models.IntegerField(primary_key=True)
-    class Meta:
-        db_table = u'alert_alert_recipients'
 
 class AlertRecipients(models.Model):
     email_address = models.TextField()
@@ -34,6 +31,16 @@ class AlertRecipients(models.Model):
     active = models.IntegerField()
     class Meta:
         db_table = u'alert_recipients'
+        
+class AlertAlertRecipients(models.Model):
+    id = models.IntegerField(primary_key=True)
+    #alert_id = models.BigIntegerField()
+    #alert_recipient_id = models.BigIntegerField()
+    
+    alert_recipient = models.ForeignKey(AlertRecipients, to_field="id")
+    alert = models.ForeignKey(Alert, to_field="id")
+    class Meta:
+        db_table = u'alert_alert_recipients'
 
 class Find(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -80,7 +87,10 @@ class Target(models.Model):
     id = models.BigIntegerField(primary_key=True)
     type = models.TextField(blank=True)
     name = models.TextField(blank=True)
-    alerts = models.ManyToManyField("Alert", through="TargetAlert", symmetrical=False, related_name='alerts')
+    alerts = models.ManyToManyField("Alert", 
+                                    through="TargetAlert", 
+                                    symmetrical=False, 
+                                    related_name='alerts')
     tags = models.TextField()
     class Meta:
         db_table = u'target'
