@@ -552,7 +552,7 @@ def get_target_load_line(targetstats):
         targetdata["label"] = stat.target.name
         timestamp = None
         page_load_time = None
-        elapsed = "0"
+        elapsed = 0
         server = "unknown"
         if(hasattr(stat, 'timestamp')):
 #            timezoneoffset = 28800 # UTC -8 hours
@@ -617,7 +617,7 @@ def flot_line_singletarget(request):
         for stat in targetstats:
             timestamp = None
             page_load_time = None
-            elapsed = "0"
+            elapsed = 0
             server = "unknown"
             if(hasattr(stat, 'timestamp')):
 #                timezoneoffset = 28800 # UTC -8 hours
