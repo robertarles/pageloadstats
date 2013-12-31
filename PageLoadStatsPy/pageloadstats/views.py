@@ -629,7 +629,7 @@ def flot_line_singletarget(request):
                     elapsed = int(stat.elapsed)
                     elapsedsum += elapsed
                 except:
-                    pass
+                    elapsed = 0
             if((hasattr(stat, 'server')) and (stat.server is not None)):
                 server = stat.server
             if ("data" in targetdata.keys()):
