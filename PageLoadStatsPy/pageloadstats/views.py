@@ -562,9 +562,11 @@ def get_target_load_line(targetstats):
             page_load_time = int(stat.page_load_time)
             loadsum += page_load_time
         if((hasattr(stat, 'elapsed')) and (stat.elapsed is not None)):
-            elapsed = stat.elapsed
-            elapsedsum += int(elapsed)
-        elapsed = int(elapsed)
+            try:
+                elapsed = int(stat.elapsed)
+                elapsedsum += int(elapsed)
+            except:
+                pass
         if((hasattr(stat, 'server')) and (stat.server is not None)):
             server = stat.server
         if ("data" in targetdata.keys()):
@@ -629,7 +631,7 @@ def flot_line_singletarget(request):
                     elapsed = int(stat.elapsed)
                     elapsedsum += elapsed
                 except:
-                    elapsed = 0
+                    pass
             if((hasattr(stat, 'server')) and (stat.server is not None)):
                 server = stat.server
             if ("data" in targetdata.keys()):
