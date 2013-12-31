@@ -624,7 +624,7 @@ def flot_line_singletarget(request):
             if(hasattr(stat, 'page_load_time')):
                 page_load_time = int(stat.page_load_time)
                 loadsum += page_load_time
-            if((hasattr(stat, 'elapsed')) and (stat.elapsed is not '')):
+            if((hasattr(stat, 'elapsed')) and (stat.elapsed != '')):
                 elapsed = stat.elapsed
                 elapsedsum += int(elapsed)
             elapsed = int(elapsed)
