@@ -6,7 +6,7 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    ('Robert', 'robert.arles@citygridmedia.com'),
+    ('Robert', 'robert@arles.us'),
 )
 
 MANAGERS = ADMINS
@@ -29,7 +29,7 @@ DATABASES = {
 # timezone as the operating system.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = 'America/Los_Angeles'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -101,6 +101,14 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'PageLoadStatsPy.pageloadstats.middleware.RequireLoginMiddleware',
+)
+LOGIN_REQUIRED_URLS = (
+    r'/pls/manage(.*)',
+)
+
+LOGIN_REQUIRED_URLS_EXCEPTIONS = (
+    r'/pls/accounts(.*)$',
+    r'/pls/chart(.*)$',
 )
 
 ROOT_URLCONF = 'PageLoadStatsPy.urls'
