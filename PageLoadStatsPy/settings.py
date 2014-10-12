@@ -102,6 +102,14 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'PageLoadStatsPy.pageloadstats.middleware.RequireLoginMiddleware',
 )
+LOGIN_REQUIRED_URLS = (
+    r'/pls/manage(.*)',
+)
+
+LOGIN_REQUIRED_URLS_EXCEPTIONS = (
+    r'/pls/accounts(.*)$',
+    r'/pls/chart(.*)$',
+)
 
 ROOT_URLCONF = 'PageLoadStatsPy.urls'
 
