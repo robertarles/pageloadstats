@@ -6,17 +6,17 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    ('Robert', 'robert.arles@citygridmedia.com'),
+    ('Robert', 'robert@arles.us'),
 )
 
 MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE': 'django.db.backends.mysql',  # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'pagestats',                      # Or path to database file if using sqlite3.
-        'USER': 'citysearch',                      # Not used with sqlite3.
-        'PASSWORD': 'citysearch@@',                  # Not used with sqlite3.
+        'USER': 'pagestats',                      # Not used with sqlite3.
+        'PASSWORD': 'pagestats@@',                  # Not used with sqlite3.
         'HOST': '127.0.0.1',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '3306',                      # Set to empty string for default. Not used with sqlite3.
     }
@@ -29,7 +29,7 @@ DATABASES = {
 # timezone as the operating system.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = 'America/Los_Angeles'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -81,7 +81,7 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    #'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -91,7 +91,7 @@ SECRET_KEY = '+z+okqj1ajqdu)xb(5rs%l&c_itaq(kw-+6688fmg#*u+qr(ip'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    #'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -106,8 +106,8 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'PageLoadStatsPy.urls'
 
 TEMPLATE_DIRS = (
-                 #"/var/www/html/django/templates/",
-                 PROJECT_PATH +"/templates/",
+    #"/var/www/html/django/templates/",
+    PROJECT_PATH + "/templates/",
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.

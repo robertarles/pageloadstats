@@ -99,7 +99,10 @@ public class Target {
 		statsMap.put("url",url);
 		statsMap.put("html", html);
 		statsMap.putAll(getStatsFromHtml(html));
-		
+		// If there is an "elapsed time" in the header, use it overwriting any other collected data
+		// for gifts.com, this header field is response-time
+		responseTime = ""
+		statsMap.put("elapsed", responseTime);
 		 
 		 System.out.println("[INFO] Target stats gathered.");
 		 return statsMap;

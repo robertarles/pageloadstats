@@ -5,21 +5,23 @@ from PageLoadStatsPy.pageloadstats.models import Stat, Stat_Rich
 from django.core.paginator import Paginator, EmptyPage
 from django.http import HttpResponse
 import urllib2
-import time, datetime
+import time
+import datetime
 from django.contrib import auth
 from django.http import HttpResponseRedirect
 from django.utils import simplejson
 import urlparse
 
-cs_comment_tags = ["request id:", "tag:","server:", "elapsed:", "elapsed2:"]
+cs_comment_tags = ["request id:", "tag:", "server:", "elapsed:", "elapsed2:"]
 
 SCATTER_DAY_RANGE = 14
+
 
 def target_list(request):
     latest_target_data = Target.objects.filter(active=1).order_by('name')[:50]
     t = loader.get_template('index.html')
     c = Context({
-                 'latest_target_data': latest_target_data,
+        'latest_target_data': latest_target_data,
     })
     return HttpResponse(t.render(c))
 
@@ -28,28 +30,31 @@ def manage_targets(request):
     latest_target_data = Target.objects.filter(active=1).order_by('name')
     latest_target_data_inactive = Target.objects.filter(active=0).order_by('name')
     t = loader.get_template('manage_targets.html')
-    c= Context({
-                'latest_target_data': latest_target_data,
-                'latest_target_data_inactive': latest_target_data_inactive,
+    c = Context({
+        'latest_target_data': latest_target_data,
+        'latest_target_data_inactive': latest_target_data_inactive,
     })
     return HttpResponse(t.render(c))
+
 
 def edit_target(request, target_id):
     target_data = Target.objects.get(pk=target_id)
     t = loader.get_template('edit_target.html')
-    c = RequestContext(request,{
-                'target_data': target_data,
-                'available_alerts': get_available_alerts(),
-                'current_alert_id': get_current_alert_id(target_id),
+    c = RequestContext(request, {
+        'target_data': target_data,
+        'available_alerts': get_available_alerts(),
+        'current_alert_id': get_current_alert_id(target_id),
     })
     return HttpResponse(t.render(c))
 
+
 def add_target(request):
     t = loader.get_template('add_target.html')
-    c = RequestContext(request,{
-                'target_data': None
+    c = RequestContext(request, {
+        'target_data': None
     })
     return HttpResponse(t.render(c))
+
 
 def get_available_alerts():
     ###
@@ -61,56 +66,61 @@ def get_available_alerts():
         available_alerts = None
     return available_alerts
 
+
 def get_current_alert_id(target_id):
     ###
     # for target_id, return the alert that is associated, or an empty string if none
     ###
     current_alert_id = ''
     try:
-        target_alerts = TargetAlert.objects.filter(target_id = target_id, active=1)
+        target_alerts = TargetAlert.objects.filter(target_id=target_id, active=1)
         for target_alert in target_alerts:
             current_alert_id = target_alert.alert_id
     except:
         current_alert_id = 'exception'
     return current_alert_id
-    
+
+
 def manage_alerts(request):
     alerts = Alert.objects.filter(active=1).order_by('name')
     alerts_inactive = Alert.objects.filter(active=0).order_by('name')
     t = loader.get_template('manage_alerts.html')
-    c= Context({
-                'alerts': alerts,
-                'alerts_inactive': alerts_inactive,
+    c = Context({
+        'alerts': alerts,
+        'alerts_inactive': alerts_inactive,
     })
     return HttpResponse(t.render(c))
-    
+
+
 def manage_recipients(request):
     recipients = AlertRecipients.objects.filter(active=1).order_by('name')
     recipients_inactive = AlertRecipients.objects.filter(active=0).order_by('name')
     t = loader.get_template('manage_recipients.html')
-    c= Context({
-                'recipients': recipients,
-                'recipients_inactive': recipients_inactive,
+    c = Context({
+        'recipients': recipients,
+        'recipients_inactive': recipients_inactive,
     })
     return HttpResponse(t.render(c))
+
 
 def edit_recipient(request, recipient_id):
     recipient = AlertRecipients.objects.get(pk=recipient_id)
     t = loader.get_template('edit_recipient.html')
-    c = RequestContext(request,{
-                'recipient': recipient
+    c = RequestContext(request, {
+        'recipient': recipient
     })
     return HttpResponse(t.render(c))
+
 
 def edit_alert(request, alert_id):
     alert = Alert.objects.get(pk=alert_id)
     recipients_available = get_available_recipients()
     recipient_ids_associated = get_associated_recipient_ids(alert_id)
     t = loader.get_template('edit_alert.html')
-    c = RequestContext(request,{
-                'alert': alert,
-                'recipients_available':recipients_available,
-                'recipient_ids_associated':recipient_ids_associated
+    c = RequestContext(request, {
+        'alert': alert,
+        'recipients_available': recipients_available,
+        'recipient_ids_associated': recipient_ids_associated
     })
     return HttpResponse(t.render(c))
 
@@ -154,7 +164,7 @@ def target_update(request, target_id):
     target.name = request.POST.get("target_name")
     target.active = request.POST.get("target_active")
     target.tags = request.POST.get("target_tags")
-    
+
     for alert in target.alerts.all():
         target_alert = TargetAlert.objects.get(alert = alert.id, target = target.id)
         target_alert.delete()
@@ -164,20 +174,20 @@ def target_update(request, target_id):
             alert = Alert.objects.get(id=alert_id)
             target_alert = TargetAlert(target=target,alert=alert,active=1)
             target_alert.save()
-    
+
     target.save()
     response = HttpResponseRedirect("/pls/manage/targets")
     return response
-    
+
 def target_create(request):
     url = request.POST.get("target_url")
     name = request.POST.get("target_name")
     active = request.POST.get("target_active")
     tags = request.POST.get("target_tags")
-    
+
     target = Target(url=url, name=name, active=active, tags=tags)
     target.save()
-    
+
     response = HttpResponseRedirect("/pls/manage/targets")
     return response
 
@@ -189,7 +199,7 @@ def alert_update(request, alert_id):
     alert.active = request.POST.get("alert_active")
     alert.name = request.POST.get("alert_name")
     alert.limit_high = request.POST.get("alert_limit_high")
-        
+
     for recipient in alert.alert_recipient_list.all():
         alertrecipientassoc = AlertAlertRecipients.objects.get(alert_recipient_id = recipient.id, alert_id=alert_id)
         alertrecipientassoc.delete()
@@ -200,7 +210,7 @@ def alert_update(request, alert_id):
     alert.save()
     response = HttpResponseRedirect("/pls/manage/alerts")
     return response
-    
+
 def alert_create(request):
     limit_high = request.POST.get("alert_limit_high")
     active = request.POST.get("alert_active")
@@ -208,12 +218,12 @@ def alert_create(request):
 
     alert = Alert(name=name, active=active, limit_high=limit_high, limit_low=0, elapsed_low=0, elapsed_high=0)
     alert.save()
-    
+
     if(request.POST.has_key("recipient_ids")):
         for id in request.POST.getlist("recipient_ids"):
             alertrecipientassoc = AlertAlertRecipients(alert_recipient_id=id, alert_id=alert.id)
             alertrecipientassoc.save()
-    
+
     response = HttpResponseRedirect("/pls/manage/alerts")
     return response
 
@@ -228,15 +238,15 @@ def recipient_update(request, recipient_id):
     recipient.save()
     response = HttpResponseRedirect("/pls/manage/recipients")
     return response
-    
+
 def recipient_create(request):
     name = request.POST.get("recipient_name")
     active = request.POST.get("recipient_active")
     email_address = request.POST.get("recipient_email_address")
-    
+
     recipient = AlertRecipients(name=name, active=active, email_address=email_address)
     recipient.save()
-    
+
     response = HttpResponseRedirect("/pls/manage/recipients")
     return response
 
@@ -282,7 +292,7 @@ def flot(request):
         'start_end_params': "&start_date="+start_date+"&end_date="+end_date,
         'end_date': end_date,
     })
-    return HttpResponse(chartTemplate.render(c)) 
+    return HttpResponse(chartTemplate.render(c))
 
 def get_ids_by_tag(tag):
     targetidlist = []
@@ -290,14 +300,14 @@ def get_ids_by_tag(tag):
     for target in targetlist:
         targetidlist.append(str(target.id))
     return ",".join(targetidlist)
-        
+
 
 def  http_errorchart(request):
     t = loader.get_template('httperrorchart.html')
     c = Context({
         'chart_data_url': "api/ofc2chart/httperrors/",
     })
-    return HttpResponse(t.render(c)) 
+    return HttpResponse(t.render(c))
 
 def chart_httperrors(request):
     urlList = [] #store urls for mapping to y-axis
@@ -316,11 +326,11 @@ def chart_httperrors(request):
     dotStyle["rotation"]="45"
     dotStyle["sides"]= "4"
     type["dot-style"]=dotStyle
-    
+
     #jsonStats["elements"].append(type)
     values={}
     type["values"]=[]
-    
+
     oldestDay = datetime.datetime.fromtimestamp(stats[0].timestamp).timetuple().tm_yday
     newestDay = datetime.datetime.fromtimestamp(stats[len(stats)-1].timestamp).timetuple().tm_yday
     tsList = [] #to hold a list of timestamps from the stats set
@@ -338,7 +348,7 @@ def chart_httperrors(request):
         if(parsedurl.query):
             tippath += "?" + parsedurl.query
         if(len(tippath)>100):
-            tippath = tippath[:100]+"..." 
+            tippath = tippath[:100]+"..."
         tiphost = parsedurl.hostname
         jsonStat["tip"] = "host: " + tiphost +"\ndate: "+stat.request_date +"\nstatus: "+str(stat.http_status)+  "\npath: "+tippath
         type["values"].append(jsonStat)
@@ -368,8 +378,8 @@ def chart_httperrors(request):
     y_axis["min"]="0"
     y_axis["max"]=len(urlList)
     jsonStats["y_axis"]=y_axis
-    
-        
+
+
     return HttpResponse(simplejson.dumps(jsonStats), mimetype="application/json")
 
 
@@ -381,7 +391,7 @@ def http_errors(request):
     c = Context({
         'page': page,
     })
-    return HttpResponse(t.render(c)) 
+    return HttpResponse(t.render(c))
 
 def get_http_errors(request):
     rpp = 50
@@ -424,7 +434,7 @@ def daily_avgs(request,tags=["home", "bpp", "browse", "deals", "srp", "api"],day
         'days': days,
         'tags':tags,
     })
-    return HttpResponse(t.render(c))  
+    return HttpResponse(t.render(c))
 
 def get_daily_avg_by_id(request, target_id, days_ago):
     now = int(time.time())
@@ -436,13 +446,13 @@ def get_daily_avg_by_id(request, target_id, days_ago):
     #print starting_midnight
     stats = Stat_Rich.objects.filter(timestamp__gte=starting_midnight).filter(timestamp__lte=ending_midnight).filter(target_id=target_id)
 
-    
+
     sumElapsed = 0
     avgElapsed = 0
     sumLoad = 0
     avgLoad = 0
     target_name = ""
-    
+
     for stat in stats:
         sumLoad += int(stat.page_load_time) if stat.page_load_time else 0
         sumElapsed += int(stat.elapsed) if stat.elapsed else 0
@@ -450,15 +460,15 @@ def get_daily_avg_by_id(request, target_id, days_ago):
             sumElapsed += int(stat.query_time) if stat.query_time else 0
         if(hasattr(stat,"name")):
             target_name = stat.name()
-    
+
     #if there is data, calculate the averages, else stick with defaults of ZERO
     if(len(stats)>0):
         avgLoad = sumLoad / len(stats)
         avgElapsed = sumElapsed / len(stats)
-    
-    
+
+
     response_data = {}
-    response_data['data_type'] = "daily averages for id" 
+    response_data['data_type'] = "daily averages for id"
     response_data['id'] = target_id
     response_data['days_ago'] = days_ago
     response_data['load'] = avgLoad
@@ -476,34 +486,34 @@ def get_daily_avg_by_tag(request, tag, days_ago):
     #print starting_midnight
     stats = Stat_Rich.objects.filter(timestamp__gte=starting_midnight).filter(timestamp__lte=ending_midnight).filter(target__tags__icontains=tag)
 
-    
+
     sumElapsed = 0
     avgElapsed = 0
     sumLoad = 0
     avgLoad = 0
-    
+
     for stat in stats:
         sumLoad += int(stat.page_load_time) if stat.page_load_time else 0
         sumElapsed += int(stat.elapsed) if stat.elapsed else 0
         if(hasattr(stat,"query_time")): # solr queries dont have elapsed times, but do have an equivilent query_time
             sumElapsed += int(stat.query_time) if stat.query_time else 0
-    
+
     #if there is data, calculate the averages, else stick with defaults of ZERO
     if(len(stats)>0):
         avgLoad = sumLoad / len(stats)
         avgElapsed = sumElapsed / len(stats)
-    
-    
+
+
     response_data = {}
-    response_data['data_type'] = "daily average for tag" 
+    response_data['data_type'] = "daily average for tag"
     response_data['tag'] = tag
     response_data['days_ago'] = days_ago
     response_data['load'] = avgLoad
     response_data['elapsed'] = avgElapsed
     return HttpResponse(simplejson.dumps(response_data), mimetype="application/json")
-  
+
 def flot_line(request):
-    
+
     target_ids = request.GET.get("target_id")
     targetsdata = None
     if("," in target_ids):
@@ -521,17 +531,17 @@ def flot_line_multitarget(request):
     startdate = request.GET.get('start_date')
     enddate = request.GET.get("end_date")
     trimabove = request.GET.get("trim_above")
-    
+
     statsarray = []
     for targetid in targetids:
         targetstats = get_stats(targetid, startdate, enddate, trimabove)
         statsarray.append(targetstats)
-    
+
     targetsdata = []
     for targetstats in statsarray:
         targetdata = get_target_load_line(targetstats)
         targetsdata.append(targetdata)
-    
+
     return targetsdata
 
 def get_target_load_line(targetstats):
@@ -544,6 +554,9 @@ def get_target_load_line(targetstats):
     targetsma = {}
     targetsma["label"] = "Moving Avg"
     targetsma["color"] = "#5E9ED3"
+    targetalert = {}
+    targetalert["label"] = "Alert Level"
+    targetalert["color"] = "red"
     loadsum = 0
     smasum = 0
     elapsedsum = 0
@@ -561,7 +574,8 @@ def get_target_load_line(targetstats):
         if(hasattr(stat, 'page_load_time')):
             page_load_time = int(stat.page_load_time)
             loadsum += page_load_time
-        if((hasattr(stat, 'elapsed')) and (stat.elapsed is not None)):
+        if((hasattr(stat, 'elapsed'))):
+            if((stat.elapsed is not None) or (stat.elapsed == 0))
             try:
                 elapsed = int(stat.elapsed)
                 elapsedsum += int(elapsed)
@@ -570,20 +584,20 @@ def get_target_load_line(targetstats):
         if((hasattr(stat, 'server')) and (stat.server is not None)):
             server = stat.server
         if ("data" in targetdata.keys()):
-            targetdata["data"].append([timestamp,page_load_time, 
+            targetdata["data"].append([timestamp,page_load_time,
                                       "Load " +  str(stat.page_load_time) + " ms</br>" + server + "</br>" + stat.request_date ])
         else:
             targetdata["data"].append([timestamp,page_load_time])
         if ("data" in targetelapsed.keys()):
             elapsedlabel = "Elapsed " + str(elapsed)
-            targetelapsed["data"].append([timestamp,elapsed, 
+            targetelapsed["data"].append([timestamp,elapsed,
                                 "Elapsed " + str(elapsed) + " ms</br>" + server + "</br>" + stat.request_date])
         else:
             targetelapsed["data"] = [timestamp,elapsed]
         currentstat += 1
-        
+
     return targetdata
-    
+
 def flot_line_singletarget(request):
     """
     Return the array required to generate a single target flot chart
@@ -592,11 +606,11 @@ def flot_line_singletarget(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get("end_date")
     trim_above = request.GET.get("trim_above")
-    
+
     statsarray = []
     targetstats = get_stats(target_id, start_date, end_date, trim_above)
     statsarray.append(targetstats)
-        
+
     targetsdata = []
     for targetstats in statsarray:
         targetdata = {}
@@ -611,7 +625,7 @@ def flot_line_singletarget(request):
         loadsum = 0
         smasum = 0
         elapsedsum = 0
-        
+
         smaarray = get_sma_new(targetstats, 100, "page_load_time")
         currentstat = 0
         for stat in targetstats:
@@ -635,18 +649,18 @@ def flot_line_singletarget(request):
             if((hasattr(stat, 'server')) and (stat.server is not None)):
                 server = stat.server
             if ("data" in targetdata.keys()):
-                targetdata["data"].append([timestamp,page_load_time, 
+                targetdata["data"].append([timestamp,page_load_time,
                                           "Load " +  str(stat.page_load_time) + " ms</br>" + server + "</br>" + stat.request_date ])
             else:
                 targetdata["data"] = [timestamp,page_load_time]
             if ("data" in targetelapsed.keys()):
                 elapsedlabel = "Elapsed " + str(elapsed)
-                targetelapsed["data"].append([timestamp,elapsed, 
+                targetelapsed["data"].append([timestamp,elapsed,
                                     "Elapsed " + str(elapsed) + " ms</br>" + server + "</br>" + stat.request_date])
             else:
                 targetelapsed["data"] = [timestamp,elapsed]
             if ("data" in targetsma.keys()):
-                targetsma["data"].append([timestamp,smaarray[currentstat], 
+                targetsma["data"].append([timestamp,smaarray[currentstat],
                                           "SMA " + str(smaarray[currentstat]) + "ms</br>" + stat.request_date])
             else:
                 targetsma["data"] = [timestamp,smaarray[currentstat]]
@@ -654,7 +668,7 @@ def flot_line_singletarget(request):
         targetsdata.append(targetdata)
         targetsdata.append(targetelapsed)
         targetsdata.append(targetsma)
-        
+
     return targetsdata
 
 ##
@@ -663,16 +677,16 @@ def flot_line_singletarget(request):
 # @param target_id the target id to check stats on (an ID or 'all' to check them ALL!)
 def check(request, target_id):
     check_output = get_check_output(target_id)
-    return HttpResponse(check_output, mimetype = "application/json")    
+    return HttpResponse(check_output, mimetype = "application/json")
 
-    
+
 ##
 # Get the stats for the requested target (or 'all' targets)
 # @param target_id the ID of the target to check, or 'all' to check them all.
 def get_check_output(target_id):
     retVal = "{"
     targets = None
-    
+
     if(target_id=="all"):
         targets = Target.objects.filter(active=1)
     else:
@@ -688,7 +702,7 @@ def get_check_output(target_id):
             endTime = time.time()
             loadTime = int((endTime-startTime)*1000) # get the download time in milliseconds
             requestdate = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-            s = Stat(url=target.url, 
+            s = Stat(url=target.url,
                      target_id=target.id,
                      elapsed=commentdict["elapsed"],
                      tag=commentdict["tag"],
@@ -698,11 +712,11 @@ def get_check_output(target_id):
                      elapsed2=0,
                      result_count=0,
                      query_time=0,
-                     timestamp=startTime, 
-                     page_load_time=loadTime, 
+                     timestamp=startTime,
+                     page_load_time=loadTime,
                      http_status=str(status))
             s.save()
-        
+
             retVal += "{'id':'" + target.url + "', 'load_time':'" + str(loadTime) + "', 'http_status':'" + str(status)+"'},"
 
         except IOError, e:
@@ -742,7 +756,7 @@ def get_comment_dict(response):
                     # TODO: check how this line is split and saved in the old pls
         if("-->" in line):
             in_comment = False
-            
+
     return comment_dict
 
 def get_sma_new(stats, sma_window_size, column):
@@ -750,14 +764,14 @@ def get_sma_new(stats, sma_window_size, column):
     Get a simple moving average for the current id
     return a list of sma values for the supplied stats list
     @param stats A result set of stats
-    @param sma_window_size A number specifying how large of a historic data sample to be used to calculate each sma point. 
+    @param sma_window_size A number specifying how large of a historic data sample to be used to calculate each sma point.
     @param column the column from the db result set to create an SMA for
     """
-    
+
     start_ts = stats[0].timestamp
     target_id = stats[0].target_id
     historic_stats = Stat_Rich.objects.filter(target_id=target_id).filter(timestamp__lt=start_ts).order_by("-timestamp")[:sma_window_size]
-    
+
     # calculate an SMA for the first values
     sma_cavg = []
     sma_window = []
@@ -767,12 +781,12 @@ def get_sma_new(stats, sma_window_size, column):
             sma_window.insert(0,int(getattr(hstat,column)))
         else:
             sma_window.insert(0,0)
-            
+
     reversedStats = []
     reversedStats = stats
     #for stat in stats:
     #    reversedStats.insert(0,stat)
-    # for each stat point, add it to the sma window and calculate the current average, insert into array of averages.  (also removing the oldest data point in the window queue) 
+    # for each stat point, add it to the sma window and calculate the current average, insert into array of averages.  (also removing the oldest data point in the window queue)
     for stat in reversedStats:
         value = int(getattr(stat,column))
         #print column +" "+ str(value)
@@ -785,9 +799,9 @@ def get_sma_new(stats, sma_window_size, column):
         #print "average " + str(avgValue)
     return sma_cavg
 def get_tags(request):
-        
+
     targets = Target.objects.filter(active=1)
-    
+
     tag_dict = {}
     # get a list of tags in use on the targets
     for target in targets:
@@ -795,12 +809,12 @@ def get_tags(request):
         for tag in target_tags:
             tag_dict[tag] = "placing the tag as a key ensures it will be unique, no dupe's"
     tag_list = tag_dict.keys()
-    
+
     response_data = {}
     response_data['tags']=[]
     response_data['tags'].extend(tag_list)
     response_data['subject']="targets"
-    
+
     return HttpResponse(simplejson.dumps(response_data), mimetype="application/json")
 
 def get_targets_all(request, return_type):
@@ -809,7 +823,7 @@ def get_targets_all(request, return_type):
     response_data = {}
     response_data['targets'] = []
     response_data['subject'] = "all_targets"
-    
+
     for target in targets:
         target_dict  = {}
         target_dict["id"] = target.id
@@ -817,7 +831,7 @@ def get_targets_all(request, return_type):
         target_dict["target_url"] = target.url
         target_dict["tags"] = target.tags
         response_data["targets"].append(target_dict)
-        
+
     return HttpResponse(simplejson.dumps(response_data), mimetype="application/json")
 
 def get_targets_by_tag(request, tag, return_type):
@@ -827,7 +841,7 @@ def get_targets_by_tag(request, tag, return_type):
     response_data['targets'] = []
     response_data['with_tag'] = tag
     response_data['subject'] = "targets_with_tag"
-    
+
     for target in targets:
         target_dict  = {}
         target_dict["id"] = target.id
@@ -835,7 +849,7 @@ def get_targets_by_tag(request, tag, return_type):
         target_dict["target_url"] = target.url
         target_dict["tags"] = target.tags
         response_data["targets"].append(target_dict)
-        
+
     return HttpResponse(simplejson.dumps(response_data), mimetype="application/json")
 
 def user_logout(request):
@@ -853,8 +867,8 @@ def get_stats(target_id, start_date, end_date, trim_above):
     else:
         stats_rs = Stat_Rich.objects.filter(target_id=target_id).exclude(page_load_time__isnull=True).order_by("-timestamp")[:default_chart_range] # get the latest
     stats = []
-   
+
     for stat in stats_rs:
         stats.insert(0,stat)
-        
+
     return stats
