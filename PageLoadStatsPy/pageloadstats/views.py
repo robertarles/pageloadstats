@@ -698,7 +698,7 @@ def get_check_output(target_id):
         try:
             startTime = time.time()
             response = requests.get(request)
-            # commentdict = get_comment_dict(response)
+            commentdict = get_comment_dict(response)
             endTime = time.time()
             loadTime = int((endTime-startTime)*1000) # get the download time in milliseconds
             requestdate = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
