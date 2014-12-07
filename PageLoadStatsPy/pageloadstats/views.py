@@ -697,7 +697,7 @@ def get_check_output(target_id):
         request = requests.get(target.url)
         status = 200
         try:
-            retval = 'in try, '
+            retval += 'in try, '
             starttime = time.time()
             response = requests.get(request)
             # commentdict = get_comment_dict(response)
@@ -707,6 +707,7 @@ def get_check_output(target_id):
             elapsed = ''
             if 'response-time' in response.headers.keys():
                 elapsed = str(response.headers.get("response_time"))
+            retval += 'pre-stat creation, '
             s = Stat(url=target.url,
                      target_id=target.id,
                      # elapsed=elapsed,
@@ -721,6 +722,7 @@ def get_check_output(target_id):
                      timestamp=starttime,
                      page_load_time=loadtime,
                      http_status=str(status))
+            retval += 'pre s.save(), '
             s.save()
 
             retval += "{'id':'" + target.url + "', 'load_time':'" + str(loadtime) + "', 'http_status':'" + str(status)+ "'},"
