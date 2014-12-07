@@ -692,7 +692,6 @@ def get_check_output(target_id):
     else:
         targets = Target.objects.filter(id=target_id).filter(active=1)
     for target in targets:
-        retval += ' in loop, '
         status = 200
         try:
             starttime = time.time()
@@ -720,7 +719,7 @@ def get_check_output(target_id):
                      http_status=str(status))
             s.save()
 
-            retval += "'id':'" + str(target.id) + "', 'load_time':'" + str(loadtime) + "', 'http_status':'" + str(status)+ "'},"
+            retval += "'id':'" + str(target.id) + ", 'elapsed':'" + str(elapsed) + "', 'load_time':'" + str(loadtime) + "', 'http_status':'" + str(status)+ "'},"
 
         except IOError, e:
             if hasattr(e, 'reason'):
