@@ -684,18 +684,20 @@ def check(request, target_id):
 # Get the stats for the requested target (or 'all' targets)
 # @param target_id the ID of the target to check, or 'all' to check them all.
 def get_check_output(target_id):
-    retVal = '{'
+    retval = '{'
     targets = None
 
     if target_id == 'all':
         targets = Target.objects.filter(active=1)
     else:
         targets = Target.objects.filter(id=target_id).filter(active=1)
-    retVal += '"target_count":"%s", ' % str(len(targets))
+    retval += '"target_count":"%s", ' % str(len(targets))
     for target in targets:
+        retval += ' in loop, '
         request = requests.get(target.url)
         status = 200
         try:
+            retval = 'in try, '
             starttime = time.time()
             response = requests.get(request)
             # commentdict = get_comment_dict(response)
@@ -721,19 +723,19 @@ def get_check_output(target_id):
                      http_status=str(status))
             s.save()
 
-            retVal += "{'id':'" + target.url + "', 'load_time':'" + str(loadtime) + "', 'http_status':'" + str(status)+ "'},"
+            retval += "{'id':'" + target.url + "', 'load_time':'" + str(loadtime) + "', 'http_status':'" + str(status)+ "'},"
 
         except IOError, e:
             if hasattr(e, 'reason'):
-                retVal+= '{"We failed to reach target ' + str(target_id) + '. Reason":"' + str(e.reason) + '"}'
+                retval+= '{"We failed to reach target ' + str(target_id) + '. Reason":"' + str(e.reason) + '"}'
             elif hasattr(e, 'code'):
-                retVal+= '{The server couldn\'t fulfill the request. Error code":"'+ str(e.code) +'"}'
+                retval+= '{The server couldn\'t fulfill the request. Error code":"'+ str(e.code) +'"}'
                 status = e.code
             else:
-                retVal += ""
-    retVal = retVal.strip(",")
-    retVal += "}"
-    return retVal
+                retval += ""
+    retval = retval.strip(",")
+    retval += "}"
+    return retval
 
 ##
 # grab a list of the citysearch comments from the current page.  These include server, release, elapsed...
