@@ -694,12 +694,11 @@ def get_check_output(target_id):
     retval += '"target_count":"%s", ' % str(len(targets))
     for target in targets:
         retval += ' in loop, '
-        request = requests.get(target.url)
         status = 200
         try:
             retval += 'in try, '
             starttime = time.time()
-            response = requests.get(request)
+            response = requests.get(target.url)
             # commentdict = get_comment_dict(response)
             endtime = time.time()
             loadtime = int((endtime-starttime)*1000) # get the download time in milliseconds
