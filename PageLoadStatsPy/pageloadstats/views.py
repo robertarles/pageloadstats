@@ -684,7 +684,7 @@ def check(request, target_id):
 # Get the stats for the requested target (or 'all' targets)
 # @param target_id the ID of the target to check, or 'all' to check them all.
 def get_check_output(target_id):
-    retVal = '{"defaultmessage:True"'
+    retVal = '{"defaultmessage":"True"'
     targets = None
 
     if target_id == 'all':
@@ -719,9 +719,10 @@ def get_check_output(target_id):
                      timestamp=startTime,
                      page_load_time=loadTime,
                      http_status=str(status))
-            s.save()
+            savemsg = s.save()
+            print savemsg
 
-            retVal += "{'id':'" + target.url + "', 'load_time':'" + str(loadTime) + "', 'http_status':'" + str(status)+"'},"
+            retVal += "{'id':'" + target.url + "', 'load_time':'" + str(loadTime) + "', 'http_status':'" + str(status)+ "'},"
 
         except IOError, e:
             if hasattr(e, 'reason'):
