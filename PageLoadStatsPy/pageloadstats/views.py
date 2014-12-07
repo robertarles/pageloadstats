@@ -702,7 +702,7 @@ def get_check_output(target_id):
             requestdate = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
             elapsed = ''
             if 'response-time' in response.headers.keys():
-                elapsed = str(response.headers.get("response_time"))
+                elapsed = str(response.headers)  # .get('response-time'))
             s = Stat(url=target.url,
                      target_id=target.id,
                      elapsed=elapsed,
