@@ -720,7 +720,7 @@ def get_check_output(target_id):
                      http_status=str(status))
             s.save()
 
-            retval += "'id':'" + target.id + "', 'load_time':'" + str(loadtime) + "', 'http_status':'" + str(status)+ "'},"
+            retval += "'id':'" + str(target.id) + "', 'load_time':'" + str(loadtime) + "', 'http_status':'" + str(status)+ "'},"
 
         except IOError, e:
             if hasattr(e, 'reason'):
