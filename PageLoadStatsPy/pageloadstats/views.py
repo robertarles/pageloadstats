@@ -684,7 +684,7 @@ def check(request, target_id):
 # Get the stats for the requested target (or 'all' targets)
 # @param target_id the ID of the target to check, or 'all' to check them all.
 def get_check_output(target_id):
-    retVal = '{"defaultmessage":"True"'
+    retVal = '{'
     targets = None
 
     if target_id == 'all':
@@ -698,20 +698,20 @@ def get_check_output(target_id):
         try:
             startTime = time.time()
             response = requests.get(request)
-            commentdict = get_comment_dict(response)
+            # commentdict = get_comment_dict(response)
             endTime = time.time()
             loadTime = int((endTime-startTime)*1000) # get the download time in milliseconds
             requestdate = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-            elapsed = ""
-            if response.headers.has_key("response_time"):
+            elapsed = ''
+            if 'response-time' in response.headers.keys():
                 elapsed = str(response.headers.get("response_time"))
             s = Stat(url=target.url,
                      target_id=target.id,
                      elapsed=elapsed,
                      # elapsed=commentdict["elapsed"],
-                     tag=commentdict["tag"],
-                     server=commentdict["server"],
-                     request_id=commentdict["request id"],
+                     # tag=commentdict["tag"],
+                     # server=commentdict["server"],
+                     # request_id=commentdict["request id"],
                      request_date=requestdate,
                      elapsed2=0,
                      result_count=0,
@@ -719,8 +719,7 @@ def get_check_output(target_id):
                      timestamp=startTime,
                      page_load_time=loadTime,
                      http_status=str(status))
-            savemsg = s.save()
-            print savemsg
+            s.save()
 
             retVal += "{'id':'" + target.url + "', 'load_time':'" + str(loadTime) + "', 'http_status':'" + str(status)+ "'},"
 
@@ -730,8 +729,8 @@ def get_check_output(target_id):
             elif hasattr(e, 'code'):
                 retVal+= '{The server couldn\'t fulfill the request. Error code":"'+ str(e.code) +'"}'
                 status = e.code
-        else:
-            retVal += ""
+            else:
+                retVal += ""
     retVal = retVal.strip(",")
     retVal += "}"
     return retVal
