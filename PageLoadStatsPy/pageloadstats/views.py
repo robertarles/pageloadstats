@@ -691,12 +691,10 @@ def get_check_output(target_id):
         targets = Target.objects.filter(active=1)
     else:
         targets = Target.objects.filter(id=target_id).filter(active=1)
-    retval += '"target_count":"%s", ' % str(len(targets))
     for target in targets:
         retval += ' in loop, '
         status = 200
         try:
-            retval += 'in try, '
             starttime = time.time()
             response = requests.get(target.url)
             # commentdict = get_comment_dict(response)
@@ -706,10 +704,9 @@ def get_check_output(target_id):
             elapsed = ''
             if 'response-time' in response.headers.keys():
                 elapsed = str(response.headers.get("response_time"))
-            retval += 'pre-stat creation, '
             s = Stat(url=target.url,
                      target_id=target.id,
-                     # elapsed=elapsed,
+                     elapsed=elapsed,
                      # elapsed=commentdict["elapsed"],
                      # tag=commentdict["tag"],
                      # server=commentdict["server"],
@@ -721,10 +718,9 @@ def get_check_output(target_id):
                      timestamp=starttime,
                      page_load_time=loadtime,
                      http_status=str(status))
-            retval += 'pre s.save(), '
             s.save()
 
-            retval += "{'id':'" + target.url + "', 'load_time':'" + str(loadtime) + "', 'http_status':'" + str(status)+ "'},"
+            retval += "'id':'" + target.id + "', 'load_time':'" + str(loadtime) + "', 'http_status':'" + str(status)+ "'},"
 
         except IOError, e:
             if hasattr(e, 'reason'):
