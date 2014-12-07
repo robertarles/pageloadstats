@@ -4,7 +4,7 @@ from pageloadstats.models import AlertRecipients, AlertAlertRecipients
 from pageloadstats.models import Stat, Stat_Rich
 from django.core.paginator import Paginator, EmptyPage
 from django.http import HttpResponse
-import Requests
+import requests
 import time
 import datetime
 from django.contrib import auth
@@ -693,11 +693,11 @@ def get_check_output(target_id):
         targets = Target.objects.filter(id=target_id).filter(active=1)
 
     for target in targets:
-        request = Requests.get(target.url)
+        request = requests.get(target.url)
         status = 200
         try:
             startTime = time.time()
-            response = Requests.get(request)
+            response = requests.get(request)
             # commentdict = get_comment_dict(response)
             endTime = time.time()
             loadTime = int((endTime-startTime)*1000) # get the download time in milliseconds
