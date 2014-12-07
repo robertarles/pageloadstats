@@ -684,10 +684,10 @@ def check(request, target_id):
 # Get the stats for the requested target (or 'all' targets)
 # @param target_id the ID of the target to check, or 'all' to check them all.
 def get_check_output(target_id):
-    retVal = "{"
+    retVal = '{"defaultmessage:True"'
     targets = None
 
-    if(target_id=="all"):
+    if target_id == 'all':
         targets = Target.objects.filter(active=1)
     else:
         targets = Target.objects.filter(id=target_id).filter(active=1)
@@ -725,13 +725,12 @@ def get_check_output(target_id):
 
         except IOError, e:
             if hasattr(e, 'reason'):
-                retVal+= '{"We failed to reach target '+ str(target_id) +'. Reason":"'+ str(e.reason) + '"}'
+                retVal+= '{"We failed to reach target ' + str(target_id) + '. Reason":"' + str(e.reason) + '"}'
             elif hasattr(e, 'code'):
                 retVal+= '{The server couldn\'t fulfill the request. Error code":"'+ str(e.code) +'"}'
                 status = e.code
         else:
-            retVal +=""
-
+            retVal += ""
     retVal = retVal.strip(",")
     retVal += "}"
     return retVal
