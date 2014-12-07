@@ -1,10 +1,10 @@
 from django.template import Context, RequestContext, loader
-from PageLoadStatsPy.pageloadstats.models import Target, Alert, TargetAlert
-from PageLoadStatsPy.pageloadstats.models import AlertRecipients, AlertAlertRecipients
-from PageLoadStatsPy.pageloadstats.models import Stat, Stat_Rich
+from pageloadstats.models import Target, Alert, TargetAlert
+from pageloadstats.models import AlertRecipients, AlertAlertRecipients
+from pageloadstats.models import Stat, Stat_Rich
 from django.core.paginator import Paginator, EmptyPage
 from django.http import HttpResponse
-import urllib2
+import Requests
 import time
 import datetime
 from django.contrib import auth
@@ -575,12 +575,12 @@ def get_target_load_line(targetstats):
             page_load_time = int(stat.page_load_time)
             loadsum += page_load_time
         if((hasattr(stat, 'elapsed'))):
-            if((stat.elapsed is not None) or (stat.elapsed == 0))
-            try:
-                elapsed = int(stat.elapsed)
-                elapsedsum += int(elapsed)
-            except:
-                pass
+            if((stat.elapsed is not None) or (stat.elapsed == 0)):
+                try:
+                    elapsed = int(stat.elapsed)
+                    elapsedsum += int(elapsed)
+                except:
+                    pass
         if((hasattr(stat, 'server')) and (stat.server is not None)):
             server = stat.server
         if ("data" in targetdata.keys()):
@@ -677,7 +677,7 @@ def flot_line_singletarget(request):
 # @param target_id the target id to check stats on (an ID or 'all' to check them ALL!)
 def check(request, target_id):
     check_output = get_check_output(target_id)
-    return HttpResponse(check_output, mimetype = "application/json")
+    return HttpResponse(check_output, mimetype="application/json")
 
 
 ##
@@ -693,21 +693,25 @@ def get_check_output(target_id):
         targets = Target.objects.filter(id=target_id).filter(active=1)
 
     for target in targets:
-        request = urllib2.Request(target.url)
+        request = Requests.get(target.url)
         status = 200
         try:
             startTime = time.time()
-            response = urllib2.urlopen(request)
-            commentdict = get_comment_dict(response)
+            response = Requests.get(request)
+            # commentdict = get_comment_dict(response)
             endTime = time.time()
             loadTime = int((endTime-startTime)*1000) # get the download time in milliseconds
             requestdate = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+            elapsed = 0
+            if response.headers.has_key("response_time"):
+                elapsed = response.headers.get("response_time")
             s = Stat(url=target.url,
                      target_id=target.id,
-                     elapsed=commentdict["elapsed"],
-                     tag=commentdict["tag"],
-                     server=commentdict["server"],
-                     request_id=commentdict["request id"],
+                     elapsed=elapsed,
+                     # elapsed=commentdict["elapsed"],
+                     # tag=commentdict["tag"],
+                     # server=commentdict["server"],
+                     # request_id=commentdict["request id"],
                      request_date=requestdate,
                      elapsed2=0,
                      result_count=0,

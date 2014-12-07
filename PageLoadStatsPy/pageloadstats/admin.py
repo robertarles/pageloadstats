@@ -1,4 +1,4 @@
-from PageLoadStatsPy.pageloadstats.models import Alert, Target, Stat, AlertAlertRecipients, AlertRecipients, TargetAlert
+from pageloadstats.models import Alert, Target, Stat, AlertAlertRecipients, AlertRecipients, TargetAlert
 from django.contrib import admin
 
 class TargetAlertInline(admin.StackedInline):

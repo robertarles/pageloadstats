@@ -100,7 +100,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'PageLoadStatsPy.pageloadstats.middleware.RequireLoginMiddleware',
+    'pageloadstats.middleware.RequireLoginMiddleware',
 )
 LOGIN_REQUIRED_URLS = (
     r'/pls/manage(.*)',
@@ -111,7 +111,7 @@ LOGIN_REQUIRED_URLS_EXCEPTIONS = (
     r'/pls/chart(.*)$',
 )
 
-ROOT_URLCONF = 'PageLoadStatsPy.urls'
+ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (
     #"/var/www/html/django/templates/",
@@ -130,7 +130,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     #java'django.contrib.admindocs',
-    'PageLoadStatsPy.pageloadstats',
+    'pageloadstats',
 )
 
 # A sample logging configuration. The only tangible logging
