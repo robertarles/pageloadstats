@@ -691,23 +691,23 @@ def get_check_output(target_id):
         targets = Target.objects.filter(active=1)
     else:
         targets = Target.objects.filter(id=target_id).filter(active=1)
-
+    retVal += '"target_count":"%s", ' % str(len(targets))
     for target in targets:
         request = requests.get(target.url)
         status = 200
         try:
-            startTime = time.time()
+            starttime = time.time()
             response = requests.get(request)
             # commentdict = get_comment_dict(response)
-            endTime = time.time()
-            loadTime = int((endTime-startTime)*1000) # get the download time in milliseconds
+            endtime = time.time()
+            loadtime = int((endtime-starttime)*1000) # get the download time in milliseconds
             requestdate = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
             elapsed = ''
             if 'response-time' in response.headers.keys():
                 elapsed = str(response.headers.get("response_time"))
             s = Stat(url=target.url,
                      target_id=target.id,
-                     elapsed=elapsed,
+                     # elapsed=elapsed,
                      # elapsed=commentdict["elapsed"],
                      # tag=commentdict["tag"],
                      # server=commentdict["server"],
@@ -716,12 +716,12 @@ def get_check_output(target_id):
                      elapsed2=0,
                      result_count=0,
                      query_time=0,
-                     timestamp=startTime,
-                     page_load_time=loadTime,
+                     timestamp=starttime,
+                     page_load_time=loadtime,
                      http_status=str(status))
             s.save()
 
-            retVal += "{'id':'" + target.url + "', 'load_time':'" + str(loadTime) + "', 'http_status':'" + str(status)+ "'},"
+            retVal += "{'id':'" + target.url + "', 'load_time':'" + str(loadtime) + "', 'http_status':'" + str(status)+ "'},"
 
         except IOError, e:
             if hasattr(e, 'reason'):
