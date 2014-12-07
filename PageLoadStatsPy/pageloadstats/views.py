@@ -702,9 +702,9 @@ def get_check_output(target_id):
             endTime = time.time()
             loadTime = int((endTime-startTime)*1000) # get the download time in milliseconds
             requestdate = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-            elapsed = 0
+            elapsed = ""
             if response.headers.has_key("response_time"):
-                elapsed = response.headers.get("response_time")
+                elapsed = str(response.headers.get("response_time"))
             s = Stat(url=target.url,
                      target_id=target.id,
                      elapsed=elapsed,
