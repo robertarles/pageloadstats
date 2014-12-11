@@ -714,7 +714,7 @@ def get_check_output(target_id):
                      query_time=0,
                      timestamp=start,
                      page_load_time=ttlb,
-                     # ttfb=ttfb, # TODO: this needs to be added to the db (migration not working at the moment
+                     ttfb=ttfb,
                      http_status=str(status))
             s.save()
 
