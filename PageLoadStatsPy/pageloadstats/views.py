@@ -8,7 +8,7 @@ import datetime
 from django.contrib import auth
 from django.http import HttpResponseRedirect
 from django.utils import simplejson
-import urllib3
+import urllib2
 import time
 import urlparse
 
@@ -695,9 +695,9 @@ def get_check_output(target_id):
         status = 200
         try:
             requestdate = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-            req = urllib3.request(target.url)
+            req = urllib2.Request(target.url)
             start = time.time()
-            response = urllib3.urlopen(req)
+            response = urllib2.urlopen(req)
             content = response.read(1)
             ttfb = int(round(((time.time() - start) * 1000)))
             content += response.read()
