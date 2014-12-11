@@ -719,8 +719,8 @@ def get_check_output(target_id):
             ttfbtime = time.time()
             content += response.read()
             ttlbtime = time.time()
-            ttfb = int(round(ttfbtime-start)*1000)
-            ttlb = int(round(ttlbtime-start)*1000)
+            ttfb = int(round((ttfbtime-start)*1000))
+            ttlb = int(round((ttlbtime-start)*1000))
             elapsed = ''
             if 'response-time' in response.headers.keys():
                 elapsed = response.headers.get('response-time')
@@ -737,7 +737,7 @@ def get_check_output(target_id):
                      http_status=str(status))
             s.save()
 
-            retval += "{'id':'" + str(target.id) + "', 'elapsed':'" + str(elapsed) + "', 'load_time':'" + str(ttlb) + "', 'http_status':'" + str(status)+ "'}, "
+            retval += "{'id':'" + str(target.id) + "', 'ttfb':'" + str(ttfb) + "', 'elapsed':'" + str(elapsed) + "', 'load_time':'" + str(ttlb) + "', 'http_status':'" + str(status)+ "'}, "
 
         except IOError, e:
             if hasattr(e, 'reason'):
