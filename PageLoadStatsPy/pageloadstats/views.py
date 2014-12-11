@@ -716,9 +716,11 @@ def get_check_output(target_id):
             start = time.time()
             response = urllib2.urlopen(req)
             content = response.read(1)
-            ttfb = int(round(((time.time() - start) * 1000)))
+            ttfbtime = time.time()
             content += response.read()
-            ttlb = int(round(((time.time() - start) * 1000)))
+            ttlbtime = time.time()
+            ttfb = int(round(ttfbtime-start))
+            ttlb = int(round(ttlbtime-start))
             elapsed = ''
             if 'response-time' in response.headers.keys():
                 elapsed = response.headers.get('response-time')
