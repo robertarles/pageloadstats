@@ -668,7 +668,7 @@ def flot_line_singletarget(request):
                 targetttfb["data"].append([timestamp,ttfb,
                                           "ttfb " +  str(stat.ttfb) + " ms</br>" + server + "</br>" + stat.request_date ])
             else:
-                targetdata["data"] = [timestamp,page_load_time]
+                targetttfb["data"] = [timestamp, ttfb]
             if ("data" in targetelapsed.keys()):
                 elapsedlabel = "Elapsed " + str(elapsed)
                 targetelapsed["data"].append([timestamp,elapsed,
@@ -683,6 +683,7 @@ def flot_line_singletarget(request):
             currentstat += 1
         targetsdata.append(targetdata)
         targetsdata.append(targetelapsed)
+        targetsdata.append(targetttfb)
         targetsdata.append(targetsma)
 
     return targetsdata
