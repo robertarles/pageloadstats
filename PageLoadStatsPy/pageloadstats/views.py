@@ -719,8 +719,8 @@ def get_check_output(target_id):
             ttfbtime = time.time()
             content += response.read()
             ttlbtime = time.time()
-            ttfb = int(round(ttfbtime-start))
-            ttlb = int(round(ttlbtime-start))
+            ttfb = int(round(ttfbtime-start)*1000)
+            ttlb = int(round(ttlbtime-start)*1000)
             elapsed = ''
             if 'response-time' in response.headers.keys():
                 elapsed = response.headers.get('response-time')
