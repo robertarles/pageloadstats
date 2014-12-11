@@ -622,7 +622,7 @@ def flot_line_singletarget(request):
         targetelapsed["color"] = "#D35EC9"
         targetttfb = {}
         targetttfb['label'] = 'ttfb ms'
-        targetttfb['color'] = 'black'
+        targetttfb['color'] = '#e5e588'
         targetsma = {}
         targetsma["label"] = "Moving Avg"
         targetsma["color"] = "#5E9ED3"
