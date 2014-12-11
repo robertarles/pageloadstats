@@ -105,6 +105,7 @@ class Stat_Rich(models.Model):
     id = models.BigIntegerField(primary_key=True)
     timestamp = models.BigIntegerField()
     page_load_time = models.BigIntegerField()
+    #ttfb = models.BigIntegerField()
     request_date = models.TextField(blank=True)
     target_id = models.BigIntegerField()
     http_status = models.BigIntegerField(null=True, blank=True)
