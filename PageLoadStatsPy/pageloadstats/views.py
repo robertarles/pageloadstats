@@ -646,7 +646,10 @@ def flot_line_singletarget(request):
                 page_load_time = int(stat.page_load_time)
                 loadsum += page_load_time
             if(hasattr(stat, 'ttfb')):
-                ttfb = int(stat.ttfb)
+                if stat.ttfb == None:
+                    ttfb = 0
+                else:
+                    ttfb = int(stat.ttfb)
                 ttfbsum += ttfb
             if((hasattr(stat, 'elapsed')) and (stat.elapsed is not 'None')):
                 try:
