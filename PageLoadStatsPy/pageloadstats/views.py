@@ -575,9 +575,6 @@ def get_target_load_line(targetstats):
         if(hasattr(stat, 'page_load_time')):
             page_load_time = int(stat.page_load_time)
             loadsum += page_load_time
-        if(hasattr(stat, 'ttfb')):
-            ttfb = int(stat.ttfb)
-            ttfbsum += ttfb
         if((hasattr(stat, 'elapsed'))):
             if((stat.elapsed is not None) or (stat.elapsed == 0)):
                 try:
@@ -588,7 +585,7 @@ def get_target_load_line(targetstats):
         if((hasattr(stat, 'server')) and (stat.server is not None)):
             server = stat.server
         if ("data" in targetdata.keys()):
-            targetdata["data"].append([timestamp,page_load_time,ttfb,
+            targetdata["data"].append([timestamp,page_load_time,
                                       "Load " +  str(stat.page_load_time) + " ms</br>" + server + "</br>" + stat.request_date ])
         else:
             targetdata["data"].append([timestamp,page_load_time])
@@ -623,12 +620,16 @@ def flot_line_singletarget(request):
         targetelapsed = {}
         targetelapsed["label"] = "elapsed ms"
         targetelapsed["color"] = "#D35EC9"
+        targetttfb = {}
+        targetttfb['label'] = 'ttfb ms'
+        targetttfb['color'] = 'black'
         targetsma = {}
         targetsma["label"] = "Moving Avg"
         targetsma["color"] = "#5E9ED3"
         loadsum = 0
         smasum = 0
         elapsedsum = 0
+        ttfbsum = 0
 
         smaarray = get_sma_new(targetstats, 100, "page_load_time")
         currentstat = 0
@@ -644,6 +645,9 @@ def flot_line_singletarget(request):
             if(hasattr(stat, 'page_load_time')):
                 page_load_time = int(stat.page_load_time)
                 loadsum += page_load_time
+            if(hasattr(stat, 'ttfb')):
+                ttfb = int(stat.ttfb)
+                ttfbsum += ttfb
             if((hasattr(stat, 'elapsed')) and (stat.elapsed is not 'None')):
                 try:
                     elapsed = int(stat.elapsed)
@@ -655,6 +659,11 @@ def flot_line_singletarget(request):
             if ("data" in targetdata.keys()):
                 targetdata["data"].append([timestamp,page_load_time,
                                           "Load " +  str(stat.page_load_time) + " ms</br>" + server + "</br>" + stat.request_date ])
+            else:
+                targetdata["data"] = [timestamp,page_load_time]
+            if ("data" in targetttfb.keys()):
+                targetttfb["data"].append([timestamp,ttfb,
+                                          "ttfb " +  str(stat.ttfb) + " ms</br>" + server + "</br>" + stat.request_date ])
             else:
                 targetdata["data"] = [timestamp,page_load_time]
             if ("data" in targetelapsed.keys()):
