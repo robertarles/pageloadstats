@@ -4,12 +4,12 @@ from pageloadstats.models import AlertRecipients, AlertAlertRecipients
 from pageloadstats.models import Stat, Stat_Rich
 from django.core.paginator import Paginator, EmptyPage
 from django.http import HttpResponse
-import requests
-import time
 import datetime
 from django.contrib import auth
 from django.http import HttpResponseRedirect
 from django.utils import simplejson
+import urllib3
+import time
 import urlparse
 
 cs_comment_tags = ["request id:", "tag:", "server:", "elapsed:", "elapsed2:"]
@@ -694,32 +694,31 @@ def get_check_output(target_id):
     for target in targets:
         status = 200
         try:
-            starttime = time.time()
-            response = requests.get(target.url)
-            # commentdict = get_comment_dict(response)
-            endtime = time.time()
-            loadtime = int((endtime-starttime)*1000) # get the download time in milliseconds
             requestdate = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+            req = urllib3.request(target.url)
+            start = time.time()
+            response = urllib3.urlopen(req)
+            content = response.read(1)
+            ttfb = int(round(((time.time() - start) * 1000)))
+            content += response.read()
+            ttlb = int(round(((time.time() - start) * 1000)))
             elapsed = ''
             if 'response-time' in response.headers.keys():
                 elapsed = response.headers.get('response-time')
             s = Stat(url=target.url,
                      target_id=target.id,
                      elapsed=elapsed,
-                     # elapsed=commentdict["elapsed"],
-                     # tag=commentdict["tag"],
-                     # server=commentdict["server"],
-                     # request_id=commentdict["request id"],
                      request_date=requestdate,
                      elapsed2=0,
                      result_count=0,
                      query_time=0,
-                     timestamp=starttime,
-                     page_load_time=loadtime,
+                     timestamp=start,
+                     page_load_time=ttlb,
+                     # ttfb=ttfb, # TODO: this needs to be added to the db (migration not working at the moment
                      http_status=str(status))
             s.save()
 
-            retval += "{'id':'" + str(target.id) + "', 'elapsed':'" + str(elapsed) + "', 'load_time':'" + str(loadtime) + "', 'http_status':'" + str(status)+ "'}, "
+            retval += "{'id':'" + str(target.id) + "', 'elapsed':'" + str(elapsed) + "', 'load_time':'" + str(ttlb) + "', 'http_status':'" + str(status)+ "'}, "
 
         except IOError, e:
             if hasattr(e, 'reason'):
