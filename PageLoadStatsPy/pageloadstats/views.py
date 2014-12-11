@@ -420,7 +420,7 @@ def get_http_errors(request):
         response_data["errors"].append(error_dict)
     return HttpResponse(simplejson.dumps(response_data), mimetype="application/json")
 
-def daily_avgs(request,tags=["home", "bpp", "browse", "deals", "srp", "api"],days=4):
+def daily_avgs(request,tags=["home", "products", "magento", "search", "categories", "recipients"],days=4):
     t = loader.get_template('perfdaily.html')
     start_date = request.GET.get('start_date',"")
     end_date = request.GET.get("end_date","")
@@ -560,6 +560,7 @@ def get_target_load_line(targetstats):
     loadsum = 0
     smasum = 0
     elapsedsum = 0
+    ttfbsum = 0
     currentstat = 0
     for stat in targetstats:
         targetdata["label"] = stat.target.name
@@ -574,6 +575,9 @@ def get_target_load_line(targetstats):
         if(hasattr(stat, 'page_load_time')):
             page_load_time = int(stat.page_load_time)
             loadsum += page_load_time
+        if(hasattr(stat, 'ttfb')):
+            ttfb = int(stat.ttfb)
+            ttfbsum += ttfb
         if((hasattr(stat, 'elapsed'))):
             if((stat.elapsed is not None) or (stat.elapsed == 0)):
                 try:
@@ -584,7 +588,7 @@ def get_target_load_line(targetstats):
         if((hasattr(stat, 'server')) and (stat.server is not None)):
             server = stat.server
         if ("data" in targetdata.keys()):
-            targetdata["data"].append([timestamp,page_load_time,
+            targetdata["data"].append([timestamp,page_load_time,ttfb,
                                       "Load " +  str(stat.page_load_time) + " ms</br>" + server + "</br>" + stat.request_date ])
         else:
             targetdata["data"].append([timestamp,page_load_time])
