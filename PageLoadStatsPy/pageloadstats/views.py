@@ -703,6 +703,9 @@ def check(request, target_id):
 def get_check_output(target_id):
     retval = '{'
     targets = None
+    start = None
+    requestdate = None
+
 
     if target_id == 'all':
         targets = Target.objects.filter(active=1)
@@ -739,11 +742,18 @@ def get_check_output(target_id):
 
             retval += "{'id':'" + str(target.id) + "', 'ttfb':'" + str(ttfb) + "', 'elapsed':'" + str(elapsed) + "', 'load_time':'" + str(ttlb) + "', 'http_status':'" + str(status)+ "'}, "
 
-        except IOError, e:
+        except Exception, e:
             if hasattr(e, 'reason'):
                 retval+= '{"We failed to reach target ' + str(target_id) + '. Reason":"' + str(e.reason) + '"}'
             elif hasattr(e, 'code'):
-                retval+= '{The server couldn\'t fulfill the request. Error code":"'+ str(e.code) +'"}'
+                status = e.code
+                s = Stat(url=target.url,
+                         target_id=target.id,
+                         request_date=requestdate,
+                         timestamp=start,
+                         http_status=str(status))
+                s.save()
+                retval+= '{The server couldn''t fulfill the request. Error code":"' + str(e.code) + '"}'
                 status = e.code
             else:
                 retval += ""
