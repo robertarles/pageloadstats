@@ -884,7 +884,7 @@ def get_targets_by_tag(request, tag, return_type):
 
 def user_logout(request):
     auth.logout(request)
-    return HttpResponseRedirect('/accounts/login/?next=/pls/')
+    return HttpResponseRedirect('/pls/accounts/login/?next=/pls/')
 
 def get_stats(target_id, start_date, end_date, trim_above):
     default_chart_range=100;
