@@ -6,7 +6,7 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    ('Robert', 'robert@arles.us'),
+    ('Robert', 'robert.arles@gifts.com'),
 )
 
 MANAGERS = ADMINS
@@ -110,6 +110,8 @@ LOGIN_REQUIRED_URLS_EXCEPTIONS = (
     r'/pls/accounts(.*)$',
     r'/pls/chart(.*)$',
 )
+
+LOGIN_URL = '/pls/accounts/login/'
 
 ROOT_URLCONF = 'urls'
 
