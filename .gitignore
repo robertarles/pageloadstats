@@ -1,2 +1,7 @@
 *.pyc
 *.sublime-*
+.DS_Store
+.settings
+access.log
+error.log
+*.sublime*
