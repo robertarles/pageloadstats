@@ -263,13 +263,27 @@ def flot(request):
     targetid = None
     if(request.GET.get("target_id")):
         targetid = request.GET.get("target_id")
+        try:
+            int(targetid)
+        except ValueError:
+            return False
     if(request.GET.get("target_tag")):
         targetid = get_ids_by_tag(request.GET.get("target_tag"))
     target = None
     if("," in targetid):
+        targetids = targetid.split(",")
+        for id in targetids:
+            try:
+                int(id)
+            except:
+                return False
         targeturl = ""
         targetname = "Multiple Targets"
     else:
+        try:
+            int(targetid)
+        except:
+            return False
         target = Target.objects.get(pk=targetid)
         targeturl = target.url
         targetname = target.name
