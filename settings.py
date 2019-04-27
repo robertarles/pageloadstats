@@ -5,6 +5,8 @@ PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
+ALLOWED_HOSTS = ['pls.arles.us', 'localhost', '127.0.0.1']
+
 ADMINS = (
     ('Robert', 'robert@arles.us'),
 )
